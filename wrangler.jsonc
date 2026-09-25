@@ -1,0 +1,11 @@
+// Cloudflare Workers settings for Baantwise.
+// Right now this only serves the built React app (static files in dist/).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "baantwise",
+  "compatibility_date": "2026-09-24",
+  "assets": {
+    // Send unknown paths (like /groups/123) to index.html so React can handle them.
+    "not_found_handling": "single-page-application"
+  }
+}
