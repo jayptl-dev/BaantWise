@@ -1,0 +1,3 @@
+# Keep migration files byte-for-byte identical to what was applied in Supabase
+# (Git on Windows would otherwise switch their line endings).
+supabase/migrations/*.sql text eol=lf

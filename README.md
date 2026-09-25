@@ -4,7 +4,7 @@ Baantwise is a free web app for splitting bills fairly between friends, roommate
 
 The name blends the Hindi word "baant" (to divide, to share out) with "-wise".
 
-**Status:** private beta. The home page has "Sign in with Google", but there's no database yet.
+**Status:** private beta. The home page has "Sign in with Google". The database is set up, but there are no screens for groups or expenses yet.
 
 Live site: https://baantwise.com
 
@@ -14,7 +14,7 @@ Live site: https://baantwise.com
 - **Vite:** the tool that runs the app on your computer and bundles it for the web
 - **TypeScript:** JavaScript with type checks that catch mistakes early
 - **Cloudflare Workers:** hosts the site (free plan)
-- **Supabase Auth:** handles "Sign in with Google" (free plan)
+- **Supabase:** handles "Sign in with Google" and stores the data (free plan)
 
 ## Run it on your computer
 
@@ -71,6 +71,23 @@ The settings live in dashboards, not in this repo:
 The Supabase **publishable** key in `src/config.ts` is meant to be public. The **secret** / `service_role` key must never go in this repo.
 
 Sign-in from `http://localhost:5173` won't come back to your computer unless `http://localhost:5173/**` is added to Supabase's allowed redirect URLs. Without it, Supabase sends you to baantwise.com instead.
+
+## Database
+
+The data lives in a Supabase (Postgres) database. It has six tables:
+
+- **profiles:** one row per person who signs in, with their name and Google photo. Email addresses are not stored here, so group members can't see each other's email.
+- **groups:** a group such as "Cabin trip", with its currency (CAD by default) and its secret invite link.
+- **group_members:** who is in each group. A member is either someone with an account, or a guest who is just a name. People who leave or are removed lose access, but their name stays on old expenses.
+- **expenses:** what was bought, who paid, how much, when, and who can see it.
+- **expense_shares:** each person's part of an expense. The parts must add up exactly to the total.
+- **settlements:** records like "Priya paid Jay $20". Baantwise only records these. It never moves real money.
+
+Money is stored in whole cents, so $12.34 is saved as `1234`. This avoids rounding mistakes.
+
+**The privacy rules live in the database itself** (Postgres "Row Level Security"). On every request, the database checks who is asking and returns only what they're allowed to see. For example, you only see groups you're in, and a private expense is visible only to the people involved in it. The app's screens are never the only protection.
+
+The SQL that created all this is saved in `supabase/migrations`, one file per change, in the order it was applied. Those files are a record of what's already in the database, so they're never edited afterwards: each new change gets a new file. `src/lib/database.types.ts` describes the tables to TypeScript, so a misspelled table or column name shows up as an error when you build.
 
 ## Secrets
 
