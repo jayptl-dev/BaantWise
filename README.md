@@ -4,7 +4,7 @@ Baantwise is a free web app for splitting bills fairly between friends, roommate
 
 The name blends the Hindi word "baant" (to divide, to share out) with "-wise".
 
-**Status:** private beta. The home page has "Sign in with Google". The database is set up, but there are no screens for groups or expenses yet.
+**Status:** private beta. You can sign in with Google, make groups and invite people. Expenses come next.
 
 Live site: https://baantwise.com
 
@@ -13,6 +13,7 @@ Live site: https://baantwise.com
 - **React:** the library that draws the page
 - **Vite:** the tool that runs the app on your computer and bundles it for the web
 - **TypeScript:** JavaScript with type checks that catch mistakes early
+- **React Router:** shows the right screen for each web address (like `/groups/…`)
 - **Cloudflare Workers:** hosts the site (free plan)
 - **Supabase:** handles "Sign in with Google" and stores the data (free plan)
 
@@ -55,13 +56,13 @@ The settings for this live in `wrangler.jsonc`. The Worker is named `baantwise`.
 
 ## How sign-in works
 
-1. Someone clicks **Sign in with Google**. The app asks Supabase to start a Google sign-in and says where to come back to afterwards: the same site they started on (`baantwise.com` or `www.baantwise.com`).
+1. Someone clicks **Sign in with Google**. The app asks Supabase to start a Google sign-in and says where to come back to afterwards: the same page they started on (so an invite link still works after signing in).
 2. Supabase sends them to Google. Google shows its sign-in screen, then sends them back to Supabase.
 3. Supabase sends them back to Baantwise with a one-time code. The app swaps that code for a session and shows "Signed in as …" with their Google name and photo.
 4. The session is saved in the browser, so it survives a page reload. **Sign out** removes it.
 5. If sign-in fails or is cancelled, the home page shows a short message instead.
 
-The code lives in `src/config.ts` (Supabase address and publishable key), `src/lib/supabase.ts` (the shared Supabase client) and `src/App.tsx` (the buttons and messages).
+The code lives in `src/config.ts` (Supabase address and publishable key), `src/lib/supabase.ts` (the shared Supabase client), `src/lib/auth.tsx` (who is signed in, sign-in and sign-out) and `src/components/SignIn.tsx` (the sign-in button and messages).
 
 The settings live in dashboards, not in this repo:
 
@@ -71,6 +72,26 @@ The settings live in dashboards, not in this repo:
 The Supabase **publishable** key in `src/config.ts` is meant to be public. The **secret** / `service_role` key must never go in this repo.
 
 Sign-in from `http://localhost:5173` won't come back to your computer unless `http://localhost:5173/**` is added to Supabase's allowed redirect URLs. Without it, Supabase sends you to baantwise.com instead.
+
+## Groups and invites
+
+| Address | What it shows |
+| --- | --- |
+| `/` | Signed out: the landing page. Signed in: **Your groups**, newest first, with a **New group** button. |
+| `/groups/<id>` | One group: its people (with "You", "Admin" and "Guest" badges), invite buttons, **Add a guest**, and a spot where expenses will go. |
+| `/groups/<id>/settings` | Rename the group, reset the invite link or delete the group (admins), and **Leave group** (everyone). |
+| `/join/<token>` | An invite link. After signing in, it shows the group's name and size and a **Join group** button. |
+
+- **Making a group:** the person who makes it becomes its first admin.
+- **Inviting:** **Share invite link** opens the phone's share sheet (or copies the link if there isn't one). Anyone with the link can join after signing in with Google. While Baantwise is in private beta, they also need to be on the Google test user list.
+- **Guests** are just a name, for someone who won't sign in. Anyone in the group can add a guest or rename one.
+- **Renaming people:** you can rename yourself and guests. Admins can rename anyone.
+- **Admins** can make other members admins, remove people, rename the group, reset the invite link and delete the group. A group always keeps at least one admin, so the last admin has to hand over admin (or delete the group) before leaving.
+- **Removing someone** takes away their access straight away and resets the invite link, so an old link can't be used to come back. Their name stays on anything they were part of.
+
+The screens hide buttons people aren't allowed to use, but that's only for convenience. The real rules live in the database (see below), so they hold even if someone skips the screens.
+
+The screens are in `src/pages`, shared pieces in `src/components`, and data helpers in `src/lib`.
 
 ## Database
 

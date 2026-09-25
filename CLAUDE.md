@@ -17,6 +17,7 @@ Baantwise is a free bill-splitting web app. The name blends the Hindi word "baan
 - Now: React + Vite + TypeScript, served as static assets on Cloudflare Workers (Cloudflare Vite plugin, `wrangler.jsonc`, npm).
 - Now: Supabase Auth with Google sign-in (`@supabase/supabase-js`, one shared client in `src/lib/supabase.ts`, public URL and publishable key in `src/config.ts`).
 - Now: Supabase database. Migrations are copied into `supabase/migrations`; generated types are in `src/lib/database.types.ts` and the client is typed with `createClient<Database>`.
+- Now: React Router (`react-router`, routes in `src/App.tsx`): `/`, `/groups/:id`, `/groups/:id/settings`, `/join/:token`. Screens live in `src/pages`, shared UI in `src/components`, data and sign-in helpers in `src/lib` (`auth.tsx` for who is signed in, `errors.ts` for friendly error lines).
 - Planned later:
   - Supabase (Canada Central region) for the database, Google sign-in, storage, edge functions and scheduled jobs
   - Resend for email
