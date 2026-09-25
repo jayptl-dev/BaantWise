@@ -1,0 +1,18 @@
+# Installed packages (recreated by `npm install`)
+node_modules/
+
+# Build output (recreated by `npm run build`)
+dist/
+
+# Wrangler's local cache and dev state
+.wrangler/
+
+# Secrets and local settings: never commit these
+.env*
+.dev.vars
+.dev.vars.*
+
+# Logs and editor/OS clutter
+*.log
+.DS_Store
+Thumbs.db

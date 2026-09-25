@@ -1,0 +1,71 @@
+/* Mobile-first: base styles are for phones, the media query adds room on larger screens. */
+:root {
+  --bg: #f8faf9;
+  --text: #1c2624;
+  --muted: #55625f;
+  --accent: #0f766e;
+
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111817;
+    --text: #e6eeec;
+    --muted: #9fb0ac;
+    --accent: #5eead4;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.landing {
+  width: 100%;
+  max-width: 36rem;
+  padding: 2rem 1.25rem;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+.tagline {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.name-note {
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (min-width: 640px) {
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  .tagline {
+    font-size: 1.5rem;
+  }
+}
