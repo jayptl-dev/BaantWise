@@ -15,6 +15,7 @@ Baantwise is a free bill-splitting web app. The name blends the Hindi word "baan
 ## Stack
 
 - Now: React + Vite + TypeScript, served as static assets on Cloudflare Workers (Cloudflare Vite plugin, `wrangler.jsonc`, npm).
+- Now: Supabase Auth with Google sign-in (`@supabase/supabase-js`, one shared client in `src/lib/supabase.ts`, public URL and publishable key in `src/config.ts`). No database tables yet.
 - Planned later:
   - Supabase (Canada Central region) for the database, Google sign-in, storage, edge functions and scheduled jobs
   - Resend for email
