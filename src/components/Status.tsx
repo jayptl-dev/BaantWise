@@ -1,0 +1,62 @@
+import { useEffect, useRef } from "react";
+import { Link } from "react-router";
+import type { Feedback } from "../lib/useDbAction";
+
+export function Loading() {
+  return (
+    <p className="loading" role="status">
+      Loading…
+    </p>
+  );
+}
+
+// Used before we know whether someone is signed in.
+export function FullPageLoading() {
+  return (
+    <main className="landing">
+      <Loading />
+    </main>
+  );
+}
+
+export function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="state">
+      <p role="alert">{message}</p>
+      <button type="button" className="button secondary" onClick={onRetry}>
+        Try again
+      </button>
+    </div>
+  );
+}
+
+export function GroupMissing() {
+  return (
+    <div className="state">
+      <p>We couldn't open this group. It may have been deleted, or you may no longer be a member.</p>
+      <Link to="/" className="button secondary">
+        Back to your groups
+      </Link>
+    </div>
+  );
+}
+
+// One line of feedback. Scrolls itself into view so it isn't missed on a phone.
+export function FeedbackLine({ feedback }: { feedback: Feedback }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (feedback) ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [feedback]);
+
+  if (!feedback) return null;
+  return (
+    <p
+      ref={ref}
+      className={feedback.isError ? "feedback error" : "feedback"}
+      role={feedback.isError ? "alert" : "status"}
+    >
+      {feedback.text}
+    </p>
+  );
+}
