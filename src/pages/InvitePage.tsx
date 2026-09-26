@@ -26,9 +26,8 @@ export default function InvitePage() {
 
   if (checking) return <FullPageLoading />;
   if (!user) {
-    return (
-      <SignInPage line="You've been invited to a group on Baantwise" buttonLabel="Sign in with Google to join" />
-    );
+    // After signing in, this same page shows the invite and "Join group".
+    return <SignInPage line="You've been invited to a group on Baantwise. Sign in to join." />;
   }
   return (
     <AppLayout>

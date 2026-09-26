@@ -93,6 +93,34 @@ body {
   color: var(--muted);
 }
 
+/* Google draws its "Sign in with Google" button inside a frame in this box. */
+.google-button {
+  /* Keeps the space while the button loads, so nothing jumps. */
+  min-height: 2.75rem;
+  /* Google's frame is a light page. Matching it stops the browser painting a
+     white box behind the button in dark mode. */
+  color-scheme: light;
+}
+
+/* A small button that looks like a link, inside a line of text. */
+.link-button {
+  /* A taller tap area that doesn't push the text apart. */
+  padding: 0.5rem 0;
+  margin: -0.5rem 0;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: underline;
+  background: none;
+  cursor: pointer;
+}
+
+.link-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 /* ---------- Signed-in screens ---------- */
 
 .app {
@@ -397,6 +425,7 @@ button.member-name {
 
 .button:focus-visible,
 .text-button:focus-visible,
+.link-button:focus-visible,
 .icon-button:focus-visible,
 .brand:focus-visible,
 .back-link:focus-visible,
@@ -872,6 +901,10 @@ dialog.share-dialog::backdrop {
   .button {
     display: inline-block;
     width: auto;
+  }
+
+  .google-button {
+    max-width: 20rem;
   }
 
   .button-row {
