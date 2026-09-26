@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { Avatar } from "../components/Avatar";
+import { LockIcon } from "../components/LockIcon";
 import { NameForm } from "../components/NameForm";
 import { ShareDialog } from "../components/ShareDialog";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
 import { useAuth } from "../lib/auth";
-import { PERSON_NAME_MAX } from "../lib/format";
+import { involvedIds, myPart, peopleById, peopleInvolved, type Expense } from "../lib/expenses";
+import { formatDay, PERSON_NAME_MAX } from "../lib/format";
+import { formatCents } from "../lib/money";
 import { canUseShareSheet, inviteMessage } from "../lib/share";
 import { supabase } from "../lib/supabase";
 import { mustChange, useDbAction } from "../lib/useDbAction";
 import { useGroup, type GroupData, type Member } from "../lib/useGroup";
 
-// "/groups/:id": one group and its people.
+// "/groups/:id": one group, its people and its expenses.
 export default function GroupPage() {
   const { id = "" } = useParams();
   // `key` makes everything start fresh if the address switches to another group.
@@ -21,7 +24,7 @@ export default function GroupPage() {
 
 function GroupScreen({ id }: { id: string }) {
   const { user } = useAuth();
-  const { state, reload } = useGroup(id, user?.id ?? "");
+  const { state, reload } = useGroup(id, user?.id ?? "", "all");
   if (state.status === "loading") return <Loading />;
   if (state.status === "missing") return <GroupMissing />;
   if (state.status === "gone") return <GroupGone />;
@@ -42,6 +45,7 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
 
   // Showing or hiding buttons is only for convenience: the database checks every change.
   const iAmAdmin = members.some((m) => m.user_id === user?.id && m.is_admin);
+  const myMemberId = members.find((m) => m.user_id === user?.id)?.id ?? "";
   const inviteLink = `${window.location.origin}/join/${group.invite_token}`;
 
   async function copyLink() {
@@ -203,7 +207,20 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
 
       <section className="section" aria-labelledby="expenses-heading">
         <h2 id="expenses-heading">Expenses</h2>
-        <p className="muted">No expenses yet</p>
+        <div className="section-actions">
+          <Link to={`/groups/${group.id}/expenses/new`} className="button">
+            Add expense
+          </Link>
+        </div>
+        {data.expenses.length === 0 ? (
+          <p className="muted">No expenses yet</p>
+        ) : (
+          <ul className="expense-list">
+            {data.expenses.map((expense) => (
+              <ExpenseRow key={expense.id} expense={expense} data={data} myMemberId={myMemberId} />
+            ))}
+          </ul>
+        )}
       </section>
 
       {dialog}
@@ -211,6 +228,39 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
         <ShareDialog groupName={group.name} link={inviteLink} onClose={() => setSharePopupOpen(false)} />
       )}
     </>
+  );
+}
+
+// One expense: what for, who paid, and what it means for me. Tap for details.
+function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: GroupData; myMemberId: string }) {
+  const payer =
+    expense.paid_by === myMemberId ? "You" : (peopleById(data).get(expense.paid_by)?.display_name ?? "Someone");
+  const part = myPart(expense, myMemberId);
+
+  return (
+    <li>
+      <Link to={`/groups/${data.group.id}/expenses/${expense.id}`} className="expense-link">
+        <span className="expense-main">
+          <span className="expense-title">{expense.description}</span>
+          <span className="expense-sub">
+            {payer} paid {formatCents(expense.amount_cents)} · {formatDay(expense.spent_on, true)}
+          </span>
+          {expense.visibility === "participants" && (
+            <span className="private-note">
+              <LockIcon /> Only {peopleInvolved(involvedIds(expense, data), data, myMemberId)}
+            </span>
+          )}
+        </span>
+        {part.kind === "none" ? (
+          <span className="my-part none">not involved</span>
+        ) : (
+          <span className={`my-part ${part.kind}`}>
+            {part.kind === "lent" ? "you lent" : "you owe"}
+            <strong>{formatCents(part.cents)}</strong>
+          </span>
+        )}
+      </Link>
+    </li>
   );
 }
 

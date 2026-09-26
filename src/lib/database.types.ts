@@ -52,6 +52,7 @@ export type Database = {
           amount_cents: number
           created_at: string
           created_by: string | null
+          deleted_at: string | null
           description: string
           group_id: string
           id: string
@@ -64,6 +65,7 @@ export type Database = {
           amount_cents: number
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
           description: string
           group_id: string
           id?: string
@@ -76,6 +78,7 @@ export type Database = {
           amount_cents?: number
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
           description?: string
           group_id?: string
           id?: string
@@ -254,6 +257,7 @@ export type Database = {
     }
     Functions: {
       create_group: { Args: { p_name: string }; Returns: string }
+      delete_expense: { Args: { p_expense_id: string }; Returns: undefined }
       get_invite: {
         Args: { p_token: string }
         Returns: {
