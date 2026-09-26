@@ -58,22 +58,26 @@ The settings for this live in `wrangler.jsonc`. The Worker is named `baantwise`.
 
 ## How sign-in works
 
-1. Someone clicks **Sign in with Google**. The app asks Supabase to start a Google sign-in and says where to come back to afterwards: the same page they started on (so an invite link still works after signing in).
-2. Supabase sends them to Google. Google shows its sign-in screen, then sends them back to Supabase.
-3. Supabase sends them back to Baantwise with a one-time code. The app swaps that code for a session and shows "Signed in as …" with their Google name and photo.
-4. The session is saved in the browser, so it survives a page reload. **Sign out** removes it.
-5. If sign-in fails or is cancelled, the home page shows a short message instead.
+1. On a signed-out screen (the landing page, an invite link, or a group page opened while signed out), the app loads Google's sign-in script (Google Identity Services) and draws Google's own **Sign in with Google** button. Signed-in screens never load it. The button matches the light or dark look of the device.
+2. The app makes a random one-time value called a nonce. Google gets its SHA-256 hash, the app keeps the raw value.
+3. Someone presses the button. Google's box opens on top of the page and says it's for **baantwise.com**. In Chrome this is the browser's own sign-in box (FedCM, which Google recommends); other browsers show Google's pop-up. There's no One Tap and no automatic sign-in: nothing happens until the button is pressed.
+4. Google hands the page an ID token (a signed note saying who the person is, with the nonce hash inside). The app sends the token and the raw nonce to Supabase (`signInWithIdToken`). Supabase checks the token came from Google for our client ID and that the nonce matches, then starts a session.
+5. The person stays on the same page. An invite link goes straight on to **Join group**.
+6. The session is saved in the browser, so it survives a page reload. **Sign out** removes it.
+7. If sign-in fails, a short friendly line explains why.
 
-The code lives in `src/config.ts` (Supabase address and publishable key), `src/lib/supabase.ts` (the shared Supabase client), `src/lib/auth.tsx` (who is signed in, sign-in and sign-out) and `src/components/SignIn.tsx` (the sign-in button and messages).
+**Fallback:** if Google's script is blocked (for example by an ad blocker) or hasn't loaded after 8 seconds, a small **Sign in another way** link appears. It uses the older redirect sign-in: Supabase sends the person to Google's sign-in page and back to the same page with a one-time code. That page names our Supabase address instead of baantwise.com, which is why it's only the fallback.
+
+The code lives in `src/config.ts` (Supabase address, publishable key and Google client ID), `src/lib/supabase.ts` (the shared Supabase client), `src/lib/googleSignIn.ts` (loads Google's script, makes the nonce), `src/lib/auth.tsx` (who is signed in, sign-in and sign-out) and `src/components/SignIn.tsx` (the button, the fallback link and messages).
 
 The settings live in dashboards, not in this repo:
 
-- **Supabase → Authentication:** Google provider turned on. Site URL is `https://baantwise.com`. Allowed redirect URLs are `https://baantwise.com/**` and `https://www.baantwise.com/**`.
-- **Google Cloud → Google Auth Platform:** the OAuth client's "Authorized redirect URIs" must include `https://yvdbqqblbfodeqkwzvem.supabase.co/auth/v1/callback`. While the app is in "Testing" mode, only Google accounts listed as test users can sign in.
+- **Google Cloud → Google Auth Platform → Clients:** the OAuth client's **Authorized JavaScript origins** must include `https://baantwise.com` and `https://www.baantwise.com` (for the button). Its **Authorized redirect URIs** must include `https://yvdbqqblbfodeqkwzvem.supabase.co/auth/v1/callback` (for the fallback). While the app is in "Testing" mode, only Google accounts listed as test users can sign in.
+- **Supabase → Authentication → Google:** turned on, with the same client ID. Leave "Skip nonce check" off. Site URL is `https://baantwise.com`. Allowed redirect URLs are `https://baantwise.com/**` and `https://www.baantwise.com/**`.
 
-The Supabase **publishable** key in `src/config.ts` is meant to be public. The **secret** / `service_role` key must never go in this repo.
+The Supabase **publishable** key and the Google client ID in `src/config.ts` are meant to be public. The **secret** / `service_role` key must never go in this repo.
 
-Sign-in from `http://localhost:5173` won't come back to your computer unless `http://localhost:5173/**` is added to Supabase's allowed redirect URLs. Without it, Supabase sends you to baantwise.com instead.
+**Trying sign-in on your computer:** Google's button only works on `http://localhost:5173` if both `http://localhost` and `http://localhost:5173` are added to the client's Authorized JavaScript origins. (`npm run dev` already sends the `Referrer-Policy` header Google asks for on localhost.) The fallback only comes back to your computer if `http://localhost:5173/**` is in Supabase's allowed redirect URLs; without it, Supabase sends you to baantwise.com instead.
 
 ## Groups and invites
 
