@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AppLayout } from "../components/AppLayout";
 import { SignInPage } from "../components/SignIn";
@@ -9,6 +9,7 @@ import { friendlyError } from "../lib/errors";
 import { isUuid, peopleCount } from "../lib/format";
 import { supabase } from "../lib/supabase";
 import type { Feedback } from "../lib/useDbAction";
+import { useRefreshOnReturn } from "../lib/useRefreshOnReturn";
 
 type Invite = Database["public"]["Functions"]["get_invite"]["Returns"][number];
 
@@ -54,7 +55,10 @@ function InviteDetails({ token }: { token: string }) {
       const { data, error } = await supabase.rpc("get_invite", { p_token: token });
       if (!active) return;
       if (error) {
-        setState({ status: "error", message: friendlyError(error) });
+        // If a background refresh fails, keep showing the invite.
+        setState((previous) =>
+          previous.status === "ready" ? previous : { status: "error", message: friendlyError(error) },
+        );
         return;
       }
       const invite = data?.[0];
@@ -72,6 +76,10 @@ function InviteDetails({ token }: { token: string }) {
       active = false;
     };
   }, [token, version, navigate]);
+
+  // Catch up when the app comes back into view or back online (the link may have been reset).
+  const refresh = useCallback(() => setVersion((v) => v + 1), []);
+  useRefreshOnReturn(refresh);
 
   async function join() {
     setBusy(true);

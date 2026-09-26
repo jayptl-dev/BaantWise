@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router";
 import { NameForm } from "../components/NameForm";
-import { FeedbackLine, GroupMissing, LoadError, Loading } from "../components/Status";
+import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
 import { useAuth } from "../lib/auth";
 import { GROUP_NAME_MAX } from "../lib/format";
@@ -15,9 +15,11 @@ export default function GroupSettings() {
 }
 
 function SettingsScreen({ id }: { id: string }) {
-  const { state, reload } = useGroup(id);
+  const { user } = useAuth();
+  const { state, reload } = useGroup(id, user?.id ?? "");
   if (state.status === "loading") return <Loading />;
   if (state.status === "missing") return <GroupMissing />;
+  if (state.status === "gone") return <GroupGone />;
   if (state.status === "error") return <LoadError message={state.message} onRetry={reload} />;
   return <SettingsDetails data={state.data} reload={reload} />;
 }

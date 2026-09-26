@@ -39,6 +39,7 @@ Baantwise is a free bill-splitting web app. The name blends the Hindi word "baan
 - Balances are computed in the app from what the signed-in person can see, one scope at a time: group-visible items together, private items only between the people in them. Never simplify debts across scopes.
 - Use the database functions for multi-step actions: `create_group`, `get_invite`, `join_group`, `reset_invite_link`, `set_member_admin`, `remove_member`, `leave_group`, and `save_expense` (adds or edits an expense and its split in one go; the split must add up to the total). Reading data, adding a guest (insert into `group_members` with `group_id` and `display_name`), recording a payment, and deleting your own expense or payment use normal table queries.
 - Database changes are made from the planning session through the Supabase connector, then copied here as new files in `supabase/migrations`. Never edit a migration that has already been applied.
+- Live updates use Supabase Realtime `postgres_changes` on tables in the `supabase_realtime` publication (now `groups` and `group_members`). The privacy rules filter inserts and updates but not deletes: delete events reach every subscriber with the row's primary key. Never hard-delete private data, such as private expenses, from a table in that publication; mark it deleted instead.
 - After a database change, regenerate `src/lib/database.types.ts` (Supabase connector `generate_typescript_types`) so the types match.
 
 ## Commands

@@ -41,6 +41,18 @@ export function GroupMissing() {
   );
 }
 
+// Shown when a group you had open was deleted, or you left or were removed.
+export function GroupGone() {
+  return (
+    <div className="state">
+      <p role="alert">This group isn't available any more.</p>
+      <Link to="/" className="button secondary">
+        Go to your groups
+      </Link>
+    </div>
+  );
+}
+
 // One line of feedback. Scrolls itself into view so it isn't missed on a phone.
 export function FeedbackLine({ feedback }: { feedback: Feedback }) {
   const ref = useRef<HTMLParagraphElement>(null);

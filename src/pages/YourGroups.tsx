@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { NameForm } from "../components/NameForm";
 import { FeedbackLine, LoadError, Loading } from "../components/Status";
@@ -6,6 +6,7 @@ import { friendlyError } from "../lib/errors";
 import { GROUP_NAME_MAX, peopleCount } from "../lib/format";
 import { supabase } from "../lib/supabase";
 import type { Feedback } from "../lib/useDbAction";
+import { useRefreshOnReturn } from "../lib/useRefreshOnReturn";
 
 type GroupSummary = { id: string; name: string; people: number };
 
@@ -45,12 +46,18 @@ export default function YourGroups() {
   useEffect(() => {
     let active = true;
     fetchGroups().then((next) => {
-      if (active) setState(next);
+      if (!active) return;
+      // If a background refresh fails (for example, no internet), keep showing the list.
+      setState((previous) => (next.status === "error" && previous.status === "ready" ? previous : next));
     });
     return () => {
       active = false;
     };
   }, [version]);
+
+  // Catch up when the app comes back into view or back online.
+  const refresh = useCallback(() => setVersion((v) => v + 1), []);
+  useRefreshOnReturn(refresh);
 
   function retry() {
     setState({ status: "loading" });

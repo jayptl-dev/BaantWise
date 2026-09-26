@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { Avatar } from "../components/Avatar";
 import { NameForm } from "../components/NameForm";
-import { FeedbackLine, GroupMissing, LoadError, Loading } from "../components/Status";
+import { ShareDialog } from "../components/ShareDialog";
+import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
 import { useAuth } from "../lib/auth";
 import { PERSON_NAME_MAX } from "../lib/format";
+import { canUseShareSheet, inviteMessage } from "../lib/share";
 import { supabase } from "../lib/supabase";
 import { mustChange, useDbAction } from "../lib/useDbAction";
 import { useGroup, type GroupData, type Member } from "../lib/useGroup";
@@ -18,9 +20,11 @@ export default function GroupPage() {
 }
 
 function GroupScreen({ id }: { id: string }) {
-  const { state, reload } = useGroup(id);
+  const { user } = useAuth();
+  const { state, reload } = useGroup(id, user?.id ?? "");
   if (state.status === "loading") return <Loading />;
   if (state.status === "missing") return <GroupMissing />;
+  if (state.status === "gone") return <GroupGone />;
   if (state.status === "error") return <LoadError message={state.message} onRetry={reload} />;
   return <GroupDetails data={state.data} reload={reload} />;
 }
@@ -34,6 +38,7 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [addingGuest, setAddingGuest] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sharePopupOpen, setSharePopupOpen] = useState(false);
 
   // Showing or hiding buttons is only for convenience: the database checks every change.
   const iAmAdmin = members.some((m) => m.user_id === user?.id && m.is_admin);
@@ -51,17 +56,19 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
   }
 
   async function shareLink() {
-    if (typeof navigator.share === "function") {
+    setFeedback(null);
+    // Phones and tablets: the device's own share menu.
+    if (canUseShareSheet()) {
       try {
-        await navigator.share({ text: `Join "${group.name}" on Baantwise`, url: inviteLink });
+        await navigator.share({ text: inviteMessage(group.name, inviteLink) });
         return;
       } catch (error) {
-        // Closing the share sheet without picking an app isn't a problem.
+        // Closing the share menu without picking an app isn't a problem.
         if (error instanceof DOMException && error.name === "AbortError") return;
       }
     }
-    // No share sheet on this device (or it failed): copy instead.
-    await copyLink();
+    // Computers, or the share menu failed: our own share pop-up.
+    setSharePopupOpen(true);
   }
 
   async function addGuest(name: string) {
@@ -200,6 +207,9 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
       </section>
 
       {dialog}
+      {sharePopupOpen && (
+        <ShareDialog groupName={group.name} link={inviteLink} onClose={() => setSharePopupOpen(false)} />
+      )}
     </>
   );
 }
