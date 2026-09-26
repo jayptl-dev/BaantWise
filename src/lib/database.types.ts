@@ -175,18 +175,24 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          interac_contact: string | null
+          paypal_me: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           display_name: string
           id: string
+          interac_contact?: string | null
+          paypal_me?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string
           id?: string
+          interac_contact?: string | null
+          paypal_me?: string | null
         }
         Relationships: []
       }
@@ -195,6 +201,7 @@ export type Database = {
           amount_cents: number
           created_at: string
           created_by: string | null
+          deleted_at: string | null
           from_member: string
           group_id: string
           id: string
@@ -207,6 +214,7 @@ export type Database = {
           amount_cents: number
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
           from_member: string
           group_id: string
           id?: string
@@ -219,6 +227,7 @@ export type Database = {
           amount_cents?: number
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
           from_member?: string
           group_id?: string
           id?: string
@@ -258,6 +267,10 @@ export type Database = {
     Functions: {
       create_group: { Args: { p_name: string }; Returns: string }
       delete_expense: { Args: { p_expense_id: string }; Returns: undefined }
+      delete_settlement: {
+        Args: { p_settlement_id: string }
+        Returns: undefined
+      }
       get_invite: {
         Args: { p_token: string }
         Returns: {

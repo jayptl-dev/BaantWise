@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Avatar } from "../components/Avatar";
+import { BalancesSection } from "../components/BalancesSection";
 import { LockIcon } from "../components/LockIcon";
 import { NameForm } from "../components/NameForm";
+import { PaymentDialog } from "../components/PaymentDialog";
 import { ShareDialog } from "../components/ShareDialog";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
@@ -10,12 +12,13 @@ import { useAuth } from "../lib/auth";
 import { involvedIds, myPart, peopleById, peopleInvolved, type Expense } from "../lib/expenses";
 import { formatDay, PERSON_NAME_MAX } from "../lib/format";
 import { formatCents } from "../lib/money";
+import { newestFirst, paymentInvolvedIds, whoPaidWhom, type Payment } from "../lib/payments";
 import { canUseShareSheet, inviteMessage } from "../lib/share";
 import { supabase } from "../lib/supabase";
-import { mustChange, useDbAction } from "../lib/useDbAction";
+import { mustChange, useDbAction, type Feedback } from "../lib/useDbAction";
 import { useGroup, type GroupData, type Member } from "../lib/useGroup";
 
-// "/groups/:id": one group, its people and its expenses.
+// "/groups/:id": one group, its balances, its people, and its expenses and payments.
 export default function GroupPage() {
   const { id = "" } = useParams();
   // `key` makes everything start fresh if the address switches to another group.
@@ -42,11 +45,23 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
   const [addingGuest, setAddingGuest] = useState(false);
   const [copied, setCopied] = useState(false);
   const [sharePopupOpen, setSharePopupOpen] = useState(false);
+  const [openPaymentId, setOpenPaymentId] = useState<string | null>(null);
+  const [balanceFeedback, setBalanceFeedback] = useState<Feedback>(null);
 
   // Showing or hiding buttons is only for convenience: the database checks every change.
   const iAmAdmin = members.some((m) => m.user_id === user?.id && m.is_admin);
-  const myMemberId = members.find((m) => m.user_id === user?.id)?.id ?? "";
+  // The group only loads if you're an active member, so this always finds you.
+  const me = members.find((m) => m.user_id === user?.id)!;
+  const myMemberId = me.id;
   const inviteLink = `${window.location.origin}/join/${group.invite_token}`;
+  const activity = useMemo(() => newestFirst(data.expenses, data.payments), [data]);
+
+  // After recording or undoing a payment: say so above the balances and load them again.
+  function paymentChanged(text: string) {
+    setOpenPaymentId(null);
+    setBalanceFeedback({ text, isError: false });
+    reload();
+  }
 
   async function copyLink() {
     try {
@@ -134,6 +149,8 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
         </Link>
       </div>
 
+      <BalancesSection data={data} me={me} feedback={balanceFeedback} onSaved={paymentChanged} />
+
       <section className="section" aria-labelledby="people-heading">
         <h2 id="people-heading">People</h2>
         <ul className="member-list">
@@ -206,19 +223,29 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
       </section>
 
       <section className="section" aria-labelledby="expenses-heading">
-        <h2 id="expenses-heading">Expenses</h2>
+        <h2 id="expenses-heading">Expenses and payments</h2>
         <div className="section-actions">
           <Link to={`/groups/${group.id}/expenses/new`} className="button">
             Add expense
           </Link>
         </div>
-        {data.expenses.length === 0 ? (
+        {activity.length === 0 ? (
           <p className="muted">No expenses yet</p>
         ) : (
           <ul className="expense-list">
-            {data.expenses.map((expense) => (
-              <ExpenseRow key={expense.id} expense={expense} data={data} myMemberId={myMemberId} />
-            ))}
+            {activity.map((entry) =>
+              entry.kind === "expense" ? (
+                <ExpenseRow key={entry.expense.id} expense={entry.expense} data={data} myMemberId={myMemberId} />
+              ) : (
+                <PaymentRow
+                  key={entry.payment.id}
+                  payment={entry.payment}
+                  data={data}
+                  myMemberId={myMemberId}
+                  onOpen={() => setOpenPaymentId(entry.payment.id)}
+                />
+              ),
+            )}
           </ul>
         )}
       </section>
@@ -226,6 +253,15 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
       {dialog}
       {sharePopupOpen && (
         <ShareDialog groupName={group.name} link={inviteLink} onClose={() => setSharePopupOpen(false)} />
+      )}
+      {openPaymentId && (
+        <PaymentDialog
+          data={data}
+          me={me}
+          payment={data.payments.find((p) => p.id === openPaymentId)}
+          onClose={() => setOpenPaymentId(null)}
+          onUndone={paymentChanged}
+        />
       )}
     </>
   );
@@ -260,6 +296,37 @@ function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: Gro
           </span>
         )}
       </Link>
+    </li>
+  );
+}
+
+// One payment: "Sam paid Jay $30.00", with a lock if it's private. Tap for details.
+function PaymentRow({
+  payment,
+  data,
+  myMemberId,
+  onOpen,
+}: {
+  payment: Payment;
+  data: GroupData;
+  myMemberId: string;
+  onOpen: () => void;
+}) {
+  return (
+    <li>
+      <button type="button" className="expense-link" onClick={onOpen}>
+        <span className="expense-main">
+          <span className="expense-title">
+            {whoPaidWhom(payment, data, myMemberId)} {formatCents(payment.amount_cents)}
+          </span>
+          <span className="expense-sub">Payment · {formatDay(payment.paid_on, true)}</span>
+          {payment.visibility === "participants" && (
+            <span className="private-note">
+              <LockIcon /> Only {peopleInvolved(paymentInvolvedIds(payment, data), data, myMemberId)}
+            </span>
+          )}
+        </span>
+      </button>
     </li>
   );
 }

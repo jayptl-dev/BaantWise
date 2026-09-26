@@ -3,6 +3,7 @@ import type { Tables } from "./database.types";
 import { friendlyError } from "./errors";
 import { fetchExpenses, type Expense, type ExpensesToLoad } from "./expenses";
 import { isUuid } from "./format";
+import { fetchPayments, type Payment } from "./payments";
 import { supabase } from "./supabase";
 import { useRefreshOnReturn } from "./useRefreshOnReturn";
 
@@ -12,6 +13,9 @@ export type Member = {
   display_name: string;
   is_admin: boolean;
   avatar_url: string | null;
+  // Optional payment details from their profile (never for guests or people who left).
+  interac_contact: string | null;
+  paypal_me: string | null;
 };
 
 export type GroupData = {
@@ -19,6 +23,7 @@ export type GroupData = {
   members: Member[]; // active members only, oldest first
   formerMembers: Member[]; // people who left or were removed: their names stay on old expenses
   expenses: Expense[]; // newest first; only loaded when asked for (see useGroup)
+  payments: Payment[]; // newest first; only loaded with the whole expense list ("all")
 };
 
 export type GroupState =
@@ -28,12 +33,15 @@ export type GroupState =
   | { status: "error"; message: string }
   | { status: "ready"; data: GroupData };
 
-// Loads one group, its members and (if asked) its expenses. Row Level Security
-// means this only returns something if the signed-in person is a member.
+type Profile = { avatar_url: string | null; interac_contact: string | null; paypal_me: string | null };
+
+// Loads one group, its members and (if asked) its expenses, plus its payments with
+// the whole list ("all"). Row Level Security means this only returns something if
+// the signed-in person is a member.
 async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad): Promise<GroupState> {
   if (!isUuid(id)) return { status: "missing" };
 
-  const [groupResult, membersResult, expensesResult] = await Promise.all([
+  const [groupResult, membersResult, expensesResult, paymentsResult] = await Promise.all([
     supabase.from("groups").select("id, name, invite_token").eq("id", id).maybeSingle(),
     supabase
       .from("group_members")
@@ -41,6 +49,7 @@ async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad)
       .eq("group_id", id)
       .order("created_at"),
     expenses ? fetchExpenses(id, expenses) : { error: null, expenses: [] },
+    expenses === "all" ? fetchPayments(id) : { error: null, payments: [] },
   ]);
   if (groupResult.error) return { status: "error", message: friendlyError(groupResult.error) };
   if (!groupResult.data) return { status: "missing" };
@@ -48,22 +57,32 @@ async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad)
   const active = membersResult.data.filter((m) => m.removed_at === null);
   if (!active.some((m) => m.user_id === userId)) return { status: "missing" };
   if (expensesResult.error) return { status: "error", message: friendlyError(expensesResult.error) };
+  if (paymentsResult.error) return { status: "error", message: friendlyError(paymentsResult.error) };
 
-  // Google photos live in profiles. They're optional: if this fails, initials are shown.
-  const photos = new Map<string, string | null>();
+  // Google photos and payment details live in profiles. They're optional: if this
+  // fails, initials are shown and nobody has payment details.
+  const profiles = new Map<string, Profile>();
   const userIds = active.flatMap((m) => (m.user_id ? [m.user_id] : []));
   if (userIds.length > 0) {
-    const { data } = await supabase.from("profiles").select("id, avatar_url").in("id", userIds);
-    for (const profile of data ?? []) photos.set(profile.id, profile.avatar_url);
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, avatar_url, interac_contact, paypal_me")
+      .in("id", userIds);
+    for (const { id: profileId, ...profile } of data ?? []) profiles.set(profileId, profile);
   }
 
-  const toMember = (m: (typeof membersResult.data)[number]): Member => ({
-    id: m.id,
-    user_id: m.user_id,
-    display_name: m.display_name,
-    is_admin: m.is_admin,
-    avatar_url: m.user_id ? (photos.get(m.user_id) ?? null) : null,
-  });
+  const toMember = (m: (typeof membersResult.data)[number]): Member => {
+    const profile = m.user_id ? profiles.get(m.user_id) : undefined;
+    return {
+      id: m.id,
+      user_id: m.user_id,
+      display_name: m.display_name,
+      is_admin: m.is_admin,
+      avatar_url: profile?.avatar_url ?? null,
+      interac_contact: profile?.interac_contact ?? null,
+      paypal_me: profile?.paypal_me ?? null,
+    };
+  };
   return {
     status: "ready",
     data: {
@@ -71,6 +90,7 @@ async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad)
       members: active.map(toMember),
       formerMembers: membersResult.data.filter((m) => m.removed_at !== null).map(toMember),
       expenses: expensesResult.expenses,
+      payments: paymentsResult.payments,
     },
   };
 }
@@ -92,20 +112,23 @@ let channelCount = 0; // gives each live-updates channel its own name
 // - live updates (Supabase Realtime) reload when someone else changes the group,
 // - and it catches up when the app comes back into view or back online.
 // The current screen stays visible during a reload, so the page doesn't flicker.
-// `expenses` also loads and watches the group's expenses ("all") or one expense ({ id }).
+// `expenses` also loads and watches the group's expenses and payments ("all"), or one
+// expense ({ id }).
 export function useGroup(id: string, userId: string, expenses?: ExpensesToLoad) {
   const [state, setState] = useState<GroupState>({ status: "loading" });
   const [version, setVersion] = useState(0);
   // Only the expense id matters, so a new { id } object on each render doesn't reload.
   const expensesKey = expenses === undefined ? "" : expenses === "all" ? "all" : expenses.id;
 
-  // The members and expenses on screen, to tell which delete events are about this group.
+  // The members, expenses and payments on screen, to tell which delete events are about this group.
   const memberIds = useRef(new Set<string>());
   const expenseIds = useRef(new Set<string>());
+  const paymentIds = useRef(new Set<string>());
   useEffect(() => {
     const data = state.status === "ready" ? state.data : null;
     memberIds.current = new Set(data ? [...data.members, ...data.formerMembers].map((m) => m.id) : []);
     expenseIds.current = new Set(data ? data.expenses.map((e) => e.id) : []);
+    paymentIds.current = new Set(data ? data.payments.map((p) => p.id) : []);
   }, [state]);
 
   useEffect(() => {
@@ -181,6 +204,21 @@ export function useGroup(id: string, userId: string, expenses?: ExpensesToLoad) 
         (change) => {
           // Real deletes only happen when a whole group is deleted, and can't be filtered.
           if (change.eventType === "DELETE" && !expenseIds.current.has(change.old.id ?? "")) return;
+          reloadSoon();
+        },
+      );
+    }
+
+    // Payments, with the whole list. Undoing a payment only marks it deleted (an
+    // update), so new payments and undos both arrive here, and the reload works
+    // the balances out again.
+    if (expensesKey === "all") {
+      channel.on<Tables<"settlements">>(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "settlements", filter: `group_id=eq.${id}` },
+        (change) => {
+          // Real deletes only happen when a whole group is deleted, and can't be filtered.
+          if (change.eventType === "DELETE" && !paymentIds.current.has(change.old.id ?? "")) return;
           reloadSoon();
         },
       );
