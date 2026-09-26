@@ -414,7 +414,8 @@ button.member-name:focus-visible {
   font-size: 0.9375rem;
 }
 
-.name-form input {
+.name-form input,
+.dialog-body input {
   display: block;
   width: 100%;
   min-height: 2.75rem;
@@ -428,7 +429,8 @@ button.member-name:focus-visible {
   background: var(--surface);
 }
 
-.name-form input:focus-visible {
+.name-form input:focus-visible,
+.dialog-body input:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 1px;
 }
@@ -476,6 +478,55 @@ dialog.confirm::backdrop {
 
 dialog.confirm p {
   margin: 0;
+}
+
+/* The share pop-up. The padding sits on .dialog-body, so a click on the dialog
+   element itself can only be a click on the dimmed area outside the box. */
+dialog.share-dialog {
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  color: var(--text);
+  background: var(--bg);
+}
+
+dialog.share-dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.dialog-body {
+  padding: 1.25rem;
+}
+
+.dialog-body h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.dialog-body label {
+  display: block;
+  font-weight: 600;
+}
+
+.share-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.share-options .button,
+.dialog-body .close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.dialog-body .close-button {
+  margin-top: 1.25rem;
 }
 
 @media (min-width: 640px) {

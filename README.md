@@ -83,7 +83,8 @@ Sign-in from `http://localhost:5173` won't come back to your computer unless `ht
 | `/join/<token>` | An invite link. After signing in, it shows the group's name and size and a **Join group** button. |
 
 - **Making a group:** the person who makes it becomes its first admin.
-- **Inviting:** **Share invite link** opens the phone's share sheet (or copies the link if there isn't one). Anyone with the link can join after signing in with Google. While Baantwise is in private beta, they also need to be on the Google test user list.
+- **Inviting:** on a phone or tablet, **Share invite link** opens the device's own share menu. On a computer (or if the share menu fails) it opens a small pop-up with WhatsApp, Messages (phones only), Email and **Copy link**, plus the link itself. The message is always: Join "<group name>" on Baantwise: <link>. Anyone with the link can join after signing in with Google. While Baantwise is in private beta, they also need to be on the Google test user list.
+- **Live updates:** an open group page or settings page updates by itself when someone joins, leaves or is removed, becomes or stops being an admin, is renamed, or the group is renamed or deleted. This uses Supabase Realtime, and the privacy rules decide who gets each update. Every screen also catches up when you come back to the app or your internet comes back. If a group you have open is deleted, or you're no longer in it, the page says "This group isn't available any more".
 - **Guests** are just a name, for someone who won't sign in. Anyone in the group can add a guest or rename one.
 - **Renaming people:** you can rename yourself and guests. Admins can rename anyone.
 - **Admins** can make other members admins, remove people, rename the group, reset the invite link and delete the group. A group always keeps at least one admin, so the last admin has to hand over admin (or delete the group) before leaving.
