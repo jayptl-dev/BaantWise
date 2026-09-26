@@ -793,6 +793,14 @@ dialog.share-dialog::backdrop {
   flex: none;
 }
 
+/* "= $12.50" next to a box with a sum in it. */
+.split-sum {
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
 /* A tick box or round choice with its words; the whole line is the tap target. */
 .choice {
   display: flex;
