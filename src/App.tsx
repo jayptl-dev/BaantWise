@@ -1,5 +1,8 @@
 import { Route, Routes } from "react-router";
 import { SignedInPage } from "./components/AppLayout";
+import AddExpense from "./pages/AddExpense";
+import EditExpense from "./pages/EditExpense";
+import ExpenseDetails from "./pages/ExpenseDetails";
 import GroupPage from "./pages/GroupPage";
 import GroupSettings from "./pages/GroupSettings";
 import Home from "./pages/Home";
@@ -25,6 +28,30 @@ export default function App() {
         element={
           <SignedInPage>
             <GroupSettings />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/expenses/new"
+        element={
+          <SignedInPage>
+            <AddExpense />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/expenses/:expenseId"
+        element={
+          <SignedInPage>
+            <ExpenseDetails />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/expenses/:expenseId/edit"
+        element={
+          <SignedInPage>
+            <EditExpense />
           </SignedInPage>
         }
       />

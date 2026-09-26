@@ -4,7 +4,7 @@ Baantwise is a free web app for splitting bills fairly between friends, roommate
 
 The name blends the Hindi word "baant" (to divide, to share out) with "-wise".
 
-**Status:** private beta. You can sign in with Google, make groups and invite people. Expenses come next.
+**Status:** private beta. You can sign in with Google, make groups, invite people and add expenses. Balances and settling up come next.
 
 Live site: https://baantwise.com
 
@@ -78,7 +78,7 @@ Sign-in from `http://localhost:5173` won't come back to your computer unless `ht
 | Address | What it shows |
 | --- | --- |
 | `/` | Signed out: the landing page. Signed in: **Your groups**, newest first, with a **New group** button. |
-| `/groups/<id>` | One group: its people (with "You", "Admin" and "Guest" badges), invite buttons, **Add a guest**, and a spot where expenses will go. |
+| `/groups/<id>` | One group: its people (with "You", "Admin" and "Guest" badges), invite buttons, **Add a guest**, and its expenses (see below). |
 | `/groups/<id>/settings` | Rename the group, reset the invite link or delete the group (admins), and **Leave group** (everyone). |
 | `/join/<token>` | An invite link. After signing in, it shows the group's name and size and a **Join group** button. |
 
@@ -93,6 +93,25 @@ Sign-in from `http://localhost:5173` won't come back to your computer unless `ht
 The screens hide buttons people aren't allowed to use, but that's only for convenience. The real rules live in the database (see below), so they hold even if someone skips the screens.
 
 The screens are in `src/pages`, shared pieces in `src/components`, and data helpers in `src/lib`.
+
+## Expenses
+
+| Address | What it shows |
+| --- | --- |
+| `/groups/<id>` | The group's expenses, newest first, with an **Add expense** button. |
+| `/groups/<id>/expenses/new` | Add an expense. |
+| `/groups/<id>/expenses/<expense id>` | One expense: amount, who paid, the date, each person's share and who can see it. |
+| `/groups/<id>/expenses/<expense id>/edit` | Change an expense (only the person who added it). |
+
+- **The list** shows what each expense was for, who paid and how much, and on the right what it means for you: "you lent $X" (you paid; X is the amount minus your own share), "you owe $X" (your share), or "not involved".
+- **Adding:** what it was for (1 to 120 characters), the amount in CA$, who paid (anyone in the group, guests included; you by default), the date (today by default) and how to split it. **Equally** splits between the people you tick and shows each share as you type. Cents that don't divide evenly go one each, starting with the payer: $10.00 three ways paid by Jay is Jay $3.34, the others $3.33. **Exact amounts** takes one amount per person and shows "$X left to assign" until they add up exactly.
+- **Who can see it:** "Everyone in <group>", or "Only <names>": the payer, the people splitting it and whoever added it. Nobody else sees a private expense, not even admins. An expense that only involves you is always "Only you". Changing a private expense to "Everyone" asks first.
+- **Editing and deleting:** only the person who added an expense can change or delete it. Everyone else sees who that is.
+- **Deleting** marks the expense as deleted instead of erasing it, and the app hides it for everyone. Supabase Realtime applies the privacy rules to new and changed rows but not to erased ones, so erasing a private expense would tell every connected person about it. A row marked deleted keeps its privacy rules.
+- **Live updates:** an open group page updates by itself when an expense is added, changed or deleted. An open expense (or its edit page) updates too, and says "This expense was deleted" if it is.
+- **Money** is whole cents everywhere. What you type is turned into cents with string maths (never decimal numbers), so "12.50" becomes `1250` exactly. Amounts are shown in Canadian dollars, like $12.50.
+
+The code is in `src/pages/AddExpense.tsx`, `EditExpense.tsx` and `ExpenseDetails.tsx`, the form in `src/components/ExpenseForm.tsx`, and the helpers in `src/lib/expenses.ts` and `src/lib/money.ts`.
 
 ## Database
 

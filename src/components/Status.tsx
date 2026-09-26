@@ -53,6 +53,30 @@ export function GroupGone() {
   );
 }
 
+// An expense link that doesn't open: mistyped, deleted, or private to other people.
+export function ExpenseMissing({ groupId, groupName }: { groupId: string; groupName: string }) {
+  return (
+    <div className="state">
+      <p>We couldn't open this expense. It may have been deleted, or it may be private to other people.</p>
+      <Link to={`/groups/${groupId}`} className="button secondary">
+        Back to {groupName}
+      </Link>
+    </div>
+  );
+}
+
+// Shown when an expense you had open was deleted.
+export function ExpenseDeleted({ groupId, groupName }: { groupId: string; groupName: string }) {
+  return (
+    <div className="state">
+      <p role="alert">This expense was deleted.</p>
+      <Link to={`/groups/${groupId}`} className="button secondary">
+        Back to {groupName}
+      </Link>
+    </div>
+  );
+}
+
 // One line of feedback. Scrolls itself into view so it isn't missed on a phone.
 export function FeedbackLine({ feedback }: { feedback: Feedback }) {
   const ref = useRef<HTMLParagraphElement>(null);
