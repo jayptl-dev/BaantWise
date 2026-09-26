@@ -35,7 +35,9 @@ function AppHeader() {
         </Link>
         {user && (
           <div className="header-account">
-            <Avatar name={displayNameOf(user)} url={photoOf(user)} size={32} />
+            <Link to="/profile" className="avatar-link" aria-label="Your profile" title="Your profile">
+              <Avatar name={displayNameOf(user)} url={photoOf(user)} size={32} />
+            </Link>
             <button type="button" className="text-button" onClick={handleSignOut} disabled={busy}>
               Sign out
             </button>
@@ -52,10 +54,16 @@ function AppHeader() {
 }
 
 // Shows the page only to someone who is signed in. Anyone else gets a sign-in
-// button that brings them back to this same page.
-export function SignedInPage({ children }: { children: ReactNode }) {
+// button (with `line` above it) that brings them back to this same page.
+export function SignedInPage({
+  children,
+  line = "Sign in to see this group.",
+}: {
+  children: ReactNode;
+  line?: string;
+}) {
   const { user, checking } = useAuth();
   if (checking) return <FullPageLoading />;
-  if (!user) return <SignInPage line="Sign in to see this group." />;
+  if (!user) return <SignInPage line={line} />;
   return <AppLayout>{children}</AppLayout>;
 }

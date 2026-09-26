@@ -156,6 +156,29 @@ body {
   gap: 0.25rem;
 }
 
+/* Your photo in the header: opens your profile. */
+.avatar-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+}
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .page-title {
   margin: 0 0 1rem;
   font-size: 1.75rem;
@@ -210,6 +233,15 @@ body {
   color: var(--accent);
   text-decoration: none;
   overflow-wrap: anywhere;
+}
+
+button.back-link {
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  background: none;
+  cursor: pointer;
 }
 
 /* ---------- Lists ---------- */
@@ -431,6 +463,7 @@ button.member-name {
 .back-link:focus-visible,
 .group-link:focus-visible,
 .expense-link:focus-visible,
+.avatar-link:focus-visible,
 button.member-name:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
@@ -522,9 +555,11 @@ dialog.confirm p {
   margin: 0;
 }
 
-/* The share pop-up. The padding sits on .dialog-body, so a click on the dialog
-   element itself can only be a click on the dimmed area outside the box. */
-dialog.share-dialog {
+/* The share pop-up and other pop-up boxes (Sheet). The padding sits on .dialog-body,
+   so a click on the dialog element itself can only be a click on the dimmed area
+   outside the box. */
+dialog.share-dialog,
+dialog.sheet {
   width: min(28rem, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
   padding: 0;
@@ -534,7 +569,8 @@ dialog.share-dialog {
   background: var(--bg);
 }
 
-dialog.share-dialog::backdrop {
+dialog.share-dialog::backdrop,
+dialog.sheet::backdrop {
   background: rgb(0 0 0 / 0.5);
 }
 
@@ -545,6 +581,16 @@ dialog.share-dialog::backdrop {
 .dialog-body h2 {
   margin: 0 0 1rem;
   font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+/* The title gets focus when a Sheet opens, only so screen readers start there. */
+.dialog-body h2:focus {
+  outline: none;
+}
+
+.sheet .form-actions {
+  margin-top: 1.25rem;
 }
 
 .dialog-body label {
@@ -590,6 +636,14 @@ dialog.share-dialog::backdrop {
 
 .expense-link:hover {
   border-color: var(--accent);
+}
+
+/* A payment in the list opens a pop-up, so it's a button that looks like the other rows. */
+button.expense-link {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .expense-main {
@@ -887,6 +941,201 @@ dialog.share-dialog::backdrop {
 .expense-form fieldset > .private-note {
   margin: 0;
   min-height: 2.75rem;
+}
+
+/* ---------- Balances and payments ---------- */
+
+.overall {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.overall-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.overall-value {
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.overall.lent .overall-value {
+  color: var(--accent);
+}
+
+.overall.owe .overall-value {
+  color: var(--owe);
+}
+
+.section h3.balance-heading {
+  margin: 1.25rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.balance-heading.private-note {
+  display: flex;
+}
+
+.balance-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.balance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.balance-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.balance-row .balance-button {
+  flex: none;
+  width: auto;
+  padding-inline: 1rem;
+}
+
+/* The pay box */
+.field-note {
+  margin: 0.375rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.pay-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.pay-option {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.pay-option h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.pay-option .hint {
+  margin-top: 0.5rem;
+}
+
+.pay-note {
+  margin: 1.25rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--soft);
+}
+
+.copy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  padding: 0.25rem 0;
+}
+
+.copy-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.copy-label {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.copy-value {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.copy-row .copy-button {
+  flex: none;
+  width: auto;
+  min-width: 5.5rem;
+}
+
+.copy-row .field-error {
+  flex-basis: 100%;
+}
+
+.settle-visibility {
+  margin: 1.25rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+/* ---------- Profile ---------- */
+
+.profile-form fieldset .field {
+  margin-top: 1rem;
+}
+
+.profile-form fieldset > .hint {
+  margin: 0;
+}
+
+/* "paypal.me/" in front of the username box. */
+.prefixed-input {
+  display: flex;
+  align-items: center;
+  margin-top: 0.375rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.prefixed-input > span {
+  flex: none;
+  padding-left: 0.75rem;
+  color: var(--muted);
+}
+
+.field .prefixed-input input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding-left: 0.125rem;
+  border: 0;
+  background: transparent;
+}
+
+.field .prefixed-input input:focus-visible {
+  outline: none;
+}
+
+.prefixed-input:focus-within {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.prefixed-input:has([aria-invalid="true"]) {
+  border-color: var(--danger);
 }
 
 @media (min-width: 640px) {

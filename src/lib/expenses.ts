@@ -16,6 +16,7 @@ export type Expense = {
   spent_on: string; // "2026-09-25"
   visibility: Visibility; // "group" = everyone in the group, "participants" = only the people in it
   created_by: string | null; // the account (not member) that added it
+  created_at: string;
   shares: Share[];
 };
 
@@ -31,7 +32,7 @@ export async function fetchExpenses(groupId: string, which: ExpensesToLoad) {
   let query = supabase
     .from("expenses")
     .select(
-      "id, description, amount_cents, paid_by, spent_on, visibility, created_by, expense_shares(member_id, share_cents)",
+      "id, description, amount_cents, paid_by, spent_on, visibility, created_by, created_at, expense_shares(member_id, share_cents)",
     )
     .eq("group_id", groupId)
     .is("deleted_at", null);
@@ -56,10 +57,11 @@ export function peopleById(data: GroupData): Map<string, Member> {
   return new Map([...data.members, ...data.formerMembers].map((m) => [m.id, m]));
 }
 
-// The member who added an expense (it stores their account, not their member id).
-export function addedBy(expense: Expense, data: GroupData): Member | undefined {
-  if (!expense.created_by) return undefined;
-  return [...data.members, ...data.formerMembers].find((m) => m.user_id === expense.created_by);
+// The member who added an expense or recorded a payment (it stores their account,
+// not their member id).
+export function addedBy(item: { created_by: string | null }, data: GroupData): Member | undefined {
+  if (!item.created_by) return undefined;
+  return [...data.members, ...data.formerMembers].find((m) => m.user_id === item.created_by);
 }
 
 // Who can see a private expense: the payer, the people splitting it, and whoever added it.

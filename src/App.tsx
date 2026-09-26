@@ -8,6 +8,7 @@ import GroupSettings from "./pages/GroupSettings";
 import Home from "./pages/Home";
 import InvitePage from "./pages/InvitePage";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 
 // Which screen shows for which address. Cloudflare sends every address to this
 // app (single-page-application mode), and React Router picks the screen.
@@ -52,6 +53,14 @@ export default function App() {
         element={
           <SignedInPage>
             <EditExpense />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <SignedInPage line="Sign in to see your profile.">
+            <Profile />
           </SignedInPage>
         }
       />

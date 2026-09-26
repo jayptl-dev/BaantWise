@@ -4,7 +4,7 @@ Baantwise is a free web app for splitting bills fairly between friends, roommate
 
 The name blends the Hindi word "baant" (to divide, to share out) with "-wise".
 
-**Status:** private beta. You can sign in with Google, make groups, invite people and add expenses. Balances and settling up come next.
+**Status:** private beta. You can sign in with Google, make groups, invite people, add expenses, see who owes whom and record payments.
 
 Live site: https://baantwise.com
 
@@ -104,7 +104,7 @@ The screens are in `src/pages`, shared pieces in `src/components`, and data help
 
 | Address | What it shows |
 | --- | --- |
-| `/groups/<id>` | The group's expenses, newest first, with an **Add expense** button. |
+| `/groups/<id>` | The group's expenses and payments, newest first, with an **Add expense** button. |
 | `/groups/<id>/expenses/new` | Add an expense. |
 | `/groups/<id>/expenses/<expense id>` | One expense: amount, who paid, the date, each person's share and who can see it. |
 | `/groups/<id>/expenses/<expense id>/edit` | Change an expense (only the person who added it). |
@@ -121,16 +121,33 @@ The screens are in `src/pages`, shared pieces in `src/components`, and data help
 
 The code is in `src/pages/AddExpense.tsx`, `EditExpense.tsx` and `ExpenseDetails.tsx`, the form in `src/components/ExpenseForm.tsx`, and the helpers in `src/lib/expenses.ts` and `src/lib/money.ts`.
 
+## Balances and settling up
+
+Baantwise never moves money. It only works out who owes whom and writes down payments people say they made.
+
+| Address | What it shows |
+| --- | --- |
+| `/groups/<id>` | **Balances** at the top: Overall, In the group, and one box per private balance. |
+| `/profile` | Your name and optional payment details. Open it by tapping your photo in the header. |
+
+- **Two kinds of balance, never mixed.** *In the group* uses only items everyone can see, so everyone gets the same list. Each person's net is what they paid, minus their own shares, plus payments they sent, minus payments they received. That's turned into as few payments as possible: whoever owes the most pays whoever is owed the most, then repeat. *Just between you and <name>* (with a lock) uses only private items between you and that one person: private expenses where one of you paid and the other has a share, and private payments between you two. Private items never change the group list, and different people's private balances are never combined.
+- **Overall** adds your part of the group list to all your private balances: "You're owed $X", "You owe $X" or "You're all settled up".
+- **Pay** (you owe) opens a box with the amount (the full debt, which you can lower to pay part of it, but never raise). If they added an Interac e-Transfer email or phone, it shows that and the amount, each with a **Copy** button. If they added a PayPal.Me username, **Pay with PayPal** opens `paypal.me/<name>/<amount>CAD` in a new tab. **Mark as paid** records the payment. **Received** (you're owed) records a payment to you the same way. A debt between two guests gets **Record payment**, for anyone to use. A payment for a private balance is private too.
+- **Payments show in the list** by date ("Sam paid Jay $30.00", with a lock if private). Tap one for details. Whoever recorded it can **Undo** it: it's marked deleted (never erased) and the balances go back.
+- **Your profile:** your name (saving also changes it in all your groups), an Interac e-Transfer email or 10-digit phone, and a PayPal.Me username (letters and numbers, up to 20; a pasted paypal.me link is trimmed to just the name). Only people in your groups can see these, and both are optional.
+- **Live updates:** an open group page updates its balances by itself when anyone adds, changes or deletes an expense, or records or undoes a payment.
+- **All in whole cents.** The maths is in `src/lib/balances.ts`, with tests in `src/lib/balances.test.ts`. The screens are `src/components/BalancesSection.tsx`, `SettleUpDialog.tsx` (the pay box) and `PaymentDialog.tsx`, plus `src/pages/Profile.tsx`.
+
 ## Database
 
 The data lives in a Supabase (Postgres) database. It has six tables:
 
-- **profiles:** one row per person who signs in, with their name and Google photo. Email addresses are not stored here, so group members can't see each other's email.
+- **profiles:** one row per person who signs in, with their name, Google photo and optional payment details (Interac e-Transfer email or phone, PayPal.Me username). Only people who share a group with you can see your profile. Sign-in email addresses are not stored here, so group members can't see each other's sign-in email.
 - **groups:** a group such as "Cabin trip", with its currency (CAD by default) and its secret invite link.
 - **group_members:** who is in each group. A member is either someone with an account, or a guest who is just a name. People who leave or are removed lose access, but their name stays on old expenses.
 - **expenses:** what was bought, who paid, how much, when, and who can see it.
 - **expense_shares:** each person's part of an expense. The parts must add up exactly to the total.
-- **settlements:** records like "Priya paid Jay $20". Baantwise only records these. It never moves real money.
+- **settlements:** records like "Priya paid Jay $20". Baantwise only records these. It never moves real money. Undoing one marks it deleted instead of erasing it, like expenses.
 
 Money is stored in whole cents, so $12.34 is saved as `1234`. This avoids rounding mistakes.
 
