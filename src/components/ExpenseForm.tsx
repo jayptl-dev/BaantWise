@@ -1,7 +1,14 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { DESCRIPTION_MAX, peopleInvolved, type Expense, type Visibility } from "../lib/expenses";
 import { todayLocal } from "../lib/format";
-import { centsToDecimal, formatCents, MAX_CENTS, readMoney, splitEqually } from "../lib/money";
+import {
+  centsToDecimal,
+  formatCents,
+  MAX_CENTS,
+  readMoney,
+  refuseExactChange,
+  splitEqually,
+} from "../lib/money";
 import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
@@ -53,8 +60,8 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const [visibility, setVisibility] = useState<Visibility>(expense?.visibility ?? "group");
   // After the first Save, missing things (like an empty description) are pointed out too.
   const [tried, setTried] = useState(false);
-  // Why the last key in a person's box was ignored (it would have gone over the total).
-  const [overNote, setOverNote] = useState<{ id: string; text: string } | null>(null);
+  // Why the last key in a person's box was ignored (see changeExact).
+  const [limitNote, setLimitNote] = useState<{ id: string; text: string } | null>(null);
 
   // Worked out from what's typed so far, on every change. The boxes only ever hold
   // money (see changeAmount), so reading them always works.
@@ -92,30 +99,28 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   function changeAmount(text: string) {
     const read = readMoney(text);
     if (!read) return;
-    setOverNote(null);
+    setLimitNote(null);
     setAmountText(read.text);
   }
 
-  // A person's box also never lets the amounts go over the total, not even by a cent.
-  // (If they're already over, because the total was made smaller, changes that bring
-  // them back down are still allowed.)
+  // A person's box never lets the amounts go over the total, not even by a cent: a key
+  // that would, or a "+" when nothing is left to add, is ignored with a short note
+  // saying why. Lowering an amount always works. (The rule is refuseExactChange.)
   function changeExact(id: string, text: string) {
     const read = readMoney(text, true);
     if (!read) return;
-    const others = exactTotal - (exactCents.get(id) ?? 0);
-    const newTotal = others + (read.cents ?? 0);
-    if (amount !== null && newTotal > amount && newTotal > exactTotal) {
-      const room = amount - others;
-      setOverNote({
-        id,
-        text:
-          room > 0
-            ? `At most ${formatCents(room)} fits here, or the amounts go over ${formatCents(amount)}.`
-            : `The other amounts already use up the ${formatCents(amount)} total.`,
-      });
+    const refused = refuseExactChange({
+      total: amount,
+      assigned: exactTotal,
+      before: exactCents.get(id) ?? 0,
+      after: read.cents ?? 0,
+      addsPlus: countPlus(read.text) > countPlus(exactText[id] ?? ""),
+    });
+    if (refused) {
+      setLimitNote({ id, text: refused });
       return;
     }
-    setOverNote(null);
+    setLimitNote(null);
     setExactText((current) => ({ ...current, [id]: read.text }));
   }
 
@@ -139,7 +144,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   function switchMode(next: SplitMode) {
     if (next === mode) return;
     setFeedback(null);
-    setOverNote(null);
+    setLimitNote(null);
     // Carry the split over, so switching doesn't start from scratch.
     if (next === "exact" && equalShares) {
       const filledIn = people.map((p) => {
@@ -354,8 +359,8 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
                 );
               }
               const cents = exactCents.get(p.id) ?? null;
-              const problem =
-                errors.people.get(p.id) ?? (overNote?.id === p.id ? overNote.text : undefined);
+              const problem = errors.people.get(p.id);
+              const note = !problem && limitNote?.id === p.id ? limitNote.text : undefined;
               return (
                 <li key={p.id}>
                   <label htmlFor={boxId}>{nameFor(p)}</label>
@@ -372,10 +377,16 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
                       inputMode="decimal"
                       placeholder="0.00"
                       autoComplete="off"
-                      {...problemProps(errorId(p.id), problem)}
+                      aria-invalid={problem ? true : undefined}
+                      aria-describedby={problem || note ? errorId(p.id) : undefined}
                     />
                   </span>
                   <FieldError id={errorId(p.id)} text={problem} live />
+                  {note && (
+                    <p id={errorId(p.id)} className="field-note" role="status">
+                      {note}
+                    </p>
+                  )}
                 </li>
               );
             })}
@@ -384,7 +395,9 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           {mode === "exact" && amount !== null && (
             <p className={exactTotal === amount ? "split-status done" : "split-status"} aria-live="polite">
               {exactTotal < amount && `${formatCents(amount - exactTotal)} left to assign`}
-              {exactTotal > amount && `${formatCents(exactTotal - amount)} over the total`}
+              {/* Only happens if the total is made smaller after the amounts are filled in. */}
+              {exactTotal > amount &&
+                `${formatCents(exactTotal - amount)} over the total. Lower an amount to fix it.`}
               {exactTotal === amount && `Adds up to ${formatCents(amount)}`}
             </p>
           )}
@@ -452,6 +465,10 @@ function startingSplit(expense: Expense | undefined, people: Member[]) {
   const exact: Record<string, string> = {};
   for (const [id, cents] of shares) exact[id] = centsToDecimal(cents);
   return { mode: (isEqual ? "equal" : "exact") as SplitMode, ticked: new Set(inSplit), exact };
+}
+
+function countPlus(text: string): number {
+  return text.split("+").length - 1;
 }
 
 // Marks a box as having a problem and links it to the message under it.
