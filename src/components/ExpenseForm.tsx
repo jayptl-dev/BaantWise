@@ -1,7 +1,7 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { DESCRIPTION_MAX, peopleInvolved, type Expense, type Visibility } from "../lib/expenses";
 import { todayLocal } from "../lib/format";
-import { centsToDecimal, formatCents, MAX_CENTS, parseCents, splitEqually } from "../lib/money";
+import { centsToDecimal, formatCents, MAX_CENTS, readMoney, splitEqually } from "../lib/money";
 import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
@@ -10,6 +10,15 @@ import { LockIcon } from "./LockIcon";
 import { useConfirm } from "./useConfirm";
 
 type SplitMode = "equal" | "exact";
+
+type FormErrors = {
+  description?: string;
+  amount?: string;
+  paidBy?: string;
+  date?: string;
+  split?: string; // about the split as a whole
+  people: Map<string, string>; // member id → the problem with their exact amount
+};
 
 type ExpenseFormProps = {
   data: GroupData;
@@ -24,7 +33,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const { group } = data;
   const { ask, dialog } = useConfirm();
   const { busy, feedback, setFeedback, run } = useDbAction();
-  const ids = { description: useId(), amount: useId(), paidBy: useId(), date: useId() };
+  const ids = { description: useId(), amount: useId(), paidBy: useId(), date: useId(), split: useId() };
 
   // Who can be picked: everyone in the group now, plus (when editing) anyone already
   // on this expense who has since left, so they aren't dropped by accident.
@@ -42,26 +51,26 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const [ticked, setTicked] = useState<Set<string>>(start.ticked);
   const [exactText, setExactText] = useState<Record<string, string>>(start.exact);
   const [visibility, setVisibility] = useState<Visibility>(expense?.visibility ?? "group");
+  // After the first Save, missing things (like an empty description) are pointed out too.
+  const [tried, setTried] = useState(false);
 
-  // Worked out from what's typed so far, on every change.
-  const typedAmount = parseCents(amountText);
-  const amount = typedAmount !== null && typedAmount > 0 && typedAmount <= MAX_CENTS ? typedAmount : null;
+  // Worked out from what's typed so far, on every change. The boxes only ever hold
+  // money (see changeAmount), so reading them always works.
+  const totalCents = readMoney(amountText)?.cents ?? null; // null = empty
+  const amount = totalCents !== null && totalCents > 0 && totalCents <= MAX_CENTS ? totalCents : null;
 
   const tickedIds = people.filter((p) => ticked.has(p.id)).map((p) => p.id); // in list order
   const equalShares = amount === null ? null : splitEqually(amount, tickedIds, paidBy);
 
-  // Exact amounts: blank counts as $0.00; null means it isn't an amount.
-  const exactCents = new Map(
-    people.map((p) => {
-      const text = exactText[p.id] ?? "";
-      return [p.id, text.trim() === "" ? 0 : parseCents(text)];
-    }),
-  );
+  // Exact amounts. Each box can also add and take away, like "115.22+64.88".
+  // An empty box means that person isn't in the split.
+  const exactRead = new Map(people.map((p) => [p.id, readMoney(exactText[p.id] ?? "", true)]));
+  const exactCents = new Map(people.map((p) => [p.id, exactRead.get(p.id)?.cents ?? null]));
   const exactTotal = [...exactCents.values()].reduce<number>((sum, cents) => sum + (cents ?? 0), 0);
 
   // The people splitting it, and so who a private expense is shared with.
   const splitIds =
-    mode === "equal" ? tickedIds : people.filter((p) => (exactCents.get(p.id) ?? 0) > 0).map((p) => p.id);
+    mode === "equal" ? tickedIds : people.filter((p) => exactCents.get(p.id) !== null).map((p) => p.id);
   // The database's rule: the payer, the people splitting it, and whoever added it (you).
   const involved = new Set([paidBy, ...splitIds, me.id]);
   const onlyMe = involved.size === 1;
@@ -71,6 +80,29 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     if (member.id === me.id) return `${member.display_name} (you)`;
     if (!data.members.includes(member)) return `${member.display_name} (left)`;
     return member.display_name;
+  }
+
+  function whose(member: Member): string {
+    return member.id === me.id ? "Your amount" : `${member.display_name}'s amount`;
+  }
+
+  // Amount boxes only take money: a key that would make anything else is ignored.
+  function changeAmount(text: string) {
+    const read = readMoney(text);
+    if (read) setAmountText(read.text);
+  }
+
+  function changeExact(id: string, text: string) {
+    const read = readMoney(text, true);
+    if (read) setExactText((current) => ({ ...current, [id]: read.text }));
+  }
+
+  // When you leave a box with a sum in it, show the answer instead ("10+2.5" → "12.50").
+  function finishSum(id: string) {
+    const cents = exactRead.get(id)?.isSum ? exactCents.get(id) : null;
+    if (cents !== null && cents !== undefined && cents >= 0) {
+      setExactText((current) => ({ ...current, [id]: centsToDecimal(cents) }));
+    }
   }
 
   function toggle(id: string) {
@@ -97,39 +129,68 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     setMode(next);
   }
 
-  // The first problem with the form, in plain words, or null if it's ready to save.
-  function problem(): string | null {
+  // Every problem with the form, each shown under the box it's about. They're worked
+  // out again on every change, so they update as you type and clear once fixed.
+  // Wrong values show straight away; missing ones only after the first Save.
+  function findErrors(includeMissing: boolean): FormErrors {
+    const errors: FormErrors = { people: new Map() };
+
     const length = Array.from(description.trim()).length;
-    if (length === 0) return "Say what the expense was for.";
-    if (length > DESCRIPTION_MAX) return `Keep the description to ${DESCRIPTION_MAX} characters or fewer.`;
-    if (typedAmount === null) return "Enter the amount, like 12.50.";
-    if (typedAmount === 0) return "The amount must be more than $0.00.";
-    if (amount === null) return `The most one expense can be is ${formatCents(MAX_CENTS)}.`;
-    if (!people.some((p) => p.id === paidBy)) return "Choose who paid.";
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(spentOn)) return "Choose the date.";
+    if (length > DESCRIPTION_MAX) errors.description = `Keep it to ${DESCRIPTION_MAX} characters or fewer.`;
+    else if (length === 0 && includeMissing) errors.description = "Say what the expense was for.";
+
+    if (totalCents !== null && totalCents > MAX_CENTS) {
+      errors.amount = `The most one expense can be is ${formatCents(MAX_CENTS)}.`;
+    } else if (totalCents === null && includeMissing) {
+      errors.amount = "Enter the amount, like 12.50.";
+    } else if (totalCents === 0 && includeMissing) {
+      errors.amount = "The amount must be more than $0.00.";
+    }
+
+    if (includeMissing && !people.some((p) => p.id === paidBy)) errors.paidBy = "Choose who paid.";
+    if (includeMissing && !/^\d{4}-\d{2}-\d{2}$/.test(spentOn)) errors.date = "Choose the date.";
+
     if (mode === "equal") {
-      if (tickedIds.length === 0) return "Tick at least one person to split with.";
-      return null;
+      if (includeMissing && tickedIds.length === 0) errors.split = "Tick at least one person to split with.";
+      return errors;
     }
-    const badAmount = people.find((p) => exactCents.get(p.id) === null);
-    if (badAmount) return `Check the amount for ${badAmount.display_name}, like 12.50.`;
-    if (splitIds.length === 0) return "Enter at least one person's amount.";
-    const total = formatCents(amount);
-    if (exactTotal < amount) {
-      return `${formatCents(amount - exactTotal)} left to assign. The amounts must add up to ${total}.`;
+    for (const p of people) {
+      const cents = exactCents.get(p.id) ?? null;
+      if (cents !== null && cents < 0) errors.people.set(p.id, `${whose(p)} can't be less than $0.00.`);
+      if (cents !== null && cents > MAX_CENTS) {
+        errors.people.set(p.id, `${whose(p)} can't be more than ${formatCents(MAX_CENTS)}.`);
+      }
     }
-    if (exactTotal > amount) return `The amounts are ${formatCents(exactTotal - amount)} over the total of ${total}.`;
+    if (includeMissing && splitIds.length === 0) {
+      errors.split = "Enter at least one person's amount.";
+    } else if (includeMissing && amount !== null && exactTotal !== amount) {
+      errors.split = `The amounts must add up to ${formatCents(amount)}.`;
+    }
+    return errors;
+  }
+
+  const errors = findErrors(tried);
+
+  // The box to jump to for the first problem, top to bottom.
+  function firstProblemId(found: FormErrors): string | null {
+    if (found.description) return ids.description;
+    if (found.amount) return ids.amount;
+    if (found.paidBy) return ids.paidBy;
+    if (found.date) return ids.date;
+    const person = people.find((p) => found.people.has(p.id));
+    if (person) return `${ids.split}-${person.id}`;
+    if (found.split && people.length > 0) return `${ids.split}-${people[0].id}`;
     return null;
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    const issue = problem();
-    if (issue) {
-      setFeedback({ text: issue, isError: true });
+    const problemId = firstProblemId(findErrors(true));
+    if (problemId || amount === null) {
+      setTried(true);
+      if (problemId) document.getElementById(problemId)?.focus();
       return;
     }
-    if (amount === null) return; // already covered by problem(); this tells TypeScript
     // Making a private expense visible to the whole group can't be taken back quietly.
     if (expense?.visibility === "participants" && finalVisibility === "group") {
       const sure = await ask(`Everyone in ${group.name} will see this expense. Continue?`, "Continue", false);
@@ -158,6 +219,8 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   }
 
   const onlyNames = peopleInvolved(involved, data, me.id);
+  // Ids that link each box to the problem shown under it, for screen readers.
+  const errorId = (key: string) => `${ids.split}-problem-${key}`;
 
   return (
     <>
@@ -172,7 +235,9 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             placeholder="For example: Groceries"
             autoComplete="off"
             enterKeyHint="next"
+            {...problemProps(errorId("description"), errors.description)}
           />
+          <FieldError id={errorId("description")} text={errors.description} />
         </div>
 
         <div className="field">
@@ -182,29 +247,44 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             <input
               id={ids.amount}
               value={amountText}
-              onChange={(event) => setAmountText(event.target.value)}
+              onChange={(event) => changeAmount(event.target.value)}
               inputMode="decimal"
               placeholder="0.00"
               autoComplete="off"
               enterKeyHint="next"
+              {...problemProps(errorId("amount"), errors.amount)}
             />
           </span>
+          <FieldError id={errorId("amount")} text={errors.amount} />
         </div>
 
         <div className="field">
           <label htmlFor={ids.paidBy}>Paid by</label>
-          <select id={ids.paidBy} value={paidBy} onChange={(event) => setPaidBy(event.target.value)}>
+          <select
+            id={ids.paidBy}
+            value={paidBy}
+            onChange={(event) => setPaidBy(event.target.value)}
+            {...problemProps(errorId("paid-by"), errors.paidBy)}
+          >
             {people.map((p) => (
               <option key={p.id} value={p.id}>
                 {nameFor(p)}
               </option>
             ))}
           </select>
+          <FieldError id={errorId("paid-by")} text={errors.paidBy} />
         </div>
 
         <div className="field">
           <label htmlFor={ids.date}>Date</label>
-          <input id={ids.date} type="date" value={spentOn} onChange={(event) => setSpentOn(event.target.value)} />
+          <input
+            id={ids.date}
+            type="date"
+            value={spentOn}
+            onChange={(event) => setSpentOn(event.target.value)}
+            {...problemProps(errorId("date"), errors.date)}
+          />
+          <FieldError id={errorId("date")} text={errors.date} />
         </div>
 
         <fieldset>
@@ -223,36 +303,58 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             ))}
           </div>
 
+          {mode === "exact" && (
+            <p className="hint">
+              Leave a box empty if that person isn't in it. A box can add and take away, like 10+2.50.
+            </p>
+          )}
           <ul className="split-list">
-            {people.map((p) =>
-              mode === "equal" ? (
+            {people.map((p) => {
+              const boxId = `${ids.split}-${p.id}`;
+              if (mode === "equal") {
+                return (
+                  <li key={p.id}>
+                    <label className="choice">
+                      <input
+                        id={boxId}
+                        type="checkbox"
+                        checked={ticked.has(p.id)}
+                        onChange={() => toggle(p.id)}
+                        {...problemProps(errorId("split"), errors.split)}
+                      />
+                      <span>{nameFor(p)}</span>
+                    </label>
+                    <span className="split-amount">
+                      {equalShares?.has(p.id) ? formatCents(equalShares.get(p.id)!) : ""}
+                    </span>
+                  </li>
+                );
+              }
+              const cents = exactCents.get(p.id) ?? null;
+              const problem = errors.people.get(p.id);
+              return (
                 <li key={p.id}>
-                  <label className="choice">
-                    <input type="checkbox" checked={ticked.has(p.id)} onChange={() => toggle(p.id)} />
-                    <span>{nameFor(p)}</span>
-                  </label>
-                  <span className="split-amount">
-                    {equalShares?.has(p.id) ? formatCents(equalShares.get(p.id)!) : ""}
-                  </span>
-                </li>
-              ) : (
-                <li key={p.id}>
-                  <label htmlFor={`${ids.amount}-${p.id}`}>{nameFor(p)}</label>
+                  <label htmlFor={boxId}>{nameFor(p)}</label>
+                  {exactRead.get(p.id)?.isSum && cents !== null && (
+                    <span className="split-sum">= {formatCents(cents)}</span>
+                  )}
                   <span className="money-input small">
                     <span aria-hidden="true">$</span>
                     <input
-                      id={`${ids.amount}-${p.id}`}
+                      id={boxId}
                       value={exactText[p.id] ?? ""}
-                      onChange={(event) => setExactText({ ...exactText, [p.id]: event.target.value })}
+                      onChange={(event) => changeExact(p.id, event.target.value)}
+                      onBlur={() => finishSum(p.id)}
                       inputMode="decimal"
                       placeholder="0.00"
                       autoComplete="off"
-                      aria-invalid={exactCents.get(p.id) === null ? true : undefined}
+                      {...problemProps(errorId(p.id), problem)}
                     />
                   </span>
+                  <FieldError id={errorId(p.id)} text={problem} live />
                 </li>
-              ),
-            )}
+              );
+            })}
           </ul>
 
           {mode === "exact" && amount !== null && (
@@ -262,6 +364,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
               {exactTotal === amount && `Adds up to ${formatCents(amount)}`}
             </p>
           )}
+          <FieldError id={errorId("split")} text={errors.split} />
         </fieldset>
 
         <fieldset>
@@ -323,6 +426,22 @@ function startingSplit(expense: Expense | undefined, people: Member[]) {
   const equal = splitEqually(expense.amount_cents, inSplit, expense.paid_by);
   const isEqual = inSplit.length === shares.size && inSplit.every((id) => equal.get(id) === shares.get(id));
   const exact: Record<string, string> = {};
-  for (const [id, cents] of shares) exact[id] = cents > 0 ? centsToDecimal(cents) : "";
+  for (const [id, cents] of shares) exact[id] = centsToDecimal(cents);
   return { mode: (isEqual ? "equal" : "exact") as SplitMode, ticked: new Set(inSplit), exact };
+}
+
+// Marks a box as having a problem and links it to the message under it.
+function problemProps(errorId: string, problem: string | undefined) {
+  return problem ? { "aria-invalid": true, "aria-describedby": errorId } : {};
+}
+
+// A problem shown right under the box it's about. `live` reads it out as soon as it
+// appears (for problems that show up while typing).
+function FieldError({ id, text, live }: { id: string; text?: string; live?: boolean }) {
+  if (!text) return null;
+  return (
+    <p id={id} className="field-error" role={live ? "alert" : undefined}>
+      {text}
+    </p>
+  );
 }

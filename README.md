@@ -44,6 +44,8 @@ You need [Node.js](https://nodejs.org/) (which includes npm) and [Git](https://g
 
 To check that the production build works, run `npm run build`. It creates a `dist` folder with the finished site.
 
+To run the automated tests, run `npm test`. They use [Vitest](https://vitest.dev/) and live next to the code they check, in files ending in `.test.ts` (for example `src/lib/money.test.ts` checks how typed amounts become cents).
+
 ## How it deploys
 
 Cloudflare Workers is connected to this GitHub repository. When a change lands on the `main` branch, Cloudflare:
@@ -104,7 +106,9 @@ The screens are in `src/pages`, shared pieces in `src/components`, and data help
 | `/groups/<id>/expenses/<expense id>/edit` | Change an expense (only the person who added it). |
 
 - **The list** shows what each expense was for, who paid and how much, and on the right what it means for you: "you lent $X" (you paid; X is the amount minus your own share), "you owe $X" (your share), or "not involved".
-- **Adding:** what it was for (1 to 120 characters), the amount in CA$, who paid (anyone in the group, guests included; you by default), the date (today by default) and how to split it. **Equally** splits between the people you tick and shows each share as you type. Cents that don't divide evenly go one each, starting with the payer: $10.00 three ways paid by Jay is Jay $3.34, the others $3.33. **Exact amounts** takes one amount per person and shows "$X left to assign" until they add up exactly.
+- **Adding:** what it was for (1 to 120 characters), the amount in CA$, who paid (anyone in the group, guests included; you by default), the date (today by default) and how to split it. **Equally** splits between the people you tick and shows each share as you type. Cents that don't divide evenly go one each, starting with the payer: $10.00 three ways paid by Jay is Jay $3.34, the others $3.33. **Exact amounts** takes one amount per person and shows "$X left to assign" until they add up exactly. Leave a box empty if that person isn't in the split. A box can also add and take away, like `115.22+64.88` or `20-4.50`: the answer shows next to it, and replaces the sum when you leave the box.
+- **Amount boxes only take money:** digits and one decimal point with at most 2 decimals (a comma counts as the decimal point, for French keyboards). Any other key is ignored. An unfinished amount like `3.` counts as $3.00.
+- **Problems show under the box they're about** and update as you type. A wrong value (like a sum below $0.00) shows straight away; missing things (like an empty description) show after you press Save, which also jumps to the first problem.
 - **Who can see it:** "Everyone in <group>", or "Only <names>": the payer, the people splitting it and whoever added it. Nobody else sees a private expense, not even admins. An expense that only involves you is always "Only you". Changing a private expense to "Everyone" asks first.
 - **Editing and deleting:** only the person who added an expense can change or delete it. Everyone else sees who that is.
 - **Deleting** marks the expense as deleted instead of erasing it, and the app hides it for everyone. Supabase Realtime applies the privacy rules to new and changed rows but not to erased ones, so erasing a private expense would tell every connected person about it. A row marked deleted keeps its privacy rules.
