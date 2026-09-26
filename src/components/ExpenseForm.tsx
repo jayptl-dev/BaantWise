@@ -53,6 +53,8 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const [visibility, setVisibility] = useState<Visibility>(expense?.visibility ?? "group");
   // After the first Save, missing things (like an empty description) are pointed out too.
   const [tried, setTried] = useState(false);
+  // Why the last key in a person's box was ignored (it would have gone over the total).
+  const [overNote, setOverNote] = useState<{ id: string; text: string } | null>(null);
 
   // Worked out from what's typed so far, on every change. The boxes only ever hold
   // money (see changeAmount), so reading them always works.
@@ -89,12 +91,32 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   // Amount boxes only take money: a key that would make anything else is ignored.
   function changeAmount(text: string) {
     const read = readMoney(text);
-    if (read) setAmountText(read.text);
+    if (!read) return;
+    setOverNote(null);
+    setAmountText(read.text);
   }
 
+  // A person's box also never lets the amounts go over the total, not even by a cent.
+  // (If they're already over, because the total was made smaller, changes that bring
+  // them back down are still allowed.)
   function changeExact(id: string, text: string) {
     const read = readMoney(text, true);
-    if (read) setExactText((current) => ({ ...current, [id]: read.text }));
+    if (!read) return;
+    const others = exactTotal - (exactCents.get(id) ?? 0);
+    const newTotal = others + (read.cents ?? 0);
+    if (amount !== null && newTotal > amount && newTotal > exactTotal) {
+      const room = amount - others;
+      setOverNote({
+        id,
+        text:
+          room > 0
+            ? `At most ${formatCents(room)} fits here, or the amounts go over ${formatCents(amount)}.`
+            : `The other amounts already use up the ${formatCents(amount)} total.`,
+      });
+      return;
+    }
+    setOverNote(null);
+    setExactText((current) => ({ ...current, [id]: read.text }));
   }
 
   // When you leave a box with a sum in it, show the answer instead ("10+2.5" → "12.50").
@@ -117,6 +139,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   function switchMode(next: SplitMode) {
     if (next === mode) return;
     setFeedback(null);
+    setOverNote(null);
     // Carry the split over, so switching doesn't start from scratch.
     if (next === "exact" && equalShares) {
       const filledIn = people.map((p) => {
@@ -331,7 +354,8 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
                 );
               }
               const cents = exactCents.get(p.id) ?? null;
-              const problem = errors.people.get(p.id);
+              const problem =
+                errors.people.get(p.id) ?? (overNote?.id === p.id ? overNote.text : undefined);
               return (
                 <li key={p.id}>
                   <label htmlFor={boxId}>{nameFor(p)}</label>
