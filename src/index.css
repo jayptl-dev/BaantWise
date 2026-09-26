@@ -772,9 +772,10 @@ dialog.share-dialog::backdrop {
 
 .split-list li {
   display: flex;
+  flex-wrap: wrap; /* a problem message goes on its own line under the box */
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0 0.75rem;
   min-height: 3.25rem;
   border-bottom: 1px solid var(--border);
 }
@@ -816,6 +817,23 @@ dialog.share-dialog::backdrop {
   height: 1.25rem;
   margin: 0;
   accent-color: var(--accent);
+}
+
+/* A problem shown right under the box it's about. */
+.field-error {
+  margin: 0.375rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--danger);
+}
+
+.split-list .field-error {
+  flex-basis: 100%;
+  margin: 0 0 0.5rem;
+  text-align: right;
+}
+
+.expense-form [aria-invalid="true"] {
+  border-color: var(--danger);
 }
 
 .split-status {

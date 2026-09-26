@@ -26,7 +26,7 @@ Put the full explanation in the commit message and the pull request description,
 - Now: React + Vite + TypeScript, served as static assets on Cloudflare Workers (Cloudflare Vite plugin, `wrangler.jsonc`, npm).
 - Now: Supabase Auth with Google sign-in (`@supabase/supabase-js`, one shared client in `src/lib/supabase.ts`, public URL and publishable key in `src/config.ts`).
 - Now: Supabase database. Migrations are copied into `supabase/migrations`; generated types are in `src/lib/database.types.ts` and the client is typed with `createClient<Database>`.
-- Now: React Router (`react-router`, routes in `src/App.tsx`): `/`, `/groups/:id`, `/groups/:id/settings`, `/groups/:id/expenses/new`, `/groups/:id/expenses/:expenseId`, `/groups/:id/expenses/:expenseId/edit`, `/join/:token`. Screens live in `src/pages`, shared UI in `src/components`, data and sign-in helpers in `src/lib` (`auth.tsx` for who is signed in, `errors.ts` for friendly error lines, `money.ts` for cents, `expenses.ts` for loading expenses).
+- Now: React Router (`react-router`, routes in `src/App.tsx`): `/`, `/groups/:id`, `/groups/:id/settings`, `/groups/:id/expenses/new`, `/groups/:id/expenses/:expenseId`, `/groups/:id/expenses/:expenseId/edit`, `/join/:token`. Screens live in `src/pages`, shared UI in `src/components`, data and sign-in helpers in `src/lib` (`auth.tsx` for who is signed in, `errors.ts` for friendly error lines, `money.ts` for cents (`readMoney` is the one place that reads an amount box), `expenses.ts` for loading expenses).
 - Planned later:
   - Supabase (Canada Central region) for the database, Google sign-in, storage, edge functions and scheduled jobs
   - Resend for email
@@ -56,4 +56,5 @@ Put the full explanation in the commit message and the pull request description,
 - `npm install`: install packages
 - `npm run dev`: run locally at http://localhost:5173
 - `npm run build`: type-check and build into `dist/`
+- `npm test`: run the Vitest tests (`src/**/*.test.ts`)
 - `npm run deploy`: build and deploy with Wrangler (normally Cloudflare deploys from GitHub instead)
