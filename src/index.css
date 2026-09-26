@@ -832,6 +832,15 @@ dialog.share-dialog::backdrop {
   text-align: right;
 }
 
+/* Why a key was ignored: a hint, not an error. */
+.split-list .field-note {
+  flex-basis: 100%;
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  text-align: right;
+  color: var(--muted);
+}
+
 .expense-form [aria-invalid="true"] {
   border-color: var(--danger);
 }

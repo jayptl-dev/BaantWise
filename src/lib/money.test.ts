@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { centsToDecimal, formatCents, readMoney, splitEqually } from "./money";
+import { centsToDecimal, formatCents, readMoney, refuseExactChange, splitEqually } from "./money";
 
 describe("readMoney: one amount (the total box)", () => {
   it("turns amounts into whole cents", () => {
@@ -61,6 +61,46 @@ describe("readMoney: sums (exact amount boxes)", () => {
 
   it("refuses sums in a box that doesn't allow them", () => {
     expect(readMoney("10+2")).toBeNull();
+  });
+});
+
+describe("refuseExactChange: the amounts never go over the total", () => {
+  // $100.00 split exactly: 53.34 + 10.00 + 36.66. Changing the 10.00 box.
+  const full = { total: 10000, assigned: 10000, before: 1000 };
+
+  it("refuses adding even a cent when everything is assigned", () => {
+    expect(refuseExactChange({ ...full, after: 1010, addsPlus: false })).toBe(
+      "Nothing is left to assign, so amounts can only go down.",
+    );
+    expect(refuseExactChange({ ...full, after: 1001, addsPlus: false })).not.toBeNull();
+  });
+
+  it("refuses a + when nothing is left to add", () => {
+    expect(refuseExactChange({ ...full, after: 1000, addsPlus: true })).not.toBeNull();
+  });
+
+  it("always lets an amount go down", () => {
+    expect(refuseExactChange({ ...full, after: 900, addsPlus: false })).toBeNull();
+    expect(refuseExactChange({ ...full, after: 0, addsPlus: false })).toBeNull();
+  });
+
+  it("allows up to what's left, not a cent more", () => {
+    const room = { total: 10000, assigned: 9800, before: 1000 }; // $2.00 left
+    expect(refuseExactChange({ ...room, after: 1200, addsPlus: false })).toBeNull();
+    expect(refuseExactChange({ ...room, after: 1000, addsPlus: true })).toBeNull();
+    expect(refuseExactChange({ ...room, after: 1201, addsPlus: false })).toBe("Only $2.00 is left to assign.");
+  });
+
+  it("only lets amounts go down when they're already over (the total was lowered)", () => {
+    const over = { total: 10000, assigned: 10011, before: 1010 };
+    expect(refuseExactChange({ ...over, after: 999, addsPlus: false })).toBeNull();
+    expect(refuseExactChange({ ...over, after: 1011, addsPlus: false })).not.toBeNull();
+  });
+
+  it("asks for the total first", () => {
+    const noTotal = { total: null, assigned: 0, before: 0 };
+    expect(refuseExactChange({ ...noTotal, after: 500, addsPlus: false })).toBe("Enter the total amount first.");
+    expect(refuseExactChange({ total: null, assigned: 500, before: 500, after: 0, addsPlus: false })).toBeNull();
   });
 });
 

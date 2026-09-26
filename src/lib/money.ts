@@ -56,6 +56,32 @@ export function readMoney(text: string, allowSums = false): MoneyInput | null {
   return { text: tidy, cents, isSum: /[+-]/.test(tidy) };
 }
 
+export type ExactChange = {
+  total: number | null; // the expense total, or null if it hasn't been entered yet
+  assigned: number; // all the exact amounts together, before this change
+  before: number; // this person's amount before the change (0 if empty)
+  after: number; // this person's amount after the change (0 if empty)
+  addsPlus: boolean; // the change types a new "+"
+};
+
+// The rule for "Exact amounts": the amounts may never go over the total, not even
+// by a cent. A change that would push them over is refused, and so is a "+" when
+// there's nothing left to add. Lowering an amount is always allowed.
+// Returns null if the change is fine, or a short note saying why it was refused.
+export function refuseExactChange(change: ExactChange): string | null {
+  const limit = change.total ?? 0; // no total yet: nothing fits
+  const assignedAfter = change.assigned - change.before + change.after;
+  const goesOver = assignedAfter > change.assigned && assignedAfter > limit;
+  const nothingToAdd = change.addsPlus && assignedAfter >= limit;
+  if (!goesOver && !nothingToAdd) return null;
+
+  if (change.total === null) return "Enter the total amount first.";
+  const left = limit - change.assigned;
+  return left > 0
+    ? `Only ${formatCents(left)} is left to assign.`
+    : "Nothing is left to assign, so amounts can only go down.";
+}
+
 // Split a total equally, in whole cents. Leftover cents go out one each,
 // starting with the payer if they're in the split, then in list order.
 // $10.00 three ways paid by Jay: Jay 334, the others 333 each.
