@@ -1,7 +1,15 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { DESCRIPTION_MAX, peopleInvolved, type Expense, type Visibility } from "../lib/expenses";
 import { todayLocal } from "../lib/format";
-import { centsToDecimal, formatCents, MAX_CENTS, parseCents, splitEqually } from "../lib/money";
+import {
+  centsToDecimal,
+  evaluateCents,
+  formatCents,
+  isSum,
+  MAX_CENTS,
+  parseCents,
+  splitEqually,
+} from "../lib/money";
 import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
@@ -51,10 +59,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const equalShares = amount === null ? null : splitEqually(amount, tickedIds, paidBy);
 
   // Exact amounts: blank counts as $0.00; null means it isn't an amount.
+  // Each box can also add and take away, like "115.22+64.88".
   const exactCents = new Map(
     people.map((p) => {
       const text = exactText[p.id] ?? "";
-      return [p.id, text.trim() === "" ? 0 : parseCents(text)];
+      return [p.id, text.trim() === "" ? 0 : evaluateCents(text)];
     }),
   );
   const exactTotal = [...exactCents.values()].reduce<number>((sum, cents) => sum + (cents ?? 0), 0);
@@ -97,6 +106,15 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     setMode(next);
   }
 
+  // When you leave a box with a sum in it, show the answer instead ("10+2.5" → "12.50").
+  function finishSum(id: string) {
+    const text = exactText[id] ?? "";
+    const cents = exactCents.get(id);
+    if (isSum(text) && cents !== null && cents !== undefined && cents >= 0) {
+      setExactText((current) => ({ ...current, [id]: centsToDecimal(cents) }));
+    }
+  }
+
   // The first problem with the form, in plain words, or null if it's ready to save.
   function problem(): string | null {
     const length = Array.from(description.trim()).length;
@@ -112,7 +130,9 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
       return null;
     }
     const badAmount = people.find((p) => exactCents.get(p.id) === null);
-    if (badAmount) return `Check the amount for ${badAmount.display_name}, like 12.50.`;
+    if (badAmount) return `Check the amount for ${badAmount.display_name}, like 12.50 or 10+2.50.`;
+    const belowZero = people.find((p) => (exactCents.get(p.id) ?? 0) < 0);
+    if (belowZero) return `The amount for ${belowZero.display_name} can't be less than $0.00.`;
     if (splitIds.length === 0) return "Enter at least one person's amount.";
     const total = formatCents(amount);
     if (exactTotal < amount) {
@@ -223,6 +243,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             ))}
           </div>
 
+          {mode === "exact" && <p className="hint">Tip: a box can add and take away, like 10+2.50.</p>}
           <ul className="split-list">
             {people.map((p) =>
               mode === "equal" ? (
@@ -238,12 +259,16 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
               ) : (
                 <li key={p.id}>
                   <label htmlFor={`${ids.amount}-${p.id}`}>{nameFor(p)}</label>
+                  {isSum(exactText[p.id] ?? "") && exactCents.get(p.id) != null && (
+                    <span className="split-sum">= {formatCents(exactCents.get(p.id)!)}</span>
+                  )}
                   <span className="money-input small">
                     <span aria-hidden="true">$</span>
                     <input
                       id={`${ids.amount}-${p.id}`}
                       value={exactText[p.id] ?? ""}
                       onChange={(event) => setExactText({ ...exactText, [p.id]: event.target.value })}
+                      onBlur={() => finishSum(p.id)}
                       inputMode="decimal"
                       placeholder="0.00"
                       autoComplete="off"

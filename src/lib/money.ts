@@ -32,6 +32,30 @@ export function parseCents(text: string): number | null {
   return Number((whole || "0") + fraction.padEnd(2, "0"));
 }
 
+// Like parseCents, but also adds and takes away: "115.22+64.88" → 18010,
+// "20-4.50" → 1550. Each number is turned into cents first, so the maths is exact.
+// A + or - at the end is still being typed, so it's ignored for now ("115.22+" → 11522).
+// The result can be below zero; the caller decides what to do with that.
+export function evaluateCents(text: string): number | null {
+  const cleaned = text
+    .replace(/[\s$]/g, "")
+    .replace(/[−–]/g, "-") // the "−" and "–" some keyboards type
+    .replace(/[+-]$/, "");
+  if (!/^[+-]?[^+-]+(?:[+-][^+-]+)*$/.test(cleaned)) return null;
+  let total = 0;
+  for (const [, sign, number] of cleaned.matchAll(/([+-]?)([^+-]+)/g)) {
+    const cents = parseCents(number);
+    if (cents === null) return null;
+    total += sign === "-" ? -cents : cents;
+  }
+  return total;
+}
+
+// True if the text is a sum ("10+2.50") rather than a single amount.
+export function isSum(text: string): boolean {
+  return /\d\s*[+\-−–]/.test(text);
+}
+
 // Split a total equally, in whole cents. Leftover cents go out one each,
 // starting with the payer if they're in the split, then in list order.
 // $10.00 three ways paid by Jay: Jay 334, the others 333 each.
