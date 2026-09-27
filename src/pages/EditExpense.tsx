@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { ExpenseForm } from "../components/ExpenseForm";
 import {
   ExpenseDeleted,
@@ -23,6 +23,7 @@ function EditExpenseScreen({ groupId, expenseId }: { groupId: string; expenseId:
   const { user } = useAuth();
   const { state, reload } = useExpense(groupId, expenseId, user?.id ?? "");
   const goBack = useGoBack();
+  const navigate = useNavigate();
   if (state.status === "loading") return <Loading />;
   if (state.status === "missing") return <GroupMissing />;
   if (state.status === "gone") return <GroupGone />;
@@ -53,7 +54,19 @@ function EditExpenseScreen({ groupId, expenseId }: { groupId: string; expenseId:
         ← Back to {expense.description}
       </Link>
       <h1 className="page-title">Edit expense</h1>
-      <ExpenseForm data={data} me={me} expense={expense} onDone={() => goBack(detailsLink)} />
+      <ExpenseForm
+        data={data}
+        me={me}
+        expense={expense}
+        onDone={(saved) => {
+          // The changes saved but the photo part didn't: say so on the expense.
+          if (saved?.receiptNotice) {
+            navigate(detailsLink, { replace: true, state: { receiptNotice: saved.receiptNotice } });
+          } else {
+            goBack(detailsLink);
+          }
+        }}
+      />
     </>
   );
 }

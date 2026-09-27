@@ -121,6 +121,19 @@ The screens are in `src/pages`, shared pieces in `src/components`, and data help
 
 The code is in `src/pages/AddExpense.tsx`, `EditExpense.tsx` and `ExpenseDetails.tsx`, the form in `src/components/ExpenseForm.tsx`, and the helpers in `src/lib/expenses.ts` and `src/lib/money.ts`.
 
+## Receipt photos
+
+Each expense can have one receipt photo. It follows the expense's own privacy: if you can see the expense, you can see its photo, and nobody else can.
+
+- **Adding:** on the Add or Edit expense screen, under the split, **Add receipt photo** opens the phone's camera or gallery. Only whoever added the expense gets this, and after that, **Replace photo** and **Remove photo**. Anything that isn't a picture (like a PDF) is refused with a plain message.
+- **Shrunk on the phone first** (`src/lib/shrinkPhoto.ts`, which receipt scanning will reuse): the photo is drawn onto a canvas, turned upright if the camera saved it sideways, with its longest side at most 2000px. It's saved as a JPEG at quality 0.8, then 0.7, 0.6 and 0.5 until it's 500 KB or less; if it's still over 900 KB, it's done again at 1600px. Nothing over 1 MB is ever uploaded. Re-drawing it also removes the photo's hidden EXIF data, including where it was taken.
+- **Saving:** the expense is saved first. Then the photo goes to the private Storage bucket `receipts` as `<expense id>/<random id>.jpg`, and `set_expense_receipt` links it to the expense (`expenses.receipt_path`). If the photo part fails, the expense stays saved and its page says "Your expense was saved, but the receipt photo didn't upload." You can add up to 50 receipt photos a day. Replacing a photo uploads the new one, then removes the old files. Removing one unlinks it, then removes its files. Deleting an expense removes its photos too.
+- **Seeing it:** the list shows a small receipt icon next to expenses with a photo. The expense's page shows a thumbnail; tap it for full screen, and tap again (or **Close**) to go back. The photo is opened with a link that works for 10 minutes and is never saved.
+- **Live updates:** when a photo is added, replaced or removed, open pages update by themselves.
+- **The rules live in the database** (Storage policies): other people can only open the one photo an expense points to. Replaced or unlinked files are only visible to whoever added the expense. Uploads need a live expense you added.
+
+The code is in `src/lib/shrinkPhoto.ts` (with tests in `shrinkPhoto.test.ts`), `src/lib/receipts.ts` (upload, link, remove, viewing links) and `src/components/ReceiptPhoto.tsx` (icon, thumbnail, full-screen view).
+
 ## Balances and settling up
 
 Baantwise never moves money. It only works out who owes whom and writes down payments people say they made.

@@ -5,6 +5,7 @@ import { BalancesSection } from "../components/BalancesSection";
 import { LockIcon } from "../components/LockIcon";
 import { NameForm } from "../components/NameForm";
 import { PaymentDialog } from "../components/PaymentDialog";
+import { ReceiptIcon } from "../components/ReceiptPhoto";
 import { ShareDialog } from "../components/ShareDialog";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
@@ -277,7 +278,10 @@ function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: Gro
     <li>
       <Link to={`/groups/${data.group.id}/expenses/${expense.id}`} className="expense-link">
         <span className="expense-main">
-          <span className="expense-title">{expense.description}</span>
+          <span className="expense-title">
+            {expense.description}
+            {expense.receipt_path && <ReceiptIcon />}
+          </span>
           <span className="expense-sub">
             {payer} paid {formatCents(expense.amount_cents)} · {formatDay(expense.spent_on, true)}
           </span>

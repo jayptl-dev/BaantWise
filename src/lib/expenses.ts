@@ -17,6 +17,7 @@ export type Expense = {
   visibility: Visibility; // "group" = everyone in the group, "participants" = only the people in it
   created_by: string | null; // the account (not member) that added it
   created_at: string;
+  receipt_path: string | null; // the receipt photo in Storage, or null for none (see receipts.ts)
   shares: Share[];
 };
 
@@ -32,7 +33,7 @@ export async function fetchExpenses(groupId: string, which: ExpensesToLoad) {
   let query = supabase
     .from("expenses")
     .select(
-      "id, description, amount_cents, paid_by, spent_on, visibility, created_by, created_at, expense_shares(member_id, share_cents)",
+      "id, description, amount_cents, paid_by, spent_on, visibility, created_by, created_at, receipt_path, expense_shares(member_id, share_cents)",
     )
     .eq("group_id", groupId)
     .is("deleted_at", null);
