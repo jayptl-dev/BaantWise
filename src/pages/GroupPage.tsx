@@ -3,9 +3,11 @@ import { Link, useParams } from "react-router";
 import { Avatar } from "../components/Avatar";
 import { BalancesSection } from "../components/BalancesSection";
 import { LockIcon } from "../components/LockIcon";
+import { MyPartLabel } from "../components/MyPartLabel";
 import { NameForm } from "../components/NameForm";
 import { PaymentDialog } from "../components/PaymentDialog";
 import { ReceiptIcon } from "../components/ReceiptPhoto";
+import { SearchIcon } from "../components/SearchIcon";
 import { ShareDialog } from "../components/ShareDialog";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
@@ -140,14 +142,24 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
     <>
       <div className="group-header">
         <h1 className="page-title">{group.name}</h1>
-        <Link
-          to={`/groups/${group.id}/settings`}
-          className="icon-button"
-          aria-label="Group settings"
-          title="Group settings"
-        >
-          <SettingsIcon />
-        </Link>
+        <div className="header-actions">
+          <Link
+            to={`/groups/${group.id}/search`}
+            className="icon-button"
+            aria-label={`Search ${group.name}`}
+            title="Search this group"
+          >
+            <SearchIcon />
+          </Link>
+          <Link
+            to={`/groups/${group.id}/settings`}
+            className="icon-button"
+            aria-label="Group settings"
+            title="Group settings"
+          >
+            <SettingsIcon />
+          </Link>
+        </div>
       </div>
 
       <BalancesSection data={data} me={me} feedback={balanceFeedback} onSaved={paymentChanged} />
@@ -291,14 +303,7 @@ function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: Gro
             </span>
           )}
         </span>
-        {part.kind === "none" ? (
-          <span className="my-part none">not involved</span>
-        ) : (
-          <span className={`my-part ${part.kind}`}>
-            {part.kind === "lent" ? "you lent" : "you owe"}
-            <strong>{formatCents(part.cents)}</strong>
-          </span>
-        )}
+        <MyPartLabel part={part} />
       </Link>
     </li>
   );

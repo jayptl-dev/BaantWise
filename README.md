@@ -128,7 +128,7 @@ Each expense can have one receipt photo. It follows the expense's own privacy: i
 - **Adding:** on the Add or Edit expense screen, under the split, **Add receipt photo** opens the phone's camera or gallery. Only whoever added the expense gets this, and after that, **Replace photo** and **Remove photo**. Anything that isn't a picture (like a PDF) is refused with a plain message.
 - **Shrunk on the phone first** (`src/lib/shrinkPhoto.ts`, which receipt scanning will reuse): the photo is drawn onto a canvas, turned upright if the camera saved it sideways, with its longest side at most 2000px. It's saved as a JPEG at quality 0.8, then 0.7, 0.6 and 0.5 until it's 500 KB or less; if it's still over 900 KB, it's done again at 1600px. Nothing over 1 MB is ever uploaded. Re-drawing it also removes the photo's hidden EXIF data, including where it was taken.
 - **Saving:** the expense is saved first. Then the photo goes to the private Storage bucket `receipts` as `<expense id>/<random id>.jpg`, and `set_expense_receipt` links it to the expense (`expenses.receipt_path`). If the photo part fails, the expense stays saved and its page says "Your expense was saved, but the receipt photo didn't upload." You can add up to 50 receipt photos a day. Replacing a photo uploads the new one, then removes the old files. Removing one unlinks it, then removes its files. Deleting an expense removes its photos too.
-- **Seeing it:** the list shows a small receipt icon next to expenses with a photo. The expense's page shows a thumbnail; tap it for full screen, and tap again (or **Close**) to go back. The photo is opened with a link that works for 10 minutes and is never saved.
+- **Seeing it:** the expense list and search results show a small receipt icon next to expenses with a photo. The expense's page shows a thumbnail; tap it for full screen, and tap again (or **Close**) to go back. The photo is opened with a link that works for 10 minutes and is never saved.
 - **Live updates:** when a photo is added, replaced or removed, open pages update by themselves.
 - **The rules live in the database** (Storage policies): other people can only open the one photo an expense points to. Replaced or unlinked files are only visible to whoever added the expense. Uploads need a live expense you added.
 
@@ -150,6 +150,23 @@ Baantwise never moves money. It only works out who owes whom and writes down pay
 - **Your profile:** your name (saving also changes it in all your groups), an Interac e-Transfer email or 10-digit phone, and a PayPal.Me username (letters and numbers, up to 20; a pasted paypal.me link is trimmed to just the name). Only people in your groups can see these, and both are optional.
 - **Live updates:** an open group page updates its balances by itself when anyone adds, changes or deletes an expense, or records or undoes a payment.
 - **All in whole cents.** The maths is in `src/lib/balances.ts`, with tests in `src/lib/balances.test.ts`. The screens are `src/components/BalancesSection.tsx`, `SettleUpDialog.tsx` (the pay box) and `PaymentDialog.tsx`, plus `src/pages/Profile.tsx`.
+
+## Expense search
+
+| Address | What it shows |
+| --- | --- |
+| `/search` | Search the expenses in all your groups. Open it with the magnifying glass next to **Your groups**. |
+| `/groups/<id>/search` | Search one group's expenses. Open it with the magnifying glass on the group page. |
+
+- **Type part of a word** and matching expenses show up (the search looks inside what each expense was for, ignoring capital letters). It waits until you stop typing for 0.3 seconds, so it doesn't search on every key. `%`, `_` and `\` match themselves; `*` is ignored.
+- **Filters:** **Group** (all-groups search only, "All groups" by default), a **From** and **To** date (leave either empty for no limit) and **Only ones I'm in** (off by default: keeps only expenses you paid or have a share above $0 in).
+- **Each result** shows the date, the group (all-groups search only), what it was for (the first 50 characters; tap for the rest), the amount, what it means for you ("you lent $X", "you owe $X" or "not involved", like the group page), and a lock if it's private. Tap a result to open the expense.
+- **Newest first**, 50 at a time, with a **Show more** button.
+- **Nothing found:** "No results for '<text>'". A group with no expenses says "No expenses yet".
+- **Privacy:** the search asks the database directly, so the privacy rules decide what comes back: only groups you're still in, and a private expense only for the people in it. Deleted expenses never show.
+- The search stays in the address, so going back from an expense shows the same results.
+
+The screen is `src/pages/SearchExpenses.tsx`, and the query is in `src/lib/search.ts`, with tests in `src/lib/search.test.ts`.
 
 ## Database
 
