@@ -88,7 +88,10 @@ export function involvedIds(expense: Expense, data: GroupData): string[] {
 // or I'm not in it.
 export type MyPart = { kind: "lent" | "owe"; cents: number } | { kind: "none" };
 
-export function myPart(expense: Expense, myMemberId: string): MyPart {
+export function myPart(
+  expense: Pick<Expense, "paid_by" | "amount_cents" | "shares">,
+  myMemberId: string,
+): MyPart {
   const myShare = expense.shares.find((s) => s.member_id === myMemberId);
   if (expense.paid_by === myMemberId) {
     return { kind: "lent", cents: expense.amount_cents - (myShare?.share_cents ?? 0) };

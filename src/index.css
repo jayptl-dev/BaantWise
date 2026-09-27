@@ -291,6 +291,12 @@ button.back-link {
   gap: 0.5rem;
 }
 
+.header-actions {
+  flex: none;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .member {
   display: flex;
   flex-wrap: wrap;
@@ -1173,4 +1179,43 @@ button.expense-link {
     flex-direction: row;
     padding-left: 3.25rem;
   }
+}
+
+/* ---------- Search ---------- */
+
+.search-form .field + .field,
+.search-form .date-range {
+  margin-top: 1rem;
+}
+
+.date-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.date-range .field + .field {
+  margin-top: 0;
+}
+
+/* Date boxes can be wider than half a phone screen unless told otherwise. */
+.date-range input {
+  min-width: 0;
+}
+
+.search-form .text-button {
+  margin-top: 0.5rem;
+}
+
+.search-form .choice {
+  margin-top: 0.75rem;
+}
+
+.expense-title .lock-icon {
+  vertical-align: -0.125em;
+}
+
+/* Old results stay on screen, faded, while a new search runs. */
+.expense-list.stale {
+  opacity: 0.6;
 }

@@ -27,6 +27,14 @@ export function listOfNames(names: string[]): string {
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
+// The first `max` characters of some text, with "…" after them if anything was cut.
+// Counts characters the way people see them, so an emoji is never cut in half.
+export function shorten(text: string, max: number): string {
+  const characters = Array.from(text);
+  if (characters.length <= max) return text;
+  return `${characters.slice(0, max).join("").trimEnd()}…`;
+}
+
 function pad(value: number): string {
   return String(value).padStart(2, "0");
 }

@@ -138,6 +138,23 @@ Baantwise never moves money. It only works out who owes whom and writes down pay
 - **Live updates:** an open group page updates its balances by itself when anyone adds, changes or deletes an expense, or records or undoes a payment.
 - **All in whole cents.** The maths is in `src/lib/balances.ts`, with tests in `src/lib/balances.test.ts`. The screens are `src/components/BalancesSection.tsx`, `SettleUpDialog.tsx` (the pay box) and `PaymentDialog.tsx`, plus `src/pages/Profile.tsx`.
 
+## Expense search
+
+| Address | What it shows |
+| --- | --- |
+| `/search` | Search the expenses in all your groups. Open it with the magnifying glass next to **Your groups**. |
+| `/groups/<id>/search` | Search one group's expenses. Open it with the magnifying glass on the group page. |
+
+- **Type part of a word** and matching expenses show up (the search looks inside what each expense was for, ignoring capital letters). It waits until you stop typing for 0.3 seconds, so it doesn't search on every key. `%`, `_` and `\` match themselves; `*` is ignored.
+- **Filters:** **Group** (all-groups search only, "All groups" by default), a **From** and **To** date (leave either empty for no limit) and **Only ones I'm in** (off by default: keeps only expenses you paid or have a share above $0 in).
+- **Each result** shows the date, the group (all-groups search only), what it was for (the first 50 characters; tap for the rest), the amount, what it means for you ("you lent $X", "you owe $X" or "not involved", like the group page), and a lock if it's private. Tap a result to open the expense.
+- **Newest first**, 50 at a time, with a **Show more** button.
+- **Nothing found:** "No results for '<text>'". A group with no expenses says "No expenses yet".
+- **Privacy:** the search asks the database directly, so the privacy rules decide what comes back: only groups you're still in, and a private expense only for the people in it. Deleted expenses never show.
+- The search stays in the address, so going back from an expense shows the same results.
+
+The screen is `src/pages/SearchExpenses.tsx`, and the query is in `src/lib/search.ts`, with tests in `src/lib/search.test.ts`.
+
 ## Database
 
 The data lives in a Supabase (Postgres) database. It has six tables:
