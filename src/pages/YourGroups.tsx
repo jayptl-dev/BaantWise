@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { NameForm } from "../components/NameForm";
+import { SearchIcon } from "../components/SearchIcon";
 import { FeedbackLine, LoadError, Loading } from "../components/Status";
 import { friendlyError } from "../lib/errors";
 import { GROUP_NAME_MAX, peopleCount } from "../lib/format";
@@ -99,7 +100,12 @@ export default function YourGroups() {
 
   return (
     <>
-      <h1 className="page-title">Your groups</h1>
+      <div className="group-header">
+        <h1 className="page-title">Your groups</h1>
+        <Link to="/search" className="icon-button" aria-label="Search expenses" title="Search expenses">
+          <SearchIcon />
+        </Link>
+      </div>
       {notice && (
         <p className="feedback" role="status">
           {notice}
