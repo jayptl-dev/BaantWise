@@ -1,5 +1,6 @@
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { LockIcon } from "../components/LockIcon";
+import { SavedReceipt } from "../components/ReceiptPhoto";
 import {
   ExpenseDeleted,
   ExpenseMissing,
@@ -14,6 +15,7 @@ import { useAuth } from "../lib/auth";
 import { addedBy, involvedIds, peopleById, peopleInvolved, type Expense } from "../lib/expenses";
 import { formatDay } from "../lib/format";
 import { formatCents } from "../lib/money";
+import { clearReceiptFolder } from "../lib/receipts";
 import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
 import { useExpense } from "../lib/useExpense";
@@ -45,6 +47,8 @@ function Details({ data, expense, me }: { data: GroupData; expense: Expense; me:
   const { busy, feedback, run } = useDbAction();
   const goBack = useGoBack();
   const groupLink = `/groups/${group.id}`;
+  // Set by the add or edit screen when the expense saved but its photo didn't.
+  const receiptNotice = (useLocation().state as { receiptNotice?: string } | null)?.receiptNotice;
 
   const people = peopleById(data);
   const nameOf = (memberId: string) =>
@@ -60,7 +64,10 @@ function Details({ data, expense, me }: { data: GroupData; expense: Expense; me:
     const sure = await ask(`Delete "${expense.description}"? It disappears for everyone.`, "Delete");
     if (!sure) return;
     const deleted = await run(() => supabase.rpc("delete_expense", { p_expense_id: expense.id }), undefined, false);
-    if (deleted) goBack(groupLink);
+    if (!deleted) return;
+    // Tidy up its receipt photos. Quiet: if this fails the files stay private to you.
+    void clearReceiptFolder(expense.id);
+    goBack(groupLink);
   }
 
   return (
@@ -93,6 +100,14 @@ function Details({ data, expense, me }: { data: GroupData; expense: Expense; me:
           ))}
         </ul>
       </section>
+
+      {expense.receipt_path && (
+        <section className="section" aria-labelledby="receipt-heading">
+          <h2 id="receipt-heading">Receipt</h2>
+          <SavedReceipt path={expense.receipt_path} />
+        </section>
+      )}
+      <FeedbackLine feedback={receiptNotice ? { text: receiptNotice, isError: true } : null} />
 
       <footer className="expense-footer">
         {/* An account that was deleted leaves no name behind. */}

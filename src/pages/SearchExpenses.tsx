@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { LockIcon } from "../components/LockIcon";
 import { MyPartLabel } from "../components/MyPartLabel";
+import { ReceiptIcon } from "../components/ReceiptPhoto";
 import { GroupMissing, LoadError, Loading } from "../components/Status";
 import { useAuth } from "../lib/auth";
 import { friendlyError } from "../lib/errors";
@@ -303,6 +304,7 @@ function ResultRow({ result, myMemberId, showGroup }: { result: SearchResult; my
               </>
             )}
             {shorten(result.description, SHOWN_DESCRIPTION)}
+            {result.receipt_path && <ReceiptIcon />}
           </span>
           <span className="expense-sub">{details.filter(Boolean).join(" · ")}</span>
         </span>

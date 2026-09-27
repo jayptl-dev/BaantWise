@@ -1,4 +1,4 @@
-import { useId, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { DESCRIPTION_MAX, peopleInvolved, type Expense, type Visibility } from "../lib/expenses";
 import { todayLocal } from "../lib/format";
 import {
@@ -9,11 +9,14 @@ import {
   refuseExactChange,
   splitEqually,
 } from "../lib/money";
+import { attachReceipt, detachReceipt } from "../lib/receipts";
+import { PhotoProblem, shrinkPhoto } from "../lib/shrinkPhoto";
 import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
 import { FeedbackLine } from "./Status";
 import { LockIcon } from "./LockIcon";
+import { ReceiptThumbnail, SavedReceipt } from "./ReceiptPhoto";
 import { useConfirm } from "./useConfirm";
 
 type SplitMode = "equal" | "exact";
@@ -31,7 +34,8 @@ type ExpenseFormProps = {
   data: GroupData;
   me: Member;
   expense?: Expense; // when editing; leave out to add a new one
-  onDone: () => void; // after saving, or Cancel
+  // After saving (with a message if the receipt photo part didn't work), or Cancel (nothing).
+  onDone: (saved?: { expenseId: string; receiptNotice: string | null }) => void;
 };
 
 // Adding or editing an expense. Everything is checked here first so mistakes get
@@ -62,6 +66,23 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const [tried, setTried] = useState(false);
   // Why the last key in a person's box was ignored (see changeExact).
   const [limitNote, setLimitNote] = useState<{ id: string; text: string } | null>(null);
+
+  // The receipt photo: a new one chosen here (already shrunk), or the saved one
+  // marked for removal. Uploaded only after the expense itself is saved.
+  const [newPhoto, setNewPhoto] = useState<{ blob: Blob; url: string } | null>(null);
+  const [removeSaved, setRemoveSaved] = useState(false);
+  const [preparingPhoto, setPreparingPhoto] = useState(false);
+  const [photoProblem, setPhotoProblem] = useState<string | null>(null);
+  const [savingPhoto, setSavingPhoto] = useState(false);
+  const photoInput = useRef<HTMLInputElement>(null);
+  const savedPhoto = removeSaved ? null : (expense?.receipt_path ?? null);
+  const working = busy || savingPhoto;
+
+  // The preview only lives in this browser tab; free it when it's replaced or the form closes.
+  useEffect(() => {
+    if (!newPhoto) return;
+    return () => URL.revokeObjectURL(newPhoto.url);
+  }, [newPhoto]);
 
   // Worked out from what's typed so far, on every change. The boxes only ever hold
   // money (see changeAmount), so reading them always works.
@@ -130,6 +151,32 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     if (cents !== null && cents !== undefined && cents >= 0) {
       setExactText((current) => ({ ...current, [id]: centsToDecimal(cents) }));
     }
+  }
+
+  async function choosePhoto(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = ""; // so choosing the same photo again still works
+    if (!file) return;
+    setPhotoProblem(null);
+    setPreparingPhoto(true);
+    try {
+      const blob = await shrinkPhoto(file);
+      setNewPhoto({ blob, url: URL.createObjectURL(blob) });
+    } catch (error) {
+      setPhotoProblem(
+        error instanceof PhotoProblem
+          ? error.message
+          : "We couldn't open that photo. Try taking it again, or choose a JPG or PNG.",
+      );
+    } finally {
+      setPreparingPhoto(false);
+    }
+  }
+
+  function removePhoto() {
+    setPhotoProblem(null);
+    if (newPhoto) setNewPhoto(null);
+    else setRemoveSaved(true);
   }
 
   function toggle(id: string) {
@@ -228,9 +275,10 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
       member_id: id,
       share_cents: (mode === "equal" ? equalShares?.get(id) : exactCents.get(id)) ?? 0,
     }));
+    let expenseId = expense?.id ?? "";
     const saved = await run(
-      () =>
-        supabase.rpc("save_expense", {
+      async () => {
+        const result = await supabase.rpc("save_expense", {
           p_group_id: group.id,
           p_description: description.trim(),
           p_amount_cents: amount,
@@ -239,11 +287,23 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           p_visibility: finalVisibility,
           p_spent_on: spentOn,
           p_expense_id: expense?.id,
-        }),
+        });
+        if (result.data) expenseId = result.data;
+        return result;
+      },
       undefined,
       false,
     );
-    if (saved) onDone();
+    if (!saved || !expenseId) return;
+
+    // The expense is saved whatever happens next; a photo problem only adds a message.
+    let receiptNotice: string | null = null;
+    if (newPhoto || (removeSaved && expense?.receipt_path)) {
+      setSavingPhoto(true);
+      receiptNotice = newPhoto ? await attachReceipt(expenseId, newPhoto.blob) : await detachReceipt(expenseId);
+      setSavingPhoto(false);
+    }
+    onDone({ expenseId, receiptNotice });
   }
 
   const onlyNames = peopleInvolved(involved, data, me.id);
@@ -404,6 +464,52 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           <FieldError id={errorId("split")} text={errors.split} />
         </fieldset>
 
+        <fieldset className="receipt-field">
+          <legend>Receipt photo</legend>
+          {newPhoto ? <ReceiptThumbnail src={newPhoto.url} /> : savedPhoto && <SavedReceipt path={savedPhoto} />}
+          {removeSaved && !newPhoto && <p className="hint">The photo will be removed when you save.</p>}
+          {preparingPhoto && (
+            <p className="hint" role="status">
+              Getting the photo ready…
+            </p>
+          )}
+          {/* No "capture", so phones offer both the camera and the gallery. */}
+          <input
+            ref={photoInput}
+            type="file"
+            accept="image/*"
+            className="visually-hidden"
+            tabIndex={-1}
+            aria-hidden="true"
+            onChange={choosePhoto}
+          />
+          <div className="button-row">
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => photoInput.current?.click()}
+              disabled={preparingPhoto || working}
+              aria-describedby={photoProblem ? errorId("photo") : undefined}
+            >
+              {newPhoto || savedPhoto ? "Replace photo" : "Add receipt photo"}
+            </button>
+            {(newPhoto || savedPhoto) && (
+              <button
+                type="button"
+                className="button secondary danger"
+                onClick={removePhoto}
+                disabled={preparingPhoto || working}
+              >
+                Remove photo
+              </button>
+            )}
+          </div>
+          {!newPhoto && !savedPhoto && !photoProblem && !preparingPhoto && (
+            <p className="hint">Take a photo or choose one. Only people who can see this expense can see it.</p>
+          )}
+          <FieldError id={errorId("photo")} text={photoProblem ?? undefined} live />
+        </fieldset>
+
         <fieldset>
           <legend>Who can see this?</legend>
           {onlyMe ? (
@@ -438,10 +544,10 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
 
         <FeedbackLine feedback={feedback} />
         <div className="form-actions">
-          <button type="submit" className="button" disabled={busy}>
-            {expense ? "Save changes" : "Add expense"}
+          <button type="submit" className="button" disabled={working || preparingPhoto}>
+            {savingPhoto ? "Saving the photo…" : expense ? "Save changes" : "Add expense"}
           </button>
-          <button type="button" className="button secondary" onClick={onDone} disabled={busy}>
+          <button type="button" className="button secondary" onClick={() => onDone()} disabled={working}>
             Cancel
           </button>
         </div>

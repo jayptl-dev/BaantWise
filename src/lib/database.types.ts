@@ -57,6 +57,7 @@ export type Database = {
           group_id: string
           id: string
           paid_by: string
+          receipt_path: string | null
           spent_on: string
           updated_at: string
           visibility: string
@@ -70,6 +71,7 @@ export type Database = {
           group_id: string
           id?: string
           paid_by: string
+          receipt_path?: string | null
           spent_on?: string
           updated_at?: string
           visibility?: string
@@ -83,6 +85,7 @@ export type Database = {
           group_id?: string
           id?: string
           paid_by?: string
+          receipt_path?: string | null
           spent_on?: string
           updated_at?: string
           visibility?: string
@@ -296,6 +299,10 @@ export type Database = {
           p_visibility?: string
         }
         Returns: string
+      }
+      set_expense_receipt: {
+        Args: { p_expense_id: string; p_path: string }
+        Returns: undefined
       }
       set_member_admin: {
         Args: { p_make_admin: boolean; p_member_id: string }

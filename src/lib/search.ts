@@ -24,6 +24,7 @@ export type SearchResult = {
   paid_by: string; // member id
   spent_on: string;
   visibility: Visibility;
+  receipt_path: string | null; // the receipt photo, if it has one
   shares: Share[]; // only my own share (if I have one), which is all "my part" needs
 };
 
@@ -76,7 +77,7 @@ export async function searchExpenses(filters: SearchFilters, myMemberIds: string
     .select(
       // `my_share`: my own share, for "you lent / you owe". `in_it`: my share if it's above $0,
       // for "Only ones I'm in". Both are the same table, filtered to my rows below.
-      "id, group_id, description, amount_cents, paid_by, spent_on, visibility, groups(name), my_share:expense_shares(member_id, share_cents), in_it:expense_shares(member_id)",
+      "id, group_id, description, amount_cents, paid_by, spent_on, visibility, receipt_path, groups(name), my_share:expense_shares(member_id, share_cents), in_it:expense_shares(member_id)",
     )
     .is("deleted_at", null)
     .filter("my_share.member_id", "in", mine)
@@ -109,6 +110,7 @@ export async function searchExpenses(filters: SearchFilters, myMemberIds: string
     paid_by: row.paid_by,
     spent_on: row.spent_on,
     visibility: row.visibility === "participants" ? "participants" : "group",
+    receipt_path: row.receipt_path,
     shares: row.my_share,
   }));
   return { error: null, results, hasMore: data.length > SEARCH_PAGE_SIZE };
