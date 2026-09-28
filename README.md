@@ -125,13 +125,19 @@ The code is in `src/pages/AddExpense.tsx`, `EditExpense.tsx` and `ExpenseDetails
 
 Every expense has one category from a fixed list: 🍔 Food, 🛒 Groceries, 🚕 Transport, 🏠 Housing, 💡 Utilities, 🎬 Entertainment, ✈️ Travel, 🛍️ Shopping, 🏥 Health and 📌 Other. Other is the default, and every expense added before categories existed is Other.
 
-- **Picking one:** the Add and Edit expense screens have a **Category** field with ten big buttons. Tap one to pick it. Edit starts on the saved category.
-- **A suggestion:** on a new expense, until you tap a category, one is picked from simple words in the description (whole words, capital letters ignored): uber, taxi, lyft, gas or parking → Transport; grocery or groceries → Groceries; coffee, restaurant, pizza, lunch or dinner → Food. If several match, the first word wins. A short note says when this happened. Your own tap always wins, and a saved expense is never changed by a suggestion.
+- **Picking one:** on the Add and Edit expense screens, the square button at the end of the **What for?** box shows the category's emoji, and a small line under the box says "Category: <name>". Tap the button to open the picker: it comes up from the bottom of the screen on a phone, and as a small box under the button on a wider screen. The current category is highlighted. Tap one to pick it; tap outside or press Escape to close without changing anything. Edit starts on the saved category.
+- **A suggestion while you type:** on a new expense, until you pick a category yourself, the button follows the description as you type:
+  1. **This group's history first:** if the group already has an expense with the same description, it uses the category of the most recent one (unless that one is Other). So once "Costco run" is saved as Shopping, the next "costco run" is Shopping too.
+  2. **Otherwise keywords:** words and short phrases like "rent" (Housing), "water heater" (Utilities), "Uber Eats" (Food) or "épicerie" (Groceries). The longest match wins, so "Uber home" is Transport but "Uber Eats" is Food, and "gas" is Transport but "gas bill" is Utilities. For matches of the same length, the first one in the description wins. "Pizzas" finds "pizza" too.
+  3. **Otherwise Other.**
+
+  Descriptions are compared ignoring capitals, accents, apostrophes and punctuation, so "Tim Horton's" matches "tim hortons". Your own pick always wins, and editing an expense never changes its category by itself. Words that could mean two things (like "metro", "ticket", "phone" or "bill" on their own) are left out on purpose.
+- **Adding keywords:** they're plain lists in `CATEGORY_KEYWORDS` in `src/lib/categories.ts`, one list per category, including Canadian store names and French words. Add a word to the right list; the tests check that no word is in two categories.
 - **Where you see it:** each expense in a group's list starts with its emoji ("🍔 Lunch at Monza"), and an expense's page shows the emoji and name ("🍔 Food").
 - **What's next:** spending charts and receipt scanning will use these categories.
 - **The rules live in the database:** `expenses.category` only accepts the ten keys (`food`, `groceries`, `transport`, `housing`, `utilities`, `entertainment`, `travel`, `shopping`, `health`, `other`). `save_expense` takes it as `p_category`.
 
-The list (keys, names and emoji) and the suggestion words are in `src/lib/categories.ts`, with tests in `src/lib/categories.test.ts`. Charts and receipt scanning will reuse that file.
+The list (keys, names and emoji), the keywords and the suggestion rules are in `src/lib/categories.ts`, with tests in `src/lib/categories.test.ts`. Charts and receipt scanning will reuse that file. The button and picker are in `src/components/CategoryPicker.tsx`. The Add expense screen loads the group's expenses (the same ones the group page shows) so it can suggest from them.
 
 ## Receipt photos
 

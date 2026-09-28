@@ -896,57 +896,8 @@ button.expense-link {
 }
 
 .expense-form .choice,
-.expense-form .split-list label,
-.expense-form .category-option {
+.expense-form .split-list label {
   font-weight: normal;
-}
-
-/* Category: ten big buttons (round choices underneath), two or more to a row. */
-.category-picker {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
-  gap: 0.5rem;
-}
-
-.category-option {
-  position: relative;
-}
-
-.category-option input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.category-option > span {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  height: 100%;
-  min-height: 2.75rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  color: var(--text);
-  background: var(--surface);
-  cursor: pointer;
-}
-
-.category-option input:checked + span {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
-  color: var(--accent);
-  background: var(--soft);
-  font-weight: 600;
-}
-
-.category-option input:focus-visible + span {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.category-picker + .hint {
-  margin: 0.5rem 0 0;
 }
 
 .split-amount {
@@ -1017,6 +968,140 @@ button.expense-link {
 .expense-form fieldset > .private-note {
   margin: 0;
   min-height: 2.75rem;
+}
+
+/* ---------- Categories ---------- */
+
+/* The "What for?" box with the category button at its end. */
+.description-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+}
+
+.description-row input {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+
+/* A square button as tall as the box, showing the category's emoji. */
+.category-button {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 1.375rem;
+  line-height: 1;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.category-button:hover {
+  border-color: var(--accent);
+}
+
+.category-button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The picker. On phones it sits at the bottom of the screen. The padding is on
+   .dialog-body, so a click on the dialog element itself is a click outside the box. */
+dialog.category-picker {
+  width: 100%;
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: auto 0 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 0.75rem 0.75rem 0 0;
+  color: var(--text);
+  background: var(--bg);
+}
+
+dialog.category-picker::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.category-picker .dialog-body {
+  padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+.category-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.category-option {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.category-option:hover {
+  border-color: var(--accent);
+}
+
+.category-option[aria-current="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  color: var(--accent);
+  background: var(--soft);
+  font-weight: 600;
+}
+
+.category-option:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Wider screens: a small box lined up with the button (CategoryPicker.tsx works out
+   where), with nothing dimmed behind it. */
+@media (min-width: 40rem) {
+  dialog.category-picker {
+    inset: var(--picker-top, 30%) var(--picker-right, 50%) auto auto;
+    width: 20rem;
+    margin: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.2);
+  }
+
+  dialog.category-picker::backdrop {
+    background: transparent;
+  }
+
+  .category-picker .dialog-body {
+    padding: 0.75rem;
+  }
+
+  .category-picker h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+
+  /* Escape or a click outside closes it here. */
+  .category-picker .close-button {
+    display: none;
+  }
 }
 
 /* ---------- Receipt photos ---------- */
