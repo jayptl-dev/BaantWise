@@ -13,7 +13,9 @@ export default function AddExpense() {
 
 function AddExpenseScreen({ id }: { id: string }) {
   const { user } = useAuth();
-  const { state, reload } = useGroup(id, user?.id ?? "");
+  // With the group's expenses, the same ones the group page shows, so the category can be
+  // suggested from what the group called things before.
+  const { state, reload } = useGroup(id, user?.id ?? "", "all");
   const goBack = useGoBack();
   const navigate = useNavigate();
   if (state.status === "loading") return <Loading />;
