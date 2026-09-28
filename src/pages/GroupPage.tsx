@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Avatar } from "../components/Avatar";
 import { BalancesSection } from "../components/BalancesSection";
+import { CategoryEmoji } from "../components/CategoryEmoji";
 import { LockIcon } from "../components/LockIcon";
 import { MyPartLabel } from "../components/MyPartLabel";
 import { NameForm } from "../components/NameForm";
@@ -280,7 +281,7 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
   );
 }
 
-// One expense: what for, who paid, and what it means for me. Tap for details.
+// One expense: its category, what for, who paid, and what it means for me. Tap for details.
 function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: GroupData; myMemberId: string }) {
   const payer =
     expense.paid_by === myMemberId ? "You" : (peopleById(data).get(expense.paid_by)?.display_name ?? "Someone");
@@ -291,7 +292,7 @@ function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: Gro
       <Link to={`/groups/${data.group.id}/expenses/${expense.id}`} className="expense-link">
         <span className="expense-main">
           <span className="expense-title">
-            {expense.description}
+            <CategoryEmoji category={expense.category} /> {expense.description}
             {expense.receipt_path && <ReceiptIcon />}
           </span>
           <span className="expense-sub">

@@ -121,6 +121,18 @@ The screens are in `src/pages`, shared pieces in `src/components`, and data help
 
 The code is in `src/pages/AddExpense.tsx`, `EditExpense.tsx` and `ExpenseDetails.tsx`, the form in `src/components/ExpenseForm.tsx`, and the helpers in `src/lib/expenses.ts` and `src/lib/money.ts`.
 
+## Categories
+
+Every expense has one category from a fixed list: 🍔 Food, 🛒 Groceries, 🚕 Transport, 🏠 Housing, 💡 Utilities, 🎬 Entertainment, ✈️ Travel, 🛍️ Shopping, 🏥 Health and 📌 Other. Other is the default, and every expense added before categories existed is Other.
+
+- **Picking one:** the Add and Edit expense screens have a **Category** field with ten big buttons. Tap one to pick it. Edit starts on the saved category.
+- **A suggestion:** on a new expense, until you tap a category, one is picked from simple words in the description (whole words, capital letters ignored): uber, taxi, lyft, gas or parking → Transport; grocery or groceries → Groceries; coffee, restaurant, pizza, lunch or dinner → Food. If several match, the first word wins. A short note says when this happened. Your own tap always wins, and a saved expense is never changed by a suggestion.
+- **Where you see it:** each expense in a group's list starts with its emoji ("🍔 Lunch at Monza"), and an expense's page shows the emoji and name ("🍔 Food").
+- **What's next:** spending charts and receipt scanning will use these categories.
+- **The rules live in the database:** `expenses.category` only accepts the ten keys (`food`, `groceries`, `transport`, `housing`, `utilities`, `entertainment`, `travel`, `shopping`, `health`, `other`). `save_expense` takes it as `p_category`.
+
+The list (keys, names and emoji) and the suggestion words are in `src/lib/categories.ts`, with tests in `src/lib/categories.test.ts`. Charts and receipt scanning will reuse that file.
+
 ## Receipt photos
 
 Each expense can have one receipt photo. It follows the expense's own privacy: if you can see the expense, you can see its photo, and nobody else can.
@@ -175,7 +187,7 @@ The data lives in a Supabase (Postgres) database. It has six tables:
 - **profiles:** one row per person who signs in, with their name, Google photo and optional payment details (Interac e-Transfer email or phone, PayPal.Me username). Only people who share a group with you can see your profile. Sign-in email addresses are not stored here, so group members can't see each other's sign-in email.
 - **groups:** a group such as "Cabin trip", with its currency (CAD by default) and its secret invite link.
 - **group_members:** who is in each group. A member is either someone with an account, or a guest who is just a name. People who leave or are removed lose access, but their name stays on old expenses.
-- **expenses:** what was bought, who paid, how much, when, and who can see it.
+- **expenses:** what was bought, who paid, how much, when, its category, and who can see it.
 - **expense_shares:** each person's part of an expense. The parts must add up exactly to the total.
 - **settlements:** records like "Priya paid Jay $20". Baantwise only records these. It never moves real money. Undoing one marks it deleted instead of erasing it, like expenses.
 

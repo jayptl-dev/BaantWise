@@ -12,6 +12,7 @@ import {
 } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
 import { useAuth } from "../lib/auth";
+import { categoryFor } from "../lib/categories";
 import { addedBy, involvedIds, peopleById, peopleInvolved, type Expense } from "../lib/expenses";
 import { formatDay } from "../lib/format";
 import { formatCents } from "../lib/money";
@@ -55,6 +56,7 @@ function Details({ data, expense, me }: { data: GroupData; expense: Expense; me:
     memberId === me.id ? "You" : (people.get(memberId)?.display_name ?? "Someone");
   const adder = addedBy(expense, data);
   const iAddedIt = adder?.id === me.id;
+  const category = categoryFor(expense.category);
 
   // Shares in the order people joined the group.
   const order = [...data.members, ...data.formerMembers].map((m) => m.id);
@@ -81,13 +83,18 @@ function Details({ data, expense, me }: { data: GroupData; expense: Expense; me:
         {nameOf(expense.paid_by)} paid on {formatDay(expense.spent_on)}
       </p>
 
-      {expense.visibility === "participants" ? (
-        <p className="visibility-badge">
-          <LockIcon /> Only {peopleInvolved(involvedIds(expense, data), data, me.id)} can see this
+      <div className="expense-badges">
+        <p className="category-badge">
+          <span aria-hidden="true">{category.emoji}</span> {category.label}
         </p>
-      ) : (
-        <p className="visibility-badge">Everyone in {group.name} can see this</p>
-      )}
+        {expense.visibility === "participants" ? (
+          <p className="visibility-badge">
+            <LockIcon /> Only {peopleInvolved(involvedIds(expense, data), data, me.id)} can see this
+          </p>
+        ) : (
+          <p className="visibility-badge">Everyone in {group.name} can see this</p>
+        )}
+      </div>
 
       <section className="section" aria-labelledby="split-heading">
         <h2 id="split-heading">Split</h2>
