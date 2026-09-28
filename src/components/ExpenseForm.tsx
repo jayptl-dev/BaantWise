@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { CATEGORIES, categoryFor, DEFAULT_CATEGORY, suggestCategory, type CategoryKey } from "../lib/categories";
 import { DESCRIPTION_MAX, peopleInvolved, type Expense, type Visibility } from "../lib/expenses";
 import { todayLocal } from "../lib/format";
 import {
@@ -62,6 +63,9 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const [ticked, setTicked] = useState<Set<string>>(start.ticked);
   const [exactText, setExactText] = useState<Record<string, string>>(start.exact);
   const [visibility, setVisibility] = useState<Visibility>(expense?.visibility ?? "group");
+  // The category someone tapped (when editing, the saved one). Until they tap one, a new
+  // expense follows a guess from the description; a tap always wins over the guess.
+  const [pickedCategory, setPickedCategory] = useState<CategoryKey | null>(expense?.category ?? null);
   // After the first Save, missing things (like an empty description) are pointed out too.
   const [tried, setTried] = useState(false);
   // Why the last key in a person's box was ignored (see changeExact).
@@ -105,6 +109,9 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const involved = new Set([paidBy, ...splitIds, me.id]);
   const onlyMe = involved.size === 1;
   const finalVisibility: Visibility = onlyMe ? "participants" : visibility;
+
+  const suggestedCategory = pickedCategory === null ? suggestCategory(description) : null;
+  const category = pickedCategory ?? suggestedCategory ?? DEFAULT_CATEGORY;
 
   function nameFor(member: Member): string {
     if (member.id === me.id) return `${member.display_name} (you)`;
@@ -287,6 +294,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           p_visibility: finalVisibility,
           p_spent_on: spentOn,
           p_expense_id: expense?.id,
+          p_category: category,
         });
         if (result.data) expenseId = result.data;
         return result;
@@ -345,6 +353,33 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           </span>
           <FieldError id={errorId("amount")} text={errors.amount} />
         </div>
+
+        <fieldset>
+          <legend>Category</legend>
+          <div className="category-picker">
+            {CATEGORIES.map((c) => (
+              <label key={c.key} className="category-option">
+                {/* onClick too, so tapping the guessed one keeps it even if the description changes. */}
+                <input
+                  type="radio"
+                  name="category"
+                  value={c.key}
+                  checked={category === c.key}
+                  onChange={() => setPickedCategory(c.key)}
+                  onClick={() => setPickedCategory(c.key)}
+                />
+                <span>
+                  <span aria-hidden="true">{c.emoji}</span> {c.label}
+                </span>
+              </label>
+            ))}
+          </div>
+          {suggestedCategory && (
+            <p className="hint" role="status">
+              Picked {categoryFor(suggestedCategory).label} from the description. Tap another to change it.
+            </p>
+          )}
+        </fieldset>
 
         <div className="field">
           <label htmlFor={ids.paidBy}>Paid by</label>

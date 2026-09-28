@@ -1,3 +1,4 @@
+import { categoryFor, type CategoryKey } from "./categories";
 import { isUuid, listOfNames } from "./format";
 import { supabase } from "./supabase";
 import type { GroupData, Member } from "./useGroup";
@@ -15,6 +16,7 @@ export type Expense = {
   paid_by: string; // member id
   spent_on: string; // "2026-09-25"
   visibility: Visibility; // "group" = everyone in the group, "participants" = only the people in it
+  category: CategoryKey; // see categories.ts; older expenses are "other"
   created_by: string | null; // the account (not member) that added it
   created_at: string;
   receipt_path: string | null; // the receipt photo in Storage, or null for none (see receipts.ts)
@@ -33,7 +35,7 @@ export async function fetchExpenses(groupId: string, which: ExpensesToLoad) {
   let query = supabase
     .from("expenses")
     .select(
-      "id, description, amount_cents, paid_by, spent_on, visibility, created_by, created_at, receipt_path, expense_shares(member_id, share_cents)",
+      "id, description, amount_cents, paid_by, spent_on, visibility, category, created_by, created_at, receipt_path, expense_shares(member_id, share_cents)",
     )
     .eq("group_id", groupId)
     .is("deleted_at", null);
@@ -45,9 +47,10 @@ export async function fetchExpenses(groupId: string, which: ExpensesToLoad) {
     .order("created_at", { ascending: false });
   if (error) return { error, expenses: [] };
 
-  const expenses: Expense[] = data.map(({ expense_shares, visibility, ...expense }) => ({
+  const expenses: Expense[] = data.map(({ expense_shares, visibility, category, ...expense }) => ({
     ...expense,
     visibility: visibility === "participants" ? "participants" : "group",
+    category: categoryFor(category).key,
     shares: expense_shares,
   }));
   return { error: null, expenses };

@@ -50,6 +50,7 @@ export type Database = {
       expenses: {
         Row: {
           amount_cents: number
+          category: string
           created_at: string
           created_by: string | null
           deleted_at: string | null
@@ -64,6 +65,7 @@ export type Database = {
         }
         Insert: {
           amount_cents: number
+          category?: string
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -78,6 +80,7 @@ export type Database = {
         }
         Update: {
           amount_cents?: number
+          category?: string
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -290,6 +293,7 @@ export type Database = {
       save_expense: {
         Args: {
           p_amount_cents: number
+          p_category?: string
           p_description: string
           p_expense_id?: string
           p_group_id: string
