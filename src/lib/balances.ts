@@ -7,7 +7,9 @@
 //   other person. Each pair is kept on its own and never combined with another.
 // "Overall" adds my part of the group scope to all my private pairs.
 
-import type { Visibility } from "./expenses";
+// Kept free of imports on purpose: the send-reminder Edge Function bundles this exact
+// file, so a reminder email shows the same amount as the group page.
+type Visibility = "group" | "participants";
 
 // Just what the maths needs, so tests can use small objects. A row with deleted_at
 // set (an undone payment or a deleted expense) is left out.
