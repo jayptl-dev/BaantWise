@@ -559,6 +559,7 @@ export type Database = {
       }
       join_group: { Args: { p_token: string }; Returns: string }
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
+      prepare_account_deletion: { Args: never; Returns: undefined }
       remove_member: { Args: { p_member_id: string }; Returns: undefined }
       reset_forward_address: { Args: { p_group_id: string }; Returns: string }
       reset_invite_link: { Args: { p_group_id: string }; Returns: string }
