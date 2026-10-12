@@ -169,6 +169,16 @@ Secrets (Supabase → Edge Functions → Secrets, never in this repo):
 - `SCAN_OPEN_TO_ALL`: set to `true` only after Gemini billing is on, to let everyone scan.
 - `GEMINI_MODEL` (optional): defaults to `gemini-3.1-flash-lite`.
 
+## Split by percent, by shares, and a default split
+
+The Add/Edit expense screen has four ways to split: **Equally**, **Exact** (type each person's amount), **Percent** (must add up to exactly 100%) and **Shares** (whole numbers from 1 to 1000; someone with 2 shares pays twice as much as someone with 1).
+
+- Percent and shares are turned into whole cents in the app with the same leftover-cent rule as everything else (`src/lib/split.ts`), then saved through `save_expense` as usual.
+- The expense remembers how it was split (`split_method`) and, for percent and shares, the numbers that were typed (`split_snapshot`), so **Edit** reopens the same way. The app sends `p_split` on every save.
+- **Default split** (Group settings, admins only): pre-fills new expenses By percent or By shares. If someone joins or leaves afterwards, both Group settings and Add expense say "Default split needs updating"; it keeps working for the people it covers. The database checks the shape and only lets admins change it.
+
+The maths and the reading of boxes live in `src/lib/splitMethods.ts` (tested in `splitMethods.test.ts`).
+
 ## Balances and settling up
 
 Baantwise never moves money. It only works out who owes whom and writes down payments people say they made.

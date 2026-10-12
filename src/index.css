@@ -1682,3 +1682,30 @@ p.scan-box {
 .item-footer p {
   margin: 0;
 }
+
+/* ---------- By % and By shares ---------- */
+
+/* The number box, with "%" or "×" after the number instead of "$" before it. */
+.money-input.small.value-input {
+  width: 6rem;
+  margin-left: auto;
+}
+
+.money-input.value-input input {
+  padding-left: 0.75rem;
+  padding-right: 1.75rem;
+}
+
+.money-input.value-input > span {
+  left: auto;
+  right: 0.75rem;
+}
+
+.split-list li .split-amount {
+  min-width: 4.5rem;
+  text-align: right;
+}
+
+.split-list li .field-error {
+  flex-basis: 100%;
+}
