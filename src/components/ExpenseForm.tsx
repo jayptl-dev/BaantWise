@@ -82,8 +82,12 @@ export type ExpenseTemplate = {
   paidBy: string;
   visibility: Visibility;
   spentOn: string;
-  amountCents: number | null;
-  split: RecurringSplit;
+  amountCents: number | null; // in `currency`
+  // Leave out to start from the group's usual split, like a new expense.
+  split?: RecurringSplit;
+  // For a forwarded bill: its currency (when not CA$) and short notes shown at the top.
+  currency?: string;
+  notes?: string[];
 };
 
 type ExpenseFormProps = {
@@ -127,7 +131,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   }, [data, expense]);
 
   const [start] = useState(() =>
-    template ? splitFromTemplate(template.split, people) : { ...startingSplit(expense, people, data), wholeGroup: !expense },
+    template?.split ? splitFromTemplate(template.split, people) : { ...startingSplit(expense, people, data), wholeGroup: !expense },
   );
   // Recurring: everyone in the group, including people who join later (equal split only).
   const [wholeGroup, setWholeGroup] = useState(start.wholeGroup);
@@ -142,7 +146,10 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   const [description, setDescription] = useState(expense?.description ?? template?.description ?? "");
   // What's typed in the Amount box, in the expense's own currency (CA$, or US$ etc.).
   const [amountText, setAmountText] = useState(() => {
-    if (!expense) return template?.amountCents ? centsToDecimal(template.amountCents) : "";
+    if (!expense) {
+      if (!template?.amountCents) return "";
+      return isForeignCurrency(template.currency) ? entryText(template.amountCents, template.currency) : centsToDecimal(template.amountCents);
+    }
     if (isForeignCurrency(expense.original_currency) && expense.original_amount_cents !== null) {
       return entryText(expense.original_amount_cents, expense.original_currency);
     }
@@ -152,7 +159,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   // For a recurring expense this is the start date.
   const [spentOn, setSpentOn] = useState(expense?.spent_on ?? template?.spentOn ?? todayLocal());
   // Paid in another currency: which one, and its rate to CAD (Bank of Canada or typed in).
-  const fx = useForeignAmount(expense, spentOn);
+  const fx = useForeignAmount(expense, spentOn, recurring ? undefined : template?.currency);
   const canConvert = group.currency === "CAD" && !recurring; // groups are all CAD for now; recurring ones are CAD
   const [mode, setMode] = useState<SplitMode>(start.mode);
   const [ticked, setTicked] = useState<Set<string>>(start.ticked);
@@ -184,7 +191,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   const savedPhoto = removeSaved ? null : (expense?.receipt_path ?? null);
 
   // What the last receipt scan said, and its items for "Split by item" (never saved).
-  const [scanNotes, setScanNotes] = useState<string[]>([]);
+  const [scanNotes, setScanNotes] = useState<string[]>(givenTemplate?.notes ?? []);
   const [itemLines, setItemLines] = useState<ItemLine[] | null>(null);
   const [itemSheetOpen, setItemSheetOpen] = useState(false);
   const working = busy || savingPhoto;

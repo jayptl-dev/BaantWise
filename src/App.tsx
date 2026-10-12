@@ -3,6 +3,7 @@ import { SignedInPage } from "./components/AppLayout";
 import AddExpense from "./pages/AddExpense";
 import EditExpense from "./pages/EditExpense";
 import ExpenseDetails from "./pages/ExpenseDetails";
+import ForwardedBills from "./pages/ForwardedBills";
 import GroupPage from "./pages/GroupPage";
 import GroupSettings from "./pages/GroupSettings";
 import GroupSpending from "./pages/GroupSpending";
@@ -82,6 +83,14 @@ export default function App() {
         element={
           <SignedInPage>
             <RecurringEdit />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/bills"
+        element={
+          <SignedInPage>
+            <ForwardedBills />
           </SignedInPage>
         }
       />

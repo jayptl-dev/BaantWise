@@ -9,6 +9,7 @@ import { NameForm } from "../components/NameForm";
 import { PaymentDialog } from "../components/PaymentDialog";
 import { ReceiptIcon } from "../components/ReceiptPhoto";
 import { BillsNotice } from "../components/BillsNotice";
+import { ForwardedBillsNotice } from "../components/ForwardedBillsNotice";
 import { ChartIcon } from "../components/ChartIcon";
 import { foreignAmount } from "../lib/currency";
 import { SearchIcon } from "../components/SearchIcon";
@@ -256,8 +257,12 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
           <Link to={`/groups/${group.id}/recurring`} className="button secondary">
             🔁 Recurring
           </Link>
+          <Link to={`/groups/${group.id}/bills`} className="button secondary">
+            📧 Bills by email
+          </Link>
         </div>
         <BillsNotice groupId={group.id} />
+        <ForwardedBillsNotice groupId={group.id} />
         {activity.length === 0 ? (
           <p className="muted">No expenses yet</p>
         ) : (

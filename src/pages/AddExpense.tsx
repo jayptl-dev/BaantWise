@@ -4,6 +4,7 @@ import { ExpenseForm, type ExpenseTemplate } from "../components/ExpenseForm";
 import { GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useAuth } from "../lib/auth";
 import { friendlyError } from "../lib/errors";
+import { billAmount, fetchForwardedBill } from "../lib/forwarding";
 import { fetchBill } from "../lib/recurring";
 import { supabase } from "../lib/supabase";
 import { useGoBack } from "../lib/useGoBack";
@@ -23,13 +24,45 @@ function AddExpenseScreen({ id }: { id: string }) {
   const goBack = useGoBack();
   const navigate = useNavigate();
   // ?bill=…: a bill to fill in from a recurring expense, so the form starts filled in.
-  const billId = useSearchParams()[0].get("bill");
+  // ?forwarded=…: a bill someone forwarded by email (see ForwardedBills), the same way.
+  const [params] = useSearchParams();
+  const recurringBillId = params.get("bill");
+  const forwardedId = recurringBillId ? null : params.get("forwarded");
+  const billId = recurringBillId ?? forwardedId;
   const [bill, setBill] = useState<
     { status: "none" | "loading" | "gone" } | { status: "error"; message: string } | { status: "ready"; template: ExpenseTemplate }
   >(billId ? { status: "loading" } : { status: "none" });
   useEffect(() => {
     if (!billId) return;
     let active = true;
+    if (forwardedId) {
+      fetchForwardedBill(id, forwardedId).then(({ error, bill: found }) => {
+        if (!active) return;
+        if (error) setBill({ status: "error", message: friendlyError(error) });
+        else if (!found) setBill({ status: "gone" });
+        else
+          setBill({
+            status: "ready",
+            template: {
+              description: found.biller ?? "",
+              category: found.category,
+              paidBy: "",
+              visibility: "group",
+              spentOn: found.billDate ?? found.receivedAt.slice(0, 10),
+              amountCents: found.amountCents,
+              currency: found.currency,
+              notes: [
+                found.amountCents === null
+                  ? "From the bill you forwarded. We couldn't find the amount, so please enter it."
+                  : `From the bill you forwarded (${billAmount(found)}). Check the details and the split, then save.`,
+              ],
+            },
+          });
+      });
+      return () => {
+        active = false;
+      };
+    }
     fetchBill(id, billId).then(({ error, bill: found, rule }) => {
       if (!active) return;
       if (error) setBill({ status: "error", message: friendlyError(error) });
@@ -51,7 +84,7 @@ function AddExpenseScreen({ id }: { id: string }) {
     return () => {
       active = false;
     };
-  }, [id, billId]);
+  }, [id, billId, forwardedId]);
 
   if (state.status === "loading" || bill.status === "loading") return <Loading />;
   if (state.status === "missing") return <GroupMissing />;
@@ -66,27 +99,34 @@ function AddExpenseScreen({ id }: { id: string }) {
   if (bill.status === "gone") {
     return (
       <div className="state">
-        <p>This bill was already filled in or skipped.</p>
-        <Link to={`${groupLink}/recurring`} className="button secondary">
-          Back to recurring expenses
+        <p>{forwardedId ? "This bill was already added or dismissed." : "This bill was already filled in or skipped."}</p>
+        <Link to={forwardedId ? `${groupLink}/bills` : `${groupLink}/recurring`} className="button secondary">
+          {forwardedId ? "Back to bills by email" : "Back to recurring expenses"}
         </Link>
       </div>
     );
   }
+  // A forwarded bill is paid by me unless I change it.
+  const template = bill.status === "ready" ? { ...bill.template, paidBy: bill.template.paidBy || me.id } : undefined;
   return (
     <>
       <Link to={groupLink} className="back-link">
         ← Back to {data.group.name}
       </Link>
-      <h1 className="page-title">{bill.status === "ready" ? `Enter ${bill.template.description}` : "Add expense"}</h1>
+      <h1 className="page-title">
+        {forwardedId ? "Add forwarded bill" : bill.status === "ready" ? `Enter ${bill.template.description}` : "Add expense"}
+      </h1>
       <ExpenseForm
         data={data}
         me={me}
-        template={bill.status === "ready" ? bill.template : undefined}
+        template={template}
         onDone={async (saved) => {
           // A filled-in bill: mark it done (quietly; the expense is saved either way).
-          if (saved && billId) {
-            await supabase.rpc("complete_recurring_bill", { p_bill_id: billId, p_expense_id: saved.expenseId });
+          if (saved && recurringBillId) {
+            await supabase.rpc("complete_recurring_bill", { p_bill_id: recurringBillId, p_expense_id: saved.expenseId });
+          }
+          if (saved && forwardedId) {
+            await supabase.rpc("resolve_forwarded_bill", { p_bill_id: forwardedId, p_expense_id: saved.expenseId });
           }
           // The expense saved but its photo didn't: open the expense and say so there.
           if (saved?.receiptNotice) {

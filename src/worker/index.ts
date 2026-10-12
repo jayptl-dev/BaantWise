@@ -1,9 +1,10 @@
-// The Cloudflare Worker for baantwise.com. It only runs for /api/* (see
+// The Cloudflare Worker for baantwise.com. On the web it only runs for /api/* (see
 // "run_worker_first" in wrangler.jsonc); every other address is the React app,
-// served straight from the built files.
+// served straight from the built files. It also receives bill emails (./email.ts).
+import { receiveEmail, type EmailEnv, type IncomingEmail } from "./email";
 import { fxRates } from "./fxRates";
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> } };
+type Env = EmailEnv & { ASSETS: { fetch: (request: Request) => Promise<Response> } };
 type Context = { waitUntil: (promise: Promise<unknown>) => void };
 
 // Cloudflare's shared cache for this site (not part of the browser's Cache types).
@@ -31,5 +32,10 @@ export default {
       });
     }
     return env.ASSETS.fetch(request);
+  },
+
+  // Cloudflare Email Routing: bills@mail.baantwise.com -> "Send to a Worker" -> here.
+  async email(message: IncomingEmail, env: Env): Promise<void> {
+    await receiveEmail(message, env);
   },
 };

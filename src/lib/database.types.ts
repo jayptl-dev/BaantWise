@@ -175,12 +175,76 @@ export type Database = {
           },
         ]
       }
+      forwarded_bills: {
+        Row: {
+          amount_cents: number | null
+          bill_date: string | null
+          biller: string | null
+          category: string
+          closed_at: string | null
+          created_at: string
+          currency: string
+          expense_id: string | null
+          group_id: string
+          id: string
+          message_key: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          bill_date?: string | null
+          biller?: string | null
+          category?: string
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          expense_id?: string | null
+          group_id: string
+          id?: string
+          message_key: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          bill_date?: string | null
+          biller?: string | null
+          category?: string
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          expense_id?: string | null
+          group_id?: string
+          id?: string
+          message_key?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forwarded_bills_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forwarded_bills_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           created_at: string
           created_by: string | null
           currency: string
           default_split: Json | null
+          forward_token: string
           id: string
           invite_token: string
           name: string
@@ -190,6 +254,7 @@ export type Database = {
           created_by?: string | null
           currency?: string
           default_split?: Json | null
+          forward_token?: string
           id?: string
           invite_token?: string
           name: string
@@ -199,6 +264,7 @@ export type Database = {
           created_by?: string | null
           currency?: string
           default_split?: Json | null
+          forward_token?: string
           id?: string
           invite_token?: string
           name?: string
@@ -431,6 +497,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_forwarding_setup: {
+        Args: { p_group_id: string }
+        Returns: {
+          allowed: boolean
+          forward_token: string
+          group_name: string
+        }[]
+      }
       claim_receipt_scan: {
         Args: never
         Returns: {
@@ -462,7 +536,12 @@ export type Database = {
       join_group: { Args: { p_token: string }; Returns: string }
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
       remove_member: { Args: { p_member_id: string }; Returns: undefined }
+      reset_forward_address: { Args: { p_group_id: string }; Returns: string }
       reset_invite_link: { Args: { p_group_id: string }; Returns: string }
+      resolve_forwarded_bill: {
+        Args: { p_bill_id: string; p_expense_id: string | null }
+        Returns: undefined
+      }
       save_expense: {
         Args: {
           p_amount_cents: number

@@ -21,12 +21,13 @@ export type RateState =
 // The rate comes from the Bank of Canada for the expense's date and is fetched again
 // when the currency or the date changes. Editing keeps the saved rate until one of
 // those two changes. "Change rate" lets the person type their own.
-export function useForeignAmount(expense: Expense | undefined, spentOn: string) {
+// `startCurrency`: for a new expense that starts in another currency (a forwarded bill).
+export function useForeignAmount(expense: Expense | undefined, spentOn: string, startCurrency?: string) {
   const saved = expense && isForeignCurrency(expense.original_currency) ? expense : null;
   const savedRate = saved?.fx_rate != null ? rateFromNumber(saved.fx_rate) : null;
 
   const [currency, setCurrency] = useState<"CAD" | ForeignCurrency>(
-    saved ? (saved.original_currency as ForeignCurrency) : "CAD",
+    saved ? (saved.original_currency as ForeignCurrency) : !expense && isForeignCurrency(startCurrency) ? startCurrency : "CAD",
   );
   const [ownRateText, setOwnRateText] = useState<string | null>(
     saved && savedRate && saved.fx_rate_date === null ? rateText(savedRate) : null,
