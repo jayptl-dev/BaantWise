@@ -16,6 +16,8 @@
 // - Gemini follows the same rule as receipt scanning: SCAN_ALLOWED_USER_IDS while on the
 //   free tier, SCAN_OPEN_TO_ALL=true after switching to the paid tier.
 // - At most 30 forwarded bills a day per person.
+// - Automatic forwards that aren't bills are counted (rpc inbound_noise); from 5 in a day
+//   the person gets one warning (weekly at most) and the AI reader is skipped for them.
 //
 // Secrets: INBOUND_EMAIL_SECRET (required), RESEND_API_KEY (for the short emails back),
 //          GEMINI_API_KEY, SCAN_ALLOWED_USER_IDS, SCAN_OPEN_TO_ALL, GEMINI_MODEL (optional).
@@ -297,9 +299,17 @@ ${found.link ? `<p>Or <a href="${e(found.link)}">confirm with Google's link</a>.
       (a.mimeType === 'application/pdf' || /\.pdf$/i.test(a.filename ?? '')) && a.content);
     const pdfBytes = pdfPart ? new Uint8Array(pdfPart.content as ArrayBuffer) : null;
     const pdf = pdfBytes && pdfBytes.length <= MAX_PDF_BYTES ? pdfBytes : null;
+    // Someone whose mail seems to forward everything (see noise() below): their automatic
+    // forwards are read only by the simple reading, never sent to the AI reader.
+    const noise = async (add: boolean) => {
+      const { data, error } = await db.rpc('inbound_noise', { p_user_id: group.user_id, p_add: add });
+      if (error) log({ step: 'noise', code: error.code });
+      return ((data ?? [])[0] ?? { noisy: false, warn: false }) as { noisy: boolean; warn: boolean };
+    };
+    const noisy = automatic ? (await noise(false)).noisy : false;
     let bill: Bill | null = null;
     let reader = 'rules';
-    if (geminiOpenFor(group.user_id)) {
+    if (geminiOpenFor(group.user_id) && !noisy) {
       bill = cleanBill(await askGemini({ subject, sender, sentOn: sentOn ?? '', text, pdf }), today);
       if (bill) reader = 'gemini';
     }
@@ -311,7 +321,31 @@ ${found.link ? `<p>Or <a href="${e(found.link)}">confirm with Google's link</a>.
     if (!bill.isBill && bill.amountCents === null) {
       // A rule forwards every kind of email: only a person who pressed Forward gets told.
       if (automatic) {
-        log({ outcome: 'not_a_bill_quiet', reader, ms: Date.now() - started });
+        // Lots of these in a day means "forward ALL my mail" was switched on by mistake:
+        // tell the person once (at most weekly) how to forward only the bills.
+        const { warn } = await noise(true);
+        if (warn) {
+          await sendEmail({
+            token, groupName: group.group_name, to: group.email,
+            subject: 'Your email may be forwarding everything to Baantwise',
+            text: [
+              `Baantwise has received several emails today at your ${group.group_name} bill address that aren't bills.`,
+              'That usually means your email app is forwarding ALL your incoming mail, not just bills.',
+              '',
+              'Baantwise ignores emails that aren\'t bills and doesn\'t keep them. To forward only bills:',
+              '- Gmail (on a computer): Settings > See all settings > "Forwarding and POP/IMAP" > choose "Disable forwarding" > Save changes. Your filters for billers keep working.',
+              '- Outlook: Settings > Mail > Forwarding > turn forwarding off, and use a rule for each biller instead.',
+              '',
+              `Your bills to review: ${SITE}/groups/${group.group_id}/bills`,
+            ].join('\n'),
+            html: wrap(`<p>Baantwise has received several emails today at your <strong>${escapeHtml(group.group_name)}</strong> bill address that aren't bills. That usually means your email app is forwarding <strong>all</strong> your incoming mail, not just bills.</p>
+<p>Baantwise ignores emails that aren't bills and doesn't keep them. To forward only bills:</p>
+<ul><li><strong>Gmail</strong> (on a computer): Settings &gt; See all settings &gt; Forwarding and POP/IMAP &gt; choose <em>Disable forwarding</em> &gt; Save changes. Your filters for billers keep working.</li>
+<li><strong>Outlook</strong>: Settings &gt; Mail &gt; Forwarding &gt; turn forwarding off, and use a rule for each biller instead.</li></ul>
+<p><a href="${SITE}/groups/${group.group_id}/bills">Open your bills to review</a></p>`),
+          });
+        }
+        log({ outcome: 'not_a_bill_quiet', reader, noisy, warned: warn, ms: Date.now() - started });
         return reply(200, { action: 'accept' });
       }
       const e = escapeHtml;
