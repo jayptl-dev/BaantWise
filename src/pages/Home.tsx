@@ -1,3 +1,4 @@
+import { useLocation } from "react-router";
 import { AppLayout } from "../components/AppLayout";
 import { AuthMessage, SignInButton } from "../components/SignIn";
 import { FullPageLoading } from "../components/Status";
@@ -18,8 +19,15 @@ export default function Home() {
 }
 
 function Landing() {
+  // Just deleted your account in Profile.
+  const deleted = (useLocation().state as { accountDeleted?: boolean } | null)?.accountDeleted === true;
   return (
     <main className="landing">
+      {deleted && (
+        <p className="feedback" role="status">
+          Your account was deleted. Thanks for trying Baantwise.
+        </p>
+      )}
       <h1>Baantwise</h1>
       <p className="tagline">Split bills fairly. Coming soon.</p>
       <p className="name-note">

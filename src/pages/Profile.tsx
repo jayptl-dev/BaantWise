@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
+import { DeleteAccountSection } from "../components/DeleteAccountSection";
 import { FeedbackLine, LoadError, Loading } from "../components/Status";
 import { useAuth } from "../lib/auth";
 import { friendlyError } from "../lib/errors";
@@ -189,6 +190,8 @@ function ProfileForm({ userId, profile }: { userId: string; profile: ProfileFiel
           </button>
         </div>
       </form>
+
+      <DeleteAccountSection />
     </>
   );
 }
