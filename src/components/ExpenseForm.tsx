@@ -45,6 +45,13 @@ import {
   toCadCents,
 } from "../lib/currency";
 import { useForeignAmount } from "../lib/useForeignAmount";
+import {
+  FREQUENCIES,
+  recurringSplitForSave,
+  type Frequency,
+  type RecurringRule,
+  type RecurringSplit,
+} from "../lib/recurring";
 import { CategoryButton } from "./CategoryPicker";
 import { ItemSplitSheet, linesFromScan, type ItemLine } from "./ItemSplitSheet";
 import { ScanReceipt } from "./ScanReceipt";
@@ -64,17 +71,46 @@ type FormErrors = {
   people: Map<string, string>; // member id → the problem with their exact amount
 };
 
+// What a new expense starts with, instead of a blank form (a bill to fill in, made by a
+// recurring expense).
+export type ExpenseTemplate = {
+  description: string;
+  category: CategoryKey;
+  paidBy: string;
+  visibility: Visibility;
+  spentOn: string;
+  amountCents: number | null;
+  split: RecurringSplit;
+};
+
 type ExpenseFormProps = {
   data: GroupData;
   me: Member;
   expense?: Expense; // when editing; leave out to add a new one
+  template?: ExpenseTemplate; // a new expense that starts filled in
+  // Set up or change a recurring expense instead of adding one expense. The same form,
+  // with "How often" in place of the date and no receipt photo.
+  recurring?: { rule?: RecurringRule; onSaved: (ruleId: string) => void };
   // After saving (with a message if the receipt photo part didn't work), or Cancel (nothing).
   onDone: (saved?: { expenseId: string; receiptNotice: string | null }) => void;
 };
 
 // Adding or editing an expense. Everything is checked here first so mistakes get
 // a friendly message, and the database checks it all again (save_expense).
-export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
+export function ExpenseForm({ data, me, expense, template: givenTemplate, recurring, onDone }: ExpenseFormProps) {
+  const rule = recurring?.rule;
+  // Editing a rule starts from it, like a template.
+  const template: ExpenseTemplate | undefined = rule
+    ? {
+        description: rule.description,
+        category: rule.category,
+        paidBy: rule.paidBy,
+        visibility: rule.visibility,
+        spentOn: rule.startOn,
+        amountCents: rule.amountCents,
+        split: rule.split,
+      }
+    : givenTemplate;
   const { group } = data;
   const { ask, dialog } = useConfirm();
   const { busy, feedback, setFeedback, run } = useDbAction();
@@ -87,35 +123,46 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     return [...data.members, ...data.formerMembers.filter((m) => onExpense.has(m.id))];
   }, [data, expense]);
 
-  const [start] = useState(() => startingSplit(expense, people, data));
+  const [start] = useState(() =>
+    template ? splitFromTemplate(template.split, people) : { ...startingSplit(expense, people, data), wholeGroup: !expense },
+  );
+  // Recurring: everyone in the group, including people who join later (equal split only).
+  const [wholeGroup, setWholeGroup] = useState(start.wholeGroup);
+  const [frequency, setFrequency] = useState<Frequency>(rule?.frequency ?? "monthly");
+  const [endOn, setEndOn] = useState(rule?.endOn ?? "");
+  const [amountKind, setAmountKind] = useState<"fixed" | "variable">(rule?.amountKind ?? "fixed");
+  const variable = recurring !== undefined && amountKind === "variable";
   const [defaultOutdated] = useState(() => {
     const saved = expense ? null : readDefaultSplit(group.default_split);
     return saved !== null && defaultSplitNeedsUpdate(saved, data.members.map((m) => m.id));
   });
-  const [description, setDescription] = useState(expense?.description ?? "");
+  const [description, setDescription] = useState(expense?.description ?? template?.description ?? "");
   // What's typed in the Amount box, in the expense's own currency (CA$, or US$ etc.).
   const [amountText, setAmountText] = useState(() => {
-    if (!expense) return "";
+    if (!expense) return template?.amountCents ? centsToDecimal(template.amountCents) : "";
     if (isForeignCurrency(expense.original_currency) && expense.original_amount_cents !== null) {
       return entryText(expense.original_amount_cents, expense.original_currency);
     }
     return centsToDecimal(expense.amount_cents);
   });
-  const [paidBy, setPaidBy] = useState(expense?.paid_by ?? me.id);
-  const [spentOn, setSpentOn] = useState(expense?.spent_on ?? todayLocal());
+  const [paidBy, setPaidBy] = useState(expense?.paid_by ?? template?.paidBy ?? me.id);
+  // For a recurring expense this is the start date.
+  const [spentOn, setSpentOn] = useState(expense?.spent_on ?? template?.spentOn ?? todayLocal());
   // Paid in another currency: which one, and its rate to CAD (Bank of Canada or typed in).
   const fx = useForeignAmount(expense, spentOn);
-  const canConvert = group.currency === "CAD"; // groups are all CAD for now
+  const canConvert = group.currency === "CAD" && !recurring; // groups are all CAD for now; recurring ones are CAD
   const [mode, setMode] = useState<SplitMode>(start.mode);
   const [ticked, setTicked] = useState<Set<string>>(start.ticked);
   const [exactText, setExactText] = useState<Record<string, string>>(start.exact);
   // "By %" and "By shares": the number typed for each ticked person.
   const [percentText, setPercentText] = useState<Record<string, string>>(start.percent);
   const [sharesText, setSharesText] = useState<Record<string, string>>(start.shares);
-  const [visibility, setVisibility] = useState<Visibility>(expense?.visibility ?? "group");
+  const [visibility, setVisibility] = useState<Visibility>(expense?.visibility ?? template?.visibility ?? "group");
   // The category someone picked (when editing, the saved one). Until they pick one, a new
   // expense follows a suggestion from its description; their own pick always wins.
-  const [pickedCategory, setPickedCategory] = useState<CategoryKey | null>(expense?.category ?? null);
+  const [pickedCategory, setPickedCategory] = useState<CategoryKey | null>(
+    expense?.category ?? (template && template.category !== "other" ? template.category : null),
+  );
   // After the first Save, missing things (like an empty description) are pointed out too.
   const [tried, setTried] = useState(false);
   // Why the last key in a person's box was ignored (see changeExact).
@@ -381,7 +428,9 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     if (length > DESCRIPTION_MAX) errors.description = `Keep it to ${DESCRIPTION_MAX} characters or fewer.`;
     else if (length === 0 && includeMissing) errors.description = "Say what the expense was for.";
 
-    if (fx.isForeign) {
+    if (variable) {
+      // The amount is asked for each time.
+    } else if (fx.isForeign) {
       if (entryCents === null && includeMissing) {
         errors.amount = `Enter the amount in ${currencySymbol(fx.currency)}.`;
       } else if (entryCents === 0 && includeMissing) {
@@ -400,7 +449,10 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     }
 
     if (includeMissing && !people.some((p) => p.id === paidBy)) errors.paidBy = "Choose who paid.";
-    if (includeMissing && !/^\d{4}-\d{2}-\d{2}$/.test(spentOn)) errors.date = "Choose the date.";
+    if (includeMissing && !/^\d{4}-\d{2}-\d{2}$/.test(spentOn)) {
+      errors.date = recurring ? "Choose when it starts." : "Choose the date.";
+    }
+    if (recurring && endOn && endOn < spentOn) errors.date = "The end date can't be before the start.";
 
     if (mode !== "exact") {
       if (includeMissing && tickedIds.length === 0) {
@@ -462,7 +514,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const problemId = firstProblemId(findErrors(true));
-    if (problemId || amount === null || (fx.isForeign && (!fx.rate || entry === null))) {
+    if (problemId || (!variable && amount === null) || (fx.isForeign && (!fx.rate || entry === null))) {
       setTried(true);
       if (problemId) document.getElementById(problemId)?.focus();
       return;
@@ -472,6 +524,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
       const sure = await ask(`Everyone in ${group.name} will see this expense. Continue?`, "Continue", false);
       if (!sure) return;
     }
+    if (recurring) {
+      await saveRecurring();
+      return;
+    }
+    if (amount === null) return;
     // Exact amounts in another currency become CAD shares in proportion.
     const exactCad =
       mode === "exact" && fx.isForeign
@@ -530,6 +587,46 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     onDone({ expenseId, receiptNotice });
   }
 
+  // Saves the recurring expense rule (save_recurring); the database makes the expenses.
+  async function saveRecurring() {
+    if (!recurring) return;
+    const members =
+      mode === "equally"
+        ? wholeGroup
+          ? null
+          : tickedIds.map((id) => ({ member_id: id, value: 1 }))
+        : mode === "percent"
+          ? tickedIds.map((id) => ({ member_id: id, value: percents.get(id)! }))
+          : mode === "shares"
+            ? tickedIds.map((id) => ({ member_id: id, value: shareCounts.get(id)! }))
+            : splitIds.map((id) => ({ member_id: id, value: exactCents.get(id) ?? 0 }));
+    let ruleId = rule?.id ?? "";
+    const ok = await run(
+      async () => {
+        const result = await supabase.rpc("save_recurring", {
+          p_group_id: group.id,
+          p_description: description.trim(),
+          p_category: category,
+          p_paid_by: paidBy,
+          p_visibility: finalVisibility,
+          p_frequency: frequency,
+          p_start_on: spentOn,
+          // The generated types say text, but the function takes null for "no end".
+          p_end_on: (endOn || null) as string,
+          p_amount_kind: variable ? "variable" : "fixed",
+          p_amount_cents: (variable ? null : amount) as number,
+          p_split: recurringSplitForSave({ method: mode, members }),
+          p_id: rule?.id,
+        });
+        if (result.data) ruleId = result.data;
+        return result;
+      },
+      undefined,
+      false,
+    );
+    if (ok && ruleId) recurring.onSaved(ruleId);
+  }
+
   const onlyNames = peopleInvolved(involved, data, me.id);
   // Ids that link each box to the problem shown under it, for screen readers.
   const errorId = (key: string) => `${ids.split}-problem-${key}`;
@@ -537,7 +634,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   return (
     <>
       <form className="expense-form" onSubmit={handleSubmit} noValidate>
-        {!expense && <ScanReceipt disabled={working} onScanned={applyScan} />}
+        {!expense && !recurring && <ScanReceipt disabled={working} onScanned={applyScan} />}
         {scanNotes.length > 0 && (
           <div className="scan-notes" role="status">
             {scanNotes.map((note) => (
@@ -566,6 +663,35 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           </p>
         </div>
 
+        {recurring && (
+          <fieldset>
+            <legend>Amount</legend>
+            <label className="choice">
+              <input type="radio" name="amount-kind" checked={amountKind === "fixed"} onChange={() => setAmountKind("fixed")} />
+              <span>The same every time</span>
+            </label>
+            <label className="choice">
+              <input
+                type="radio"
+                name="amount-kind"
+                checked={amountKind === "variable"}
+                onChange={() => {
+                  setAmountKind("variable");
+                  if (mode === "exact") switchMode("equally");
+                }}
+              />
+              <span>It changes each time (like a hydro bill)</span>
+            </label>
+            {variable && (
+              <p className="hint">
+                Each time it's due, you get a "bill to fill in" on the group page. You type that time's amount, and the
+                rest is filled in for you.
+              </p>
+            )}
+          </fieldset>
+        )}
+
+        {!variable && (
         <div className="field">
           <div className="amount-label-row">
             <label htmlFor={ids.amount}>
@@ -611,6 +737,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             />
           )}
         </div>
+        )}
 
         <div className="field">
           <label htmlFor={ids.paidBy}>Paid by</label>
@@ -629,17 +756,49 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           <FieldError id={errorId("paid-by")} text={errors.paidBy} />
         </div>
 
-        <div className="field">
-          <label htmlFor={ids.date}>Date</label>
-          <input
-            id={ids.date}
-            type="date"
-            value={spentOn}
-            onChange={(event) => setSpentOn(event.target.value)}
-            {...problemProps(errorId("date"), errors.date)}
-          />
-          <FieldError id={errorId("date")} text={errors.date} />
+        {recurring && (
+          <div className="field">
+            <label htmlFor={`${ids.date}-often`}>How often</label>
+            <select id={`${ids.date}-often`} value={frequency} onChange={(event) => setFrequency(event.target.value as Frequency)}>
+              {FREQUENCIES.map((f) => (
+                <option key={f.key} value={f.key}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className={recurring ? "date-range" : undefined}>
+          <div className="field">
+            <label htmlFor={ids.date}>{recurring ? "Starts" : "Date"}</label>
+            <input
+              id={ids.date}
+              type="date"
+              value={spentOn}
+              onChange={(event) => setSpentOn(event.target.value)}
+              {...problemProps(errorId("date"), errors.date)}
+            />
+          </div>
+          {recurring && (
+            <div className="field">
+              <label htmlFor={`${ids.date}-end`}>Ends (optional)</label>
+              <input
+                id={`${ids.date}-end`}
+                type="date"
+                value={endOn}
+                min={spentOn || undefined}
+                onChange={(event) => setEndOn(event.target.value)}
+              />
+            </div>
+          )}
         </div>
+        <FieldError id={errorId("date")} text={errors.date} />
+        {recurring && (
+          <p className="hint">
+            Monthly ones repeat on the start day (the 31st becomes the last day of shorter months). One that starts
+            today is added within the hour; dates that have already passed are skipped.
+          </p>
+        )}
 
         <fieldset>
           <legend>Split</legend>
@@ -647,7 +806,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             <p className="hint">Default split needs updating: someone joined or left. A group admin can fix it in Group settings.</p>
           )}
           <div className="segmented">
-            {SPLIT_METHODS.map((option) => (
+            {SPLIT_METHODS.filter((option) => !(variable && option.key === "exact")).map((option) => (
               <label key={option.key} className="segment">
                 <input
                   type="radio"
@@ -664,6 +823,19 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             <button type="button" className="button secondary item-split-button" onClick={() => setItemSheetOpen(true)}>
               Split by item
             </button>
+          )}
+          {recurring && mode === "equally" && (
+            <label className="choice">
+              <input
+                type="checkbox"
+                checked={wholeGroup}
+                onChange={(event) => {
+                  setWholeGroup(event.target.checked);
+                  if (event.target.checked) setTicked(new Set(data.members.map((m) => m.id)));
+                }}
+              />
+              <span>Everyone in {group.name}, including people who join later</span>
+            </label>
           )}
           {mode === "percent" && <p className="hint">Tick who's in it, then give each person a percent.</p>}
           {mode === "shares" && (
@@ -688,6 +860,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
                         id={boxId}
                         type="checkbox"
                         checked={isTicked}
+                        disabled={recurring !== undefined && mode === "equally" && wholeGroup}
                         onChange={() => toggle(p.id)}
                         {...problemProps(errorId("split"), errors.split)}
                       />
@@ -770,6 +943,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           <FieldError id={errorId("split")} text={errors.split} />
         </fieldset>
 
+        {!recurring && (
         <fieldset className="receipt-field">
           <legend>Receipt photo</legend>
           {newPhoto ? <ReceiptThumbnail src={newPhoto.url} /> : savedPhoto && <SavedReceipt path={savedPhoto} />}
@@ -815,6 +989,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           )}
           <FieldError id={errorId("photo")} text={photoProblem ?? undefined} live />
         </fieldset>
+        )}
 
         <fieldset>
           <legend>Who can see this?</legend>
@@ -855,7 +1030,15 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             className="button"
             disabled={working || preparingPhoto || (mode === "percent" && !percentsOk)}
           >
-            {savingPhoto ? "Saving the photo…" : expense ? "Save changes" : "Add expense"}
+            {savingPhoto
+              ? "Saving the photo…"
+              : recurring
+                ? rule
+                  ? "Save changes"
+                  : "Set up recurring expense"
+                : expense
+                  ? "Save changes"
+                  : "Add expense"}
           </button>
           <button type="button" className="button secondary" onClick={() => onDone()} disabled={working}>
             Cancel
@@ -930,6 +1113,23 @@ function startingSplit(expense: Expense | undefined, people: Member[], data: Gro
     return { mode: (isEqual ? "equally" : "exact") as SplitMode, ticked: new Set(inSplit), exact, ...blank };
   }
   return { mode: "equally" as SplitMode, ticked: new Set(inSplit), exact, ...blank };
+}
+
+// The starting split from a recurring expense's split (members null = everyone now).
+function splitFromTemplate(split: RecurringSplit, people: Member[]) {
+  const ids = new Set(people.map((p) => p.id));
+  const members = (split.members ?? []).filter((m) => ids.has(m.member_id));
+  const all = split.members === null;
+  const ticked = new Set(all ? people.map((p) => p.id) : members.map((m) => m.member_id));
+  const typed = (fmt: (v: number) => string) => Object.fromEntries(members.map((m) => [m.member_id, fmt(m.value)]));
+  return {
+    mode: split.method as SplitMode,
+    ticked,
+    exact: split.method === "exact" ? typed(centsToDecimal) : ({} as Record<string, string>),
+    percent: split.method === "percent" ? typed((v) => String(percentNumber(v))) : ({} as Record<string, string>),
+    shares: split.method === "shares" ? typed(String) : ({} as Record<string, string>),
+    wholeGroup: all,
+  };
 }
 
 function countPlus(text: string): number {

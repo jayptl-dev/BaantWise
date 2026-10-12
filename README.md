@@ -191,6 +191,20 @@ An expense paid in another currency ("Dinner US$84.50") is turned into Canadian 
 
 Rates come from our own site: `GET /api/fx-rates?date=YYYY-MM-DD` (the Worker in `src/worker/`, tested in `fxRates.test.ts`). Only `/api/*` runs the Worker (`run_worker_first` in `wrangler.jsonc`); every other address is the React app. Answers are cached by Cloudflare for 30 days once a date is settled, or 30 minutes for recent dates. The maths is in `src/lib/currency.ts`.
 
+## Recurring expenses
+
+Rent, internet, a phone plan: set it up once (**🔁 Recurring** on the group page, `/groups/:id/recurring`) and Baantwise adds it on schedule, as if the person who set it up had added it. They can edit or delete each one like any expense. Three settings, each on its own:
+
+1. **When:** every week, every 2 weeks, every month or every year, from a start date, with an optional end date. Monthly ones follow the start day (the 31st becomes the last day of shorter months). Dates that already passed are never back-filled, and resuming a paused one skips the paused time.
+2. **How much:** the same every time, or "it changes each time" (like a hydro bill). Then the person who set it up gets a **bill to fill in** on the group page; "Enter amount" opens Add expense filled in, they type the amount, and that's it. Bills can also be skipped.
+3. **Who:** everyone in the group at that moment (people who join later are included), or chosen people, split Equally, by Percent, by Shares or (same-amount ones only) Exact.
+
+How it works:
+- The rule lives in `recurring_expenses`; bills in `recurring_bills`. The form is the same `ExpenseForm` in a "recurring" mode, saving with `save_recurring`.
+- A Supabase scheduled job (pg_cron, job `baantwise-recurring`, every hour at :07) runs `private.run_recurring()`, which adds what's due up to today in Toronto. It uses the same leftover-cent rule as the app (`private.split_cents` matches `src/lib/split.ts`). A rule pauses itself if its owner or payer leaves the group.
+- Expenses it adds have `recurring_id` set and show 🔁. Deleting a rule never deletes them.
+- Privacy follows the rule's "Who can see this?", like an expense. Only the person who set it up can change, pause or delete it.
+
 ## Balances and settling up
 
 Baantwise never moves money. It only works out who owes whom and writes down payments people say they made.

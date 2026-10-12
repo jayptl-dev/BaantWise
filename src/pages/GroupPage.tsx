@@ -8,6 +8,7 @@ import { MyPartLabel } from "../components/MyPartLabel";
 import { NameForm } from "../components/NameForm";
 import { PaymentDialog } from "../components/PaymentDialog";
 import { ReceiptIcon } from "../components/ReceiptPhoto";
+import { BillsNotice } from "../components/BillsNotice";
 import { ChartIcon } from "../components/ChartIcon";
 import { foreignAmount } from "../lib/currency";
 import { SearchIcon } from "../components/SearchIcon";
@@ -248,11 +249,15 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
 
       <section className="section" aria-labelledby="expenses-heading">
         <h2 id="expenses-heading">Expenses and payments</h2>
-        <div className="section-actions">
+        <div className="section-actions button-row">
           <Link to={`/groups/${group.id}/expenses/new`} className="button">
             Add expense
           </Link>
+          <Link to={`/groups/${group.id}/recurring`} className="button secondary">
+            🔁 Recurring
+          </Link>
         </div>
+        <BillsNotice groupId={group.id} />
         {activity.length === 0 ? (
           <p className="muted">No expenses yet</p>
         ) : (
@@ -304,6 +309,12 @@ function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: Gro
           <span className="expense-title">
             <CategoryEmoji category={expense.category} /> {expense.description}
             {expense.receipt_path && <ReceiptIcon />}
+            {expense.recurring_id && (
+              <span className="repeat-mark" title="Added by a recurring expense">
+                <span aria-hidden="true"> 🔁</span>
+                <span className="visually-hidden"> (recurring)</span>
+              </span>
+            )}
           </span>
           <span className="expense-sub">
             {payer} paid {formatCents(expense.amount_cents)}

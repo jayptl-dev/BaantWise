@@ -1752,3 +1752,34 @@ p.scan-box {
   margin: -0.25rem 0 0.5rem;
   color: var(--muted);
 }
+
+/* ---------- Recurring expenses ---------- */
+
+.bills-notice {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--soft);
+}
+
+.bill-row,
+.rule-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.rule-row .button-row,
+.bill-row .button-row {
+  margin: 0;
+}
+
+.rule-row .button,
+.bill-row .button {
+  min-height: 2.5rem;
+  padding: 0.375rem 0.75rem;
+}
