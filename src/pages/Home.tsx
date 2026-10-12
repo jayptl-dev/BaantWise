@@ -44,7 +44,7 @@ function Landing() {
       </p>
 
       <section className="account" aria-label="Account">
-        <p className="beta-note">Baantwise is in private beta</p>
+        <p className="beta-note">Sign in with Google to try it. It's free.</p>
         <SignInButton />
         <AuthMessage />
       </section>

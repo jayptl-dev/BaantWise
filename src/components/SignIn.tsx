@@ -4,7 +4,7 @@ import { useAuth } from "../lib/auth";
 import { loadGoogleScript, makeNonce, type GoogleId } from "../lib/googleSignIn";
 import { SiteFooter } from "./SiteFooter";
 
-export const BETA_NOTE = "Baantwise is in private beta, so only invited testers can sign in right now.";
+export const BETA_NOTE = "Baantwise is brand new and still being tested, so you may spot a few rough edges.";
 
 // How long to wait for Google's button before offering the other way to sign in.
 const SLOW_MS = 8000;
