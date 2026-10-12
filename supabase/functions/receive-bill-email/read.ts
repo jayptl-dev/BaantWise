@@ -72,6 +72,26 @@ export function readGmailConfirmation(subject: string, text: string): { requeste
   return { requester: fromSubject ?? fromText, code, link };
 }
 
+// Emails Baantwise itself sent (notices, setup emails) must never be read as bills or
+// answered: a mail rule that forwards everything would bounce them back and forth.
+export function isFromBaantwise(p: { from: string | null; headers: Array<{ key: string; value: string }> }): boolean {
+  if (p.headers.some((h) => h.key.toLowerCase() === 'x-baantwise')) return true;
+  return addressesIn(p.from).some((a) => a.endsWith(`@${BILL_DOMAIN}`) || a.endsWith('@baantwise.com'));
+}
+
+// Forwarded by a rule (Gmail/Outlook auto-forward) or sent by a robot, rather than by a
+// person pressing Forward. Those never get a "we didn't find a bill" email back.
+export function isAutomatic(p: { envelopeFrom: string | null; headers: Array<{ key: string; value: string }> }): boolean {
+  const get = (name: string) => p.headers.find((h) => h.key.toLowerCase() === name)?.value?.trim().toLowerCase() ?? null;
+  if (/\+caf_=/i.test(p.envelopeFrom ?? '')) return true; // Gmail's automatic forwarding
+  if (/^srs[01][=+-]/i.test(p.envelopeFrom ?? '')) return true; // rewritten by a forwarding service
+  if (get('x-forwarded-for') || get('x-forwarded-to')) return true;
+  const auto = get('auto-submitted');
+  if (auto && auto !== 'no') return true;
+  if (get('list-id') || get('list-unsubscribe') || /bulk|list|junk/.test(get('precedence') ?? '')) return true;
+  return false;
+}
+
 const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'" };
 
 // Bill emails are mostly HTML: keep only the words, one line per block.
@@ -167,7 +187,7 @@ export function originalSenderIn(text: string): string | null {
   return line ? line.slice(0, 200) : null;
 }
 
-const AMOUNT_WORDS = /(amount due|total due|balance due|total amount due|amount payable|new balance|total balance|payment due|amount owing|please pay|total charges|total|amount)\b[^$\d\n]{0,40}(?:CA?\$|C\$|\$|CAD\s*)\s?(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:\.\d{2}))/i;
+const AMOUNT_WORDS = /(amount due|total due|balance due|total amount due|amount payable|current outstanding balance|outstanding balance|current balance|balance owing|new balance|total balance|payment due|amount owing|please pay|total charges|total|amount)\b[^$\d\n]{0,40}(?:CA?\$|C\$|\$|CAD\s*)\s?(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:\.\d{2}))/i;
 
 function toCentsText(text: string): number | null {
   const cents = Math.round(Number(text.replace(/,/g, '')) * 100);
