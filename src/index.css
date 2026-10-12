@@ -847,7 +847,8 @@ button.expense-link {
 /* "Equally" / "Exact amounts": two radio buttons that look like one switch. */
 .segmented {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-auto-columns: 1fr; /* one equal column per choice, however many there are */
+  grid-auto-flow: column;
   margin-bottom: 0.5rem;
   border: 1px solid var(--accent);
   border-radius: 0.5rem;
@@ -1464,4 +1465,121 @@ dialog.photo-overlay::backdrop {
 /* Old results stay on screen, faded, while a new search runs. */
 .expense-list.stale {
   opacity: 0.6;
+}
+
+/* ---------- Spending charts ---------- */
+
+.period-switch {
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.period-switch .segment span {
+  font-size: 0.875rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.chart-total {
+  margin: 0 0 0.5rem;
+}
+
+.bar-list,
+.month-bars {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A category row: name and amount on one line, the bar under it. The whole row is the button. */
+.bar-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.75rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: none;
+  cursor: pointer;
+}
+
+.bar-row:hover .bar-fill {
+  opacity: 0.85;
+}
+
+.bar-row:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bar-value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bar-track {
+  grid-column: 1 / -1;
+  height: 0.625rem;
+  border-radius: 0.3rem;
+  background: var(--soft);
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 0.3rem;
+  background: var(--accent);
+}
+
+/* Twelve thin columns. On a narrow phone they scroll sideways inside the box. */
+.month-bars {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(2.75rem, 1fr));
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.month-bars li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.month-value {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.month-track {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 2rem;
+  height: 8rem;
+  border-radius: 0.3rem;
+  background: var(--soft);
+  overflow: hidden;
+}
+
+.month-fill {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+}
+
+.month-label {
+  font-size: 0.75rem;
+  white-space: nowrap;
 }

@@ -8,6 +8,7 @@ import { MyPartLabel } from "../components/MyPartLabel";
 import { NameForm } from "../components/NameForm";
 import { PaymentDialog } from "../components/PaymentDialog";
 import { ReceiptIcon } from "../components/ReceiptPhoto";
+import { ChartIcon } from "../components/ChartIcon";
 import { SearchIcon } from "../components/SearchIcon";
 import { ShareDialog } from "../components/ShareDialog";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
@@ -151,6 +152,14 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
             title="Search this group"
           >
             <SearchIcon />
+          </Link>
+          <Link
+            to={`/groups/${group.id}/spending`}
+            className="icon-button"
+            aria-label={`Spending in ${group.name}`}
+            title="Spending charts"
+          >
+            <ChartIcon />
           </Link>
           <Link
             to={`/groups/${group.id}/settings`}
