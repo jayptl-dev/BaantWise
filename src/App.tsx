@@ -5,8 +5,10 @@ import EditExpense from "./pages/EditExpense";
 import ExpenseDetails from "./pages/ExpenseDetails";
 import GroupPage from "./pages/GroupPage";
 import GroupSettings from "./pages/GroupSettings";
+import GroupSpending from "./pages/GroupSpending";
 import Home from "./pages/Home";
 import InvitePage from "./pages/InvitePage";
+import MySpending from "./pages/MySpending";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import SearchExpenses from "./pages/SearchExpenses";
@@ -38,6 +40,22 @@ export default function App() {
         element={
           <SignedInPage>
             <SearchExpenses />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/spending"
+        element={
+          <SignedInPage line="Sign in to see your spending.">
+            <MySpending />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/spending"
+        element={
+          <SignedInPage>
+            <GroupSpending />
           </SignedInPage>
         }
       />

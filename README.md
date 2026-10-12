@@ -169,6 +169,17 @@ Baantwise never moves money. It only works out who owes whom and writes down pay
 - **Live updates:** an open group page updates its balances by itself when anyone adds, changes or deletes an expense, or records or undoes a payment.
 - **All in whole cents.** The maths is in `src/lib/balances.ts`, with tests in `src/lib/balances.test.ts`. The screens are `src/components/BalancesSection.tsx`, `SettleUpDialog.tsx` (the pay box) and `PaymentDialog.tsx`, plus `src/pages/Profile.tsx`.
 
+## Spending
+
+Two screens show where money goes, by category and by month. There's no chart library: each bar is a plain list item with its amount written next to it, so screen readers and big text sizes work.
+
+- **Spending** (the bar-chart button on a group page, `/groups/:id/spending`): the group's shared spending. Only expenses the whole group can see count, so everyone sees the same numbers. Private expenses never show here.
+- **My spending** (the bar-chart button on Your groups, `/spending`): your own share of every expense in all your groups, private ones included. Only you see it.
+
+Both have a switch (This month, Last month, This year, All time) for the category bars, and a fixed "Last 12 months" chart. Tapping a category lists its expenses for that period; on My spending each row shows your share and the group. Deleted expenses never count.
+
+The maths is in `src/lib/spending.ts` (tested in `spending.test.ts`) and the bars in `src/components/SpendingCharts.tsx`. The group screen reuses the expenses the group page already loads (with live updates), so it needs no extra query.
+
 ## Expense search
 
 | Address | What it shows |
