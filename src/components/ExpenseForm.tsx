@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { categoryFor, suggestCategory, type CategoryKey } from "../lib/categories";
 import { DESCRIPTION_MAX, peopleInvolved, type Expense, type Visibility } from "../lib/expenses";
-import { todayLocal } from "../lib/format";
+import { formatDay, todayLocal } from "../lib/format";
 import {
   centsToDecimal,
   formatCents,
@@ -32,6 +32,19 @@ import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
 import type { ScannedReceipt } from "../lib/receiptScan";
+import {
+  cadInRange,
+  currencyDecimals,
+  currencyName,
+  currencySymbol,
+  FOREIGN_CURRENCIES,
+  foreignToCadShares,
+  formatForeign,
+  isForeignCurrency,
+  rateText,
+  toCadCents,
+} from "../lib/currency";
+import { useForeignAmount } from "../lib/useForeignAmount";
 import { CategoryButton } from "./CategoryPicker";
 import { ItemSplitSheet, linesFromScan, type ItemLine } from "./ItemSplitSheet";
 import { ScanReceipt } from "./ScanReceipt";
@@ -80,9 +93,19 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     return saved !== null && defaultSplitNeedsUpdate(saved, data.members.map((m) => m.id));
   });
   const [description, setDescription] = useState(expense?.description ?? "");
-  const [amountText, setAmountText] = useState(expense ? centsToDecimal(expense.amount_cents) : "");
+  // What's typed in the Amount box, in the expense's own currency (CA$, or US$ etc.).
+  const [amountText, setAmountText] = useState(() => {
+    if (!expense) return "";
+    if (isForeignCurrency(expense.original_currency) && expense.original_amount_cents !== null) {
+      return entryText(expense.original_amount_cents, expense.original_currency);
+    }
+    return centsToDecimal(expense.amount_cents);
+  });
   const [paidBy, setPaidBy] = useState(expense?.paid_by ?? me.id);
   const [spentOn, setSpentOn] = useState(expense?.spent_on ?? todayLocal());
+  // Paid in another currency: which one, and its rate to CAD (Bank of Canada or typed in).
+  const fx = useForeignAmount(expense, spentOn);
+  const canConvert = group.currency === "CAD"; // groups are all CAD for now
   const [mode, setMode] = useState<SplitMode>(start.mode);
   const [ticked, setTicked] = useState<Set<string>>(start.ticked);
   const [exactText, setExactText] = useState<Record<string, string>>(start.exact);
@@ -122,31 +145,41 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
 
   // Worked out from what's typed so far, on every change. The boxes only ever hold
   // money (see changeAmount), so reading them always works.
-  const totalCents = readMoney(amountText)?.cents ?? null; // null = empty
+  // `entry` is in the expense's own currency; `amount` is always CAD cents, which is
+  // what gets split and saved. For a CAD expense they're the same.
+  const entryCents = readEntry(amountText, fx.currency); // null = empty
+  const entry = entryCents !== null && entryCents > 0 ? entryCents : null;
+  const totalCents = fx.isForeign ? (entry !== null && fx.rate ? toCadCents(entry, fx.rate) : null) : entryCents;
   const amount = totalCents !== null && totalCents > 0 && totalCents <= MAX_CENTS ? totalCents : null;
+  // Exact amounts are typed in the expense's own currency and must add up to `entry`.
+  const exactTarget = fx.isForeign ? entry : amount;
+  const fmtEntry = (cents: number) => (fx.isForeign ? formatForeign(cents, fx.currency) : formatCents(cents));
 
   const tickedIds = people.filter((p) => ticked.has(p.id)).map((p) => p.id); // in list order
-  const equalShares = amount === null ? null : splitEqually(amount, tickedIds, paidBy);
+  // Each person's part of `total` in the modes that work it out (Equally, Percent, Shares).
+  function computeShares(total: number | null, how: SplitMode = mode): Map<string, number> | null {
+    if (total === null) return null;
+    if (how === "equally") return splitEqually(total, tickedIds, paidBy);
+    if (how === "percent") {
+      return percentsOk ? centsByPercent(total, tickedIds.map((id) => ({ id, hundredths: percents.get(id)! })), paidBy) : null;
+    }
+    if (how === "shares") {
+      return sharesOk ? centsByShares(total, tickedIds.map((id) => ({ id, shares: shareCounts.get(id)! })), paidBy) : null;
+    }
+    return null;
+  }
 
   // "By %": hundredths of a percent per ticked person (null = empty or not a percent).
   const percents = new Map(tickedIds.map((id) => [id, readPercent(percentText[id] ?? "")]));
   const percentTotal = [...percents.values()].reduce<number>((sum, v) => sum + (v ?? 0), 0);
   const percentsOk = tickedIds.length > 0 && [...percents.values()].every((v) => v !== null) && percentTotal === HUNDRED_PERCENT;
-  const percentShares =
-    amount === null || !percentsOk
-      ? null
-      : centsByPercent(amount, tickedIds.map((id) => ({ id, hundredths: percents.get(id)! })), paidBy);
 
   // "By shares": a whole number from 1 to 1000 per ticked person.
   const shareCounts = new Map(tickedIds.map((id) => [id, readShares(sharesText[id] ?? "")]));
   const sharesOk = tickedIds.length > 0 && [...shareCounts.values()].every((v) => v !== null);
-  const sharesShares =
-    amount === null || !sharesOk
-      ? null
-      : centsByShares(amount, tickedIds.map((id) => ({ id, shares: shareCounts.get(id)! })), paidBy);
 
-  // The cents each person ends up with, for the modes that work it out.
-  const workedOut = mode === "equally" ? equalShares : mode === "percent" ? percentShares : mode === "shares" ? sharesShares : null;
+  // The CAD cents each person ends up with, for the modes that work it out.
+  const workedOut = computeShares(amount);
 
   // Exact amounts. Each box can also add and take away, like "115.22+64.88".
   // An empty box means that person isn't in the split.
@@ -177,10 +210,27 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
 
   // Amount boxes only take money: a key that would make anything else is ignored.
   function changeAmount(text: string) {
+    if (currencyDecimals(fx.currency) === 0) {
+      const digits = text.replace(/[\s,]/g, "");
+      if (!/^\d{0,11}$/.test(digits)) return; // yen, won, rupiah: whole numbers only
+      setLimitNote(null);
+      setAmountText(digits);
+      return;
+    }
     const read = readMoney(text);
     if (!read) return;
     setLimitNote(null);
     setAmountText(read.text);
+  }
+
+  // Picking another currency starts the amount (and exact amounts) over in it.
+  function chooseCurrency(code: string) {
+    if (code !== "CAD" && !isForeignCurrency(code)) return;
+    if (code === fx.currency) return;
+    fx.setCurrency(code);
+    fx.setOwnRateText(null);
+    if (currencyDecimals(code) === 0) setAmountText((t) => t.split(".")[0]);
+    setExactText({});
   }
 
   // A person's box never lets the amounts go over the total, not even by a cent: a key
@@ -190,11 +240,12 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     const read = readMoney(text, true);
     if (!read) return;
     const refused = refuseExactChange({
-      total: amount,
+      total: exactTarget,
       assigned: exactTotal,
       before: exactCents.get(id) ?? 0,
       after: read.cents ?? 0,
       addsPlus: countPlus(read.text) > countPlus(exactText[id] ?? ""),
+      format: fmtEntry,
     });
     if (refused) {
       setLimitNote({ id, text: refused });
@@ -253,7 +304,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     if (receipt.category !== "other") setPickedCategory(receipt.category);
     const notes: string[] = [];
     const foreign = receipt.currency !== null && receipt.currency !== group.currency;
-    if (foreign) {
+    if (foreign && canConvert && isForeignCurrency(receipt.currency) && receipt.totalCents !== null) {
+      chooseCurrency(receipt.currency);
+      setAmountText(entryText(receipt.totalCents, receipt.currency));
+      notes.push(`This receipt is in ${receipt.currency}. It's turned into CA$ at the Bank of Canada rate.`);
+    } else if (foreign) {
       setAmountText("");
       notes.push(`This receipt is in ${receipt.currency}. Enter the amount in ${group.currency}.`);
     } else if (receipt.totalCents !== null && receipt.totalCents <= MAX_CENTS) {
@@ -294,9 +349,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     setFeedback(null);
     setLimitNote(null);
     // Carry the split over, so switching doesn't start from scratch.
-    if (next === "exact" && workedOut) {
+    // In the expense's own currency, since that's what Exact boxes are typed in.
+    const carried = mode === "exact" ? null : computeShares(exactTarget);
+    if (next === "exact" && carried) {
       const filledIn = people.map((p) => {
-        const cents = workedOut.get(p.id);
+        const cents = carried.get(p.id);
         return [p.id, cents === undefined ? "" : centsToDecimal(cents)];
       });
       setExactText(Object.fromEntries(filledIn));
@@ -324,7 +381,17 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     if (length > DESCRIPTION_MAX) errors.description = `Keep it to ${DESCRIPTION_MAX} characters or fewer.`;
     else if (length === 0 && includeMissing) errors.description = "Say what the expense was for.";
 
-    if (totalCents !== null && totalCents > MAX_CENTS) {
+    if (fx.isForeign) {
+      if (entryCents === null && includeMissing) {
+        errors.amount = `Enter the amount in ${currencySymbol(fx.currency)}.`;
+      } else if (entryCents === 0 && includeMissing) {
+        errors.amount = "The amount must be more than 0.";
+      } else if (entry !== null && !fx.rate && includeMissing) {
+        errors.amount = fx.state.kind === "own" ? "Type the rate, like 1.3672." : "Wait for the rate, or type your own.";
+      } else if (totalCents !== null && !cadInRange(totalCents)) {
+        errors.amount = `In Canadian dollars this must be between $0.01 and ${formatCents(MAX_CENTS)}.`;
+      }
+    } else if (totalCents !== null && totalCents > MAX_CENTS) {
       errors.amount = `The most one expense can be is ${formatCents(MAX_CENTS)}.`;
     } else if (totalCents === null && includeMissing) {
       errors.amount = "Enter the amount, like 12.50.";
@@ -372,8 +439,8 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     }
     if (includeMissing && splitIds.length === 0) {
       errors.split = "Enter at least one person's amount.";
-    } else if (includeMissing && amount !== null && exactTotal !== amount) {
-      errors.split = `The amounts must add up to ${formatCents(amount)}.`;
+    } else if (includeMissing && exactTarget !== null && exactTotal !== exactTarget) {
+      errors.split = `The amounts must add up to ${fmtEntry(exactTarget)}.`;
     }
     return errors;
   }
@@ -395,7 +462,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const problemId = firstProblemId(findErrors(true));
-    if (problemId || amount === null) {
+    if (problemId || amount === null || (fx.isForeign && (!fx.rate || entry === null))) {
       setTried(true);
       if (problemId) document.getElementById(problemId)?.focus();
       return;
@@ -405,9 +472,14 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
       const sure = await ask(`Everyone in ${group.name} will see this expense. Continue?`, "Continue", false);
       if (!sure) return;
     }
+    // Exact amounts in another currency become CAD shares in proportion.
+    const exactCad =
+      mode === "exact" && fx.isForeign
+        ? foreignToCadShares(amount, splitIds.map((id) => ({ id, hundredths: exactCents.get(id) ?? 0 })), paidBy)
+        : null;
     const shares = splitIds.map((id) => ({
       member_id: id,
-      share_cents: (mode === "exact" ? exactCents.get(id) : workedOut?.get(id)) ?? 0,
+      share_cents: (mode === "exact" ? (exactCad ? exactCad.get(id) : exactCents.get(id)) : workedOut?.get(id)) ?? 0,
     }));
     const typedValues =
       mode === "percent"
@@ -430,6 +502,15 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           p_category: category,
           // Always sent: on an edit, leaving it out would reset it to "exact".
           p_split: splitForSave(mode, typedValues),
+          // Always sent too: leaving them out makes it a plain CAD expense.
+          ...(fx.isForeign && fx.rate && entry !== null
+            ? {
+                p_original_currency: fx.currency,
+                p_original_amount_cents: entry,
+                p_fx_rate: Number(rateText(fx.rate)),
+                ...(fx.state.kind === "bank" ? { p_fx_rate_date: fx.state.date } : {}),
+              }
+            : {}),
         });
         if (result.data) expenseId = result.data;
         return result;
@@ -486,21 +567,49 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
         </div>
 
         <div className="field">
-          <label htmlFor={ids.amount}>Amount (CA$)</label>
+          <div className="amount-label-row">
+            <label htmlFor={ids.amount}>
+              {fx.isForeign ? `Amount in ${currencySymbol(fx.currency)}` : "Amount (CA$)"}
+            </label>
+            {canConvert && (
+              <select
+                className="currency-select"
+                value={fx.currency}
+                onChange={(event) => chooseCurrency(event.target.value)}
+                aria-label="Currency"
+              >
+                <option value="CAD">CA$ · Canadian Dollar</option>
+                {FOREIGN_CURRENCIES.map((code) => (
+                  <option key={code} value={code}>
+                    {currencySymbol(code)} · {currencyName(code)}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
           <span className="money-input">
-            <span aria-hidden="true">$</span>
+            <span aria-hidden="true">{fx.isForeign ? "" : "$"}</span>
             <input
               id={ids.amount}
               value={amountText}
               onChange={(event) => changeAmount(event.target.value)}
-              inputMode="decimal"
-              placeholder="0.00"
+              inputMode={currencyDecimals(fx.currency) === 0 ? "numeric" : "decimal"}
+              placeholder={currencyDecimals(fx.currency) === 0 ? "0" : "0.00"}
               autoComplete="off"
               enterKeyHint="next"
+              className={fx.isForeign ? "no-prefix" : undefined}
               {...problemProps(errorId("amount"), errors.amount)}
             />
           </span>
           <FieldError id={errorId("amount")} text={errors.amount} />
+          {fx.isForeign && (
+            <RateLine
+              fx={fx}
+              cadCents={totalCents}
+              hasEntry={entry !== null}
+              symbol={currencySymbol(fx.currency)}
+            />
+          )}
         </div>
 
         <div className="field">
@@ -649,13 +758,13 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
                   : `${percentNumber(percentTotal - HUNDRED_PERCENT)}% too much (now ${percentNumber(percentTotal)}%)`}
             </p>
           )}
-          {mode === "exact" && amount !== null && (
-            <p className={exactTotal === amount ? "split-status done" : "split-status"} aria-live="polite">
-              {exactTotal < amount && `${formatCents(amount - exactTotal)} left to assign`}
+          {mode === "exact" && exactTarget !== null && (
+            <p className={exactTotal === exactTarget ? "split-status done" : "split-status"} aria-live="polite">
+              {exactTotal < exactTarget && `${fmtEntry(exactTarget - exactTotal)} left to assign`}
               {/* Only happens if the total is made smaller after the amounts are filled in. */}
-              {exactTotal > amount &&
-                `${formatCents(exactTotal - amount)} over the total. Lower an amount to fix it.`}
-              {exactTotal === amount && `Adds up to ${formatCents(amount)}`}
+              {exactTotal > exactTarget &&
+                `${fmtEntry(exactTotal - exactTarget)} over the total. Lower an amount to fix it.`}
+              {exactTotal === exactTarget && `Adds up to ${fmtEntry(exactTarget)}`}
             </p>
           )}
           <FieldError id={errorId("split")} text={errors.split} />
@@ -840,5 +949,82 @@ function FieldError({ id, text, live }: { id: string; text?: string; live?: bool
     <p id={id} className="field-error" role={live ? "alert" : undefined}>
       {text}
     </p>
+  );
+}
+
+// What the Amount box shows for an amount in hundredths of a currency:
+// "84.50" for US$84.50, "1500" for ¥1,500.
+function entryText(hundredths: number, currency: string): string {
+  if (currencyDecimals(currency) === 0) return String(Math.round(hundredths / 100));
+  return centsToDecimal(hundredths);
+}
+
+// The Amount box, read as hundredths of its currency (null = empty).
+function readEntry(text: string, currency: string): number | null {
+  if (currencyDecimals(currency) === 0) {
+    if (!/^\d{1,11}$/.test(text)) return null;
+    return Number(text) * 100;
+  }
+  return readMoney(text)?.cents ?? null;
+}
+
+// Under a foreign amount: what it is in CA$, at which rate, and a way to type your own.
+function RateLine({
+  fx,
+  cadCents,
+  hasEntry,
+  symbol,
+}: {
+  fx: ReturnType<typeof useForeignAmount>;
+  cadCents: number | null;
+  hasEntry: boolean;
+  symbol: string;
+}) {
+  const rateId = useId();
+  const { state } = fx;
+  return (
+    <div className="rate-line" aria-live="polite">
+      {state.kind === "loading" && <p className="hint">Getting the Bank of Canada rate…</p>}
+      {state.kind === "error" && (
+        <p className="field-error">
+          Couldn't get the rate. Type your own rate.{" "}
+          <button type="button" className="link-button" onClick={fx.retry}>
+            Try again
+          </button>
+        </p>
+      )}
+      {(state.kind === "bank" || state.kind === "own") && state.rate && (
+        <p>
+          {hasEntry && cadCents !== null ? <strong>= {formatCents(cadCents)}</strong> : "Rate"} at {rateText(state.rate)}{" "}
+          <span className="muted">
+            {state.kind === "bank" ? `(Bank of Canada, ${formatDay(state.date, true)})` : "(own rate)"}
+          </span>
+        </p>
+      )}
+      {fx.ownRateText === null ? (
+        <button type="button" className="text-button" onClick={fx.startOwnRate}>
+          Change rate
+        </button>
+      ) : (
+        <div className="field own-rate">
+          <label htmlFor={rateId}>CA$ for 1 {symbol}</label>
+          <input
+            id={rateId}
+            value={fx.ownRateText}
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder="1.3672"
+            onChange={(event) => {
+              const tidy = event.target.value.replace(/\s/g, "").replace(/,/g, ".");
+              if (/^\d{0,4}(\.\d{0,10})?$/.test(tidy)) fx.setOwnRateText(tidy);
+            }}
+          />
+          <button type="button" className="text-button" onClick={fx.switchToBankRate}>
+            Use Bank of Canada rate
+          </button>
+        </div>
+      )}
+      <p className="hint">Bank of Canada daily average rates. Your card may have charged a different rate.</p>
+    </div>
   );
 }

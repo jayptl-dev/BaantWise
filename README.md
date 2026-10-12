@@ -54,7 +54,7 @@ Cloudflare Workers is connected to this GitHub repository. When a change lands o
 2. runs `npm run build` to create the `dist` folder
 3. runs `npx wrangler deploy` to publish it to baantwise.com
 
-The settings for this live in `wrangler.jsonc`. The Worker is named `baantwise`. Its `not_found_handling` is set to `single-page-application`, so any address on the site (like `/groups/123`) loads the app and React decides what to show.
+The settings for this live in `wrangler.jsonc`. The Worker is named `baantwise`; its code (`src/worker/index.ts`) only handles `/api/*`. Its `not_found_handling` is set to `single-page-application`, so any address on the site (like `/groups/123`) loads the app and React decides what to show.
 
 ## How sign-in works
 
@@ -178,6 +178,18 @@ The Add/Edit expense screen has four ways to split: **Equally**, **Exact** (type
 - **Default split** (Group settings, admins only): pre-fills new expenses By percent or By shares. If someone joins or leaves afterwards, both Group settings and Add expense say "Default split needs updating"; it keeps working for the people it covers. The database checks the shape and only lets admins change it.
 
 The maths and the reading of boxes live in `src/lib/splitMethods.ts` (tested in `splitMethods.test.ts`).
+
+## Other currencies
+
+An expense paid in another currency ("Dinner US$84.50") is turned into Canadian dollars at the Bank of Canada's daily rate, and the CAD amount is what's split. Balances, charts and settling up stay in CAD.
+
+- On Add/Edit expense, the currency menu next to **Amount** lists 24 currencies (the ones the Bank of Canada publishes). Under the amount it shows "= CA$115.53 at 1.3672 (Bank of Canada, Oct 9)". **Change rate** lets you type the rate your card or a booth gave you ("own rate").
+- The rate is the latest one published on or before the expense's date (rates come out on business days, so a Saturday gets Friday's).
+- **Exact** amounts on a foreign expense are typed in that currency, then turned into CAD shares in proportion.
+- The expense keeps what was really paid (`original_currency`, `original_amount_cents`, `fx_rate`, `fx_rate_date`), and the database checks that the CAD amount is the original times the rate, rounded to the nearest cent. Editing it back to CA$ clears those.
+- A scanned receipt in one of the 24 currencies picks that currency and fills in its amount.
+
+Rates come from our own site: `GET /api/fx-rates?date=YYYY-MM-DD` (the Worker in `src/worker/`, tested in `fxRates.test.ts`). Only `/api/*` runs the Worker (`run_worker_first` in `wrangler.jsonc`); every other address is the React app. Answers are cached by Cloudflare for 30 days once a date is settled, or 30 minutes for recent dates. The maths is in `src/lib/currency.ts`.
 
 ## Balances and settling up
 

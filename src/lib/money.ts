@@ -64,6 +64,7 @@ export type ExactChange = {
   before: number; // this person's amount before the change (0 if empty)
   after: number; // this person's amount after the change (0 if empty)
   addsPlus: boolean; // the change types a new "+"
+  format?: (cents: number) => string; // how to write an amount (default: CA$); foreign expenses pass their own
 };
 
 // The rule for "Exact amounts": the amounts may never go over the total, not even
@@ -80,7 +81,7 @@ export function refuseExactChange(change: ExactChange): string | null {
   if (change.total === null) return "Enter the total amount first.";
   const left = limit - change.assigned;
   return left > 0
-    ? `Only ${formatCents(left)} is left to assign.`
+    ? `Only ${(change.format ?? formatCents)(left)} is left to assign.`
     : "Nothing is left to assign, so amounts can only go down.";
 }
 

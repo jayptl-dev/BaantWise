@@ -9,6 +9,7 @@ import { NameForm } from "../components/NameForm";
 import { PaymentDialog } from "../components/PaymentDialog";
 import { ReceiptIcon } from "../components/ReceiptPhoto";
 import { ChartIcon } from "../components/ChartIcon";
+import { foreignAmount } from "../lib/currency";
 import { SearchIcon } from "../components/SearchIcon";
 import { ShareDialog } from "../components/ShareDialog";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
@@ -305,7 +306,8 @@ function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: Gro
             {expense.receipt_path && <ReceiptIcon />}
           </span>
           <span className="expense-sub">
-            {payer} paid {formatCents(expense.amount_cents)} · {formatDay(expense.spent_on, true)}
+            {payer} paid {formatCents(expense.amount_cents)}
+            {foreignAmount(expense) && <> ({foreignAmount(expense)})</>} · {formatDay(expense.spent_on, true)}
           </span>
           {expense.visibility === "participants" && (
             <span className="private-note">

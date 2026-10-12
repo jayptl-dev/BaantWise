@@ -1,11 +1,16 @@
 // Cloudflare Workers settings for Baantwise.
-// Right now this only serves the built React app (static files in dist/).
+// The built React app (static files in dist/) plus a small Worker for /api/*
+// (src/worker/index.ts): today that's /api/fx-rates, the Bank of Canada rates.
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "baantwise",
   "compatibility_date": "2026-09-24",
+  "main": "./src/worker/index.ts",
   "assets": {
+    "binding": "ASSETS",
     // Send unknown paths (like /groups/123) to index.html so React can handle them.
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    // Only /api/* reaches the Worker first; everything else is served as files.
+    "run_worker_first": ["/api/*"]
   }
 }

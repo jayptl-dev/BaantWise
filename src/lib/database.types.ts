@@ -55,8 +55,12 @@ export type Database = {
           created_by: string | null
           deleted_at: string | null
           description: string
+          fx_rate: number | null
+          fx_rate_date: string | null
           group_id: string
           id: string
+          original_amount_cents: number | null
+          original_currency: string | null
           paid_by: string
           receipt_path: string | null
           spent_on: string
@@ -72,8 +76,12 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           description: string
+          fx_rate?: number | null
+          fx_rate_date?: string | null
           group_id: string
           id?: string
+          original_amount_cents?: number | null
+          original_currency?: string | null
           paid_by: string
           receipt_path?: string | null
           spent_on?: string
@@ -89,8 +97,12 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           description?: string
+          fx_rate?: number | null
+          fx_rate_date?: string | null
           group_id?: string
           id?: string
+          original_amount_cents?: number | null
+          original_currency?: string | null
           paid_by?: string
           receipt_path?: string | null
           spent_on?: string
@@ -314,7 +326,11 @@ export type Database = {
           p_category?: string
           p_description: string
           p_expense_id?: string
+          p_fx_rate?: number
+          p_fx_rate_date?: string
           p_group_id: string
+          p_original_amount_cents?: number
+          p_original_currency?: string
           p_paid_by: string
           p_shares: Json
           p_spent_on?: string
