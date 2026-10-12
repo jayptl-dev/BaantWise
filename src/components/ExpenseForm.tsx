@@ -232,6 +232,9 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
 
   // The CAD cents each person ends up with, for the modes that work it out.
   const workedOut = computeShares(amount);
+  // What the list shows next to each name: in the expense's own currency, like the
+  // Amount box and Exact boxes (US$17.10 each, not a CA$ number). Saved as CAD.
+  const shownParts = fx.isForeign ? computeShares(exactTarget) : workedOut;
 
   // Exact amounts. Each box can also add and take away, like "115.22+64.88".
   // An empty box means that person isn't in the split.
@@ -916,7 +919,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
                       </span>
                     )}
                     <span className="split-amount">
-                      {workedOut?.has(p.id) ? formatCents(workedOut.get(p.id)!) : ""}
+                      {shownParts?.has(p.id) ? fmtEntry(shownParts.get(p.id)!) : ""}
                     </span>
                     <FieldError id={errorId(p.id)} text={problem} live />
                   </li>
