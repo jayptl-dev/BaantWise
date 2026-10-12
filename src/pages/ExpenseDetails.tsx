@@ -22,6 +22,7 @@ import { useDbAction } from "../lib/useDbAction";
 import { useExpense } from "../lib/useExpense";
 import { useGoBack } from "../lib/useGoBack";
 import type { GroupData, Member } from "../lib/useGroup";
+import { foreignDetails } from "../lib/currency";
 
 // "/groups/:id/expenses/:expenseId"
 export default function ExpenseDetails() {
@@ -79,6 +80,9 @@ function Details({ data, expense, me }: { data: GroupData; expense: Expense; me:
       </Link>
       <h1 className="page-title">{expense.description}</h1>
       <p className="expense-amount">{formatCents(expense.amount_cents)}</p>
+      {foreignDetails(expense, (d) => formatDay(d, true)) && (
+        <p className="expense-foreign">{foreignDetails(expense, (d) => formatDay(d, true))}</p>
+      )}
       <p className="expense-paid">
         {nameOf(expense.paid_by)} paid on {formatDay(expense.spent_on)}
       </p>

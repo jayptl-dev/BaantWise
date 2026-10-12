@@ -110,6 +110,10 @@ describe("groupSpendingRows", () => {
       receipt_path: null,
       split_method: "equally",
       split_snapshot: null,
+      original_currency: null,
+      original_amount_cents: null,
+      fx_rate: null,
+      fx_rate_date: null,
       shares: [],
     };
     const rows = groupSpendingRows("g", [

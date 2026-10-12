@@ -1709,3 +1709,46 @@ p.scan-box {
 .split-list li .field-error {
   flex-basis: 100%;
 }
+
+/* ---------- Other currencies ---------- */
+
+.amount-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.field .currency-select {
+  width: auto;
+  max-width: 55%;
+  min-height: 2.25rem;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.money-input input.no-prefix {
+  padding-left: 0.75rem;
+}
+
+.rate-line {
+  margin-top: 0.5rem;
+}
+
+.rate-line p {
+  margin: 0 0 0.25rem;
+}
+
+.rate-line .hint {
+  font-size: 0.8125rem;
+}
+
+.own-rate {
+  margin: 0.5rem 0;
+}
+
+.expense-foreign {
+  margin: -0.25rem 0 0.5rem;
+  color: var(--muted);
+}

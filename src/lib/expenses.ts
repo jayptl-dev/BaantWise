@@ -25,6 +25,12 @@ export type Expense = {
   receipt_path: string | null; // the receipt photo in Storage, or null for none (see receipts.ts)
   split_method: SplitMethodKey; // which split screen made it, so Edit reopens the same way
   split_snapshot: Json | null; // for percent/shares: the numbers that were typed (see splitMethods.ts)
+  // Paid in another currency (see currency.ts), or all null for a plain CAD expense.
+  // amount_cents and the shares are always CAD.
+  original_currency: string | null;
+  original_amount_cents: number | null; // hundredths of original_currency
+  fx_rate: number | null; // CAD for 1 unit
+  fx_rate_date: string | null; // the Bank of Canada date, or null for a rate typed in
   shares: Share[];
 };
 
@@ -40,7 +46,7 @@ export async function fetchExpenses(groupId: string, which: ExpensesToLoad) {
   let query = supabase
     .from("expenses")
     .select(
-      "id, description, amount_cents, paid_by, spent_on, visibility, category, created_by, created_at, receipt_path, split_method, split_snapshot, expense_shares(member_id, share_cents)",
+      "id, description, amount_cents, paid_by, spent_on, visibility, category, created_by, created_at, receipt_path, split_method, split_snapshot, original_currency, original_amount_cents, fx_rate, fx_rate_date, expense_shares(member_id, share_cents)",
     )
     .eq("group_id", groupId)
     .is("deleted_at", null);
