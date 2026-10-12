@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
 import { displayNameOf, photoOf, useAuth } from "../lib/auth";
 import { Avatar } from "./Avatar";
+import { SiteFooter } from "./SiteFooter";
 import { FullPageLoading } from "./Status";
 import { SignInPage } from "./SignIn";
 
@@ -11,6 +12,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     <div className="app">
       <AppHeader />
       <main>{children}</main>
+      <SiteFooter />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { AuthMessage, SignInButton } from "../components/SignIn";
 import { FullPageLoading } from "../components/Status";
 import { useAuth } from "../lib/auth";
 import YourGroups from "./YourGroups";
+import { SiteFooter } from "../components/SiteFooter";
 
 // "/": the landing page when signed out, "Your groups" when signed in.
 export default function Home() {
@@ -31,6 +32,7 @@ function Landing() {
         <SignInButton />
         <AuthMessage />
       </section>
+      <SiteFooter />
     </main>
   );
 }

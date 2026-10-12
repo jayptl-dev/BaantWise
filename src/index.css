@@ -1806,3 +1806,43 @@ p.scan-box {
   gap: 0.5rem;
   justify-content: flex-end;
 }
+
+/* ---------- Privacy policy and footer ---------- */
+
+.site-footer {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2.5rem 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.site-footer a {
+  color: var(--muted);
+}
+
+.legal {
+  line-height: 1.6;
+}
+
+.legal a {
+  color: var(--accent);
+}
+
+.legal h2 {
+  margin-top: 2rem;
+}
+
+.legal h3 {
+  margin: 1.25rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.legal ul {
+  padding-left: 1.25rem;
+}
+
+.legal li + li {
+  margin-top: 0.375rem;
+}
