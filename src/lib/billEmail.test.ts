@@ -144,3 +144,26 @@ describe("email loops and automatic forwards", () => {
     expect(bill.isBill).toBe(true);
   });
 });
+
+describe("plain-text bills with the amount on its own line", () => {
+  it("reads Enbridge's reminder as Gmail's app forwards it", () => {
+    const text = [
+      "---------- Forwarded message ---------",
+      "From: Enbridge Gas <noreply@enbridge.com>",
+      "Subject: Enbridge - Your Payment is Due",
+      "",
+      "Payment Reminder",
+      "Hi Jay Dharmesh,",
+      "The Due Date for your bill is coming up.",
+      "Reminder Details",
+      "Account Number",
+      "910068283460",
+      "Due Date",
+      "October 1, 2026",
+      "Current Outstanding Balance",
+      "$ 69.31",
+    ].join("\n");
+    const bill = readBillByRules({ text, subject: "Fwd: Enbridge - Your Payment is Due", sender: originalSenderIn(text), sentOn: "2026-09-25", today: "2026-10-12" });
+    expect(bill).toMatchObject({ isBill: true, amountCents: 6931, biller: "Enbridge Gas" });
+  });
+});
