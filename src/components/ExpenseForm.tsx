@@ -752,7 +752,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
               </select>
             )}
           </div>
-          <span className="money-input">
+          <span className="money-input amount-input">
             <span aria-hidden="true">{fx.isForeign ? "" : "$"}</span>
             <input
               id={ids.amount}
