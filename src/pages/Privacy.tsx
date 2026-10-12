@@ -128,6 +128,10 @@ export default function Privacy() {
               handles the recipient's address and the email's content.
             </li>
             <li>
+              <strong>GitHub</strong> keeps Baantwise's nightly database backups, locked with a passphrase so only
+              Baantwise can open them.
+            </li>
+            <li>
               The <strong>Bank of Canada</strong> provides exchange rates. No personal information is sent to it.
             </li>
           </ul>
@@ -147,6 +151,10 @@ export default function Privacy() {
             </li>
             <li>Forwarded bills you've added or dismissed are erased after 90 days.</li>
             <li>Reminder and email-forwarding records are erased after 30 and 8 days.</li>
+            <li>
+              A locked backup of the database is made every night and kept for 30 days, so it can be restored if something
+              goes wrong. Something you delete, including your account, can stay in these backups until they expire.
+            </li>
           </ul>
         </section>
 
