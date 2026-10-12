@@ -15,6 +15,8 @@ import {
   centsByPercent,
   centsByShares,
   defaultSplitNeedsUpdate,
+  percentsFromAmounts,
+  sharesFromAmounts,
   evenPercents,
   HUNDRED_PERCENT,
   percentNumber,
@@ -38,6 +40,7 @@ import {
   currencyName,
   currencySymbol,
   FOREIGN_CURRENCIES,
+  MAX_FOREIGN_CENTS,
   foreignToCadShares,
   formatForeign,
   isForeignCurrency,
@@ -167,6 +170,8 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   const [tried, setTried] = useState(false);
   // Why the last key in a person's box was ignored (see changeExact).
   const [limitNote, setLimitNote] = useState<{ id: string; text: string } | null>(null);
+  // After switching split screens: when the numbers could only come close to the old split.
+  const [carryNote, setCarryNote] = useState<string | null>(null);
 
   // The receipt photo: a new one chosen here (already shrunk), or the saved one
   // marked for removal. Uploaded only after the expense itself is saved.
@@ -315,6 +320,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
     const tidy = text.replace(/\s/g, "").replace(/,/g, ".");
     const fits = mode === "percent" ? /^\d{0,3}(\.\d{0,2})?$/.test(tidy) : /^\d{0,4}$/.test(tidy);
     if (!fits) return;
+    setCarryNote(null);
     if (mode === "percent") setPercentText((current) => ({ ...current, [id]: tidy }));
     else setSharesText((current) => ({ ...current, [id]: tidy }));
   }
@@ -391,29 +397,52 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
     });
   }
 
+  // Switching split screens keeps the split: each person's amount right now (in the
+  // expense's own currency) becomes the new screen's numbers. Only when the current
+  // split is complete; otherwise the new screen starts from its usual defaults.
+  function currentParts(): { id: string; cents: number }[] | null {
+    if (exactTarget === null) return null;
+    const map = mode === "exact" ? (exactTotal === exactTarget ? exactCents : null) : computeShares(exactTarget);
+    if (!map) return null;
+    const parts = people
+      .map((p) => ({ id: p.id, cents: map.get(p.id) ?? 0 }))
+      .filter((p) => p.cents > 0);
+    return parts.length > 0 ? parts : null;
+  }
+
   function switchMode(next: SplitMode) {
     if (next === mode) return;
     setFeedback(null);
     setLimitNote(null);
-    // Carry the split over, so switching doesn't start from scratch.
-    // In the expense's own currency, since that's what Exact boxes are typed in.
-    const carried = mode === "exact" ? null : computeShares(exactTarget);
-    if (next === "exact" && carried) {
-      const filledIn = people.map((p) => {
-        const cents = carried.get(p.id);
-        return [p.id, cents === undefined ? "" : centsToDecimal(cents)];
-      });
-      setExactText(Object.fromEntries(filledIn));
-    }
-    const nextTicked = splitIds.length > 0 ? splitIds : tickedIds;
+    setCarryNote(null);
+    const parts = currentParts();
+    const partIds = parts?.map((p) => p.id);
+    const nextTicked = partIds ?? (splitIds.length > 0 ? splitIds : tickedIds);
     if (next !== "exact") setTicked(new Set(nextTicked));
-    // Empty boxes start as an even split (By %) or 1 share each (By shares).
-    if (next === "percent" && nextTicked.some((id) => !percentText[id])) {
-      const even = evenPercents(nextTicked);
-      setPercentText(Object.fromEntries(nextTicked.map((id) => [id, String(percentNumber(even.get(id)!))])));
+
+    if (next === "exact" && parts) {
+      const byId = new Map(parts.map((p) => [p.id, p.cents]));
+      setExactText(Object.fromEntries(people.map((p) => [p.id, byId.has(p.id) ? centsToDecimal(byId.get(p.id)!) : ""])));
+    }
+    if (next === "percent") {
+      const hundredths = parts ? percentsFromAmounts(parts, paidBy) : evenPercents(nextTicked);
+      setPercentText(Object.fromEntries(nextTicked.map((id) => [id, String(percentNumber(hundredths.get(id) ?? 0))])));
+      if (parts && mode !== "equally") {
+        setCarryNote("Percents have 2 decimals, so an amount may move by a cent.");
+      }
     }
     if (next === "shares") {
-      setSharesText((current) => ({ ...Object.fromEntries(nextTicked.map((id) => [id, "1"])), ...current }));
+      if (parts && exactTarget !== null) {
+        const { shares, exact } = sharesFromAmounts(parts, exactTarget, paidBy);
+        setSharesText(Object.fromEntries(nextTicked.map((id) => [id, String(shares.get(id) ?? 1)])));
+        if (!exact) {
+          setCarryNote(
+            "Shares are whole numbers, so they can't match these amounts exactly. These are the closest; check the amounts, or use Exact to keep them as they were.",
+          );
+        }
+      } else {
+        setSharesText((current) => ({ ...Object.fromEntries(nextTicked.map((id) => [id, "1"])), ...current }));
+      }
     }
     setMode(next);
   }
@@ -837,6 +866,11 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
               <span>Everyone in {group.name}, including people who join later</span>
             </label>
           )}
+          {carryNote && (
+            <p className="field-note" role="status">
+              {carryNote}
+            </p>
+          )}
           {mode === "percent" && <p className="hint">Tick who's in it, then give each person a percent.</p>}
           {mode === "shares" && (
             <p className="hint">Tick who's in it. Someone with 2 shares pays twice as much as someone with 1.</p>
@@ -1051,7 +1085,10 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
           lines={itemLines}
           setLines={(update) => setItemLines((current) => (current ? update(current) : current))}
           people={data.members}
-          totalCents={amount}
+          // Items are priced in the receipt's currency, like the Amount box and Exact boxes.
+          totalCents={exactTarget}
+          format={fmtEntry}
+          maxCents={fx.isForeign ? MAX_FOREIGN_CENTS : MAX_CENTS}
           payerId={paidBy}
           nameFor={nameFor}
           onUse={applyItemSplit}

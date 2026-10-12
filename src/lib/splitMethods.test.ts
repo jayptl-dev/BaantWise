@@ -8,6 +8,8 @@ import {
   readPercent,
   readShares,
   readSnapshot,
+  percentsFromAmounts,
+  sharesFromAmounts,
   splitForSave,
   usableDefault,
 } from "./splitMethods";
@@ -116,5 +118,28 @@ describe("group default split", () => {
     const percent = readDefaultSplit({ method: "percent", members: [{ member_id: "jay", value: 50 }, { member_id: "priya", value: 50 }] });
     expect(usableDefault(percent, ["jay"])).toBeNull();
     expect(usableDefault(percent, ["jay", "priya"])?.members).toHaveLength(2);
+  });
+});
+
+describe("switching split screens keeps the amounts", () => {
+  it("turns amounts into percents that add up to 100", () => {
+    const p = percentsFromAmounts([{ id: "a", cents: 2881 }, { id: "b", cents: 2640 }, { id: "c", cents: 1620 }]);
+    expect([...p.values()].reduce((s, v) => s + v, 0)).toBe(10000);
+    expect(p.get("a")).toBe(4034);
+  });
+
+  it("finds the smallest whole shares when they match exactly", () => {
+    const r = sharesFromAmounts([{ id: "a", cents: 5000 }, { id: "b", cents: 2500 }, { id: "c", cents: 2500 }], 10000, "a");
+    expect(r.exact).toBe(true);
+    expect([r.shares.get("a"), r.shares.get("b"), r.shares.get("c")]).toEqual([2, 1, 1]);
+  });
+
+  it("says when shares can only come close", () => {
+    const parts = [{ id: "a", cents: 2881 }, { id: "b", cents: 2640 }, { id: "c", cents: 1620 }];
+    const r = sharesFromAmounts(parts, 7141, "a");
+    const back = centsByShares(7141, parts.map((p) => ({ id: p.id, shares: r.shares.get(p.id)! })), "a");
+    const off = parts.reduce((s, p) => s + Math.abs(back.get(p.id)! - p.cents), 0);
+    expect(off).toBeLessThanOrEqual(3);
+    expect([...r.shares.values()].every((v) => v >= 1 && v <= 1000)).toBe(true);
   });
 });
