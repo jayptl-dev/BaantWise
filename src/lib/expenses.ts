@@ -31,6 +31,7 @@ export type Expense = {
   original_amount_cents: number | null; // hundredths of original_currency
   fx_rate: number | null; // CAD for 1 unit
   fx_rate_date: string | null; // the Bank of Canada date, or null for a rate typed in
+  recurring_id: string | null; // the recurring expense that added it, if any
   shares: Share[];
 };
 
@@ -46,7 +47,7 @@ export async function fetchExpenses(groupId: string, which: ExpensesToLoad) {
   let query = supabase
     .from("expenses")
     .select(
-      "id, description, amount_cents, paid_by, spent_on, visibility, category, created_by, created_at, receipt_path, split_method, split_snapshot, original_currency, original_amount_cents, fx_rate, fx_rate_date, expense_shares(member_id, share_cents)",
+      "id, description, amount_cents, paid_by, spent_on, visibility, category, created_by, created_at, receipt_path, split_method, split_snapshot, original_currency, original_amount_cents, fx_rate, fx_rate_date, recurring_id, expense_shares(member_id, share_cents)",
     )
     .eq("group_id", groupId)
     .is("deleted_at", null);

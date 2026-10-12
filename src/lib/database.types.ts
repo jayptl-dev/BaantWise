@@ -63,6 +63,7 @@ export type Database = {
           original_currency: string | null
           paid_by: string
           receipt_path: string | null
+          recurring_id: string | null
           spent_on: string
           split_method: string
           split_snapshot: Json | null
@@ -84,6 +85,7 @@ export type Database = {
           original_currency?: string | null
           paid_by: string
           receipt_path?: string | null
+          recurring_id?: string | null
           spent_on?: string
           split_method?: string
           split_snapshot?: Json | null
@@ -105,6 +107,7 @@ export type Database = {
           original_currency?: string | null
           paid_by?: string
           receipt_path?: string | null
+          recurring_id?: string | null
           spent_on?: string
           split_method?: string
           split_snapshot?: Json | null
@@ -125,6 +128,12 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "group_members"
             referencedColumns: ["group_id", "id"]
+          },          {
+            foreignKeyName: "expenses_recurring_id_fkey"
+            columns: ["recurring_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_expenses"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -223,6 +232,136 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_bills: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          due_on: string
+          expense_id: string | null
+          group_id: string
+          id: string
+          recurring_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          due_on: string
+          expense_id?: string | null
+          group_id: string
+          id?: string
+          recurring_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          due_on?: string
+          expense_id?: string | null
+          group_id?: string
+          id?: string
+          recurring_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_bills_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_bills_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_bills_recurring_id_fkey"
+            columns: ["recurring_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recurring_expenses: {
+        Row: {
+          amount_cents: number | null
+          amount_kind: string
+          category: string
+          created_at: string
+          created_by: string
+          description: string
+          end_on: string | null
+          frequency: string
+          group_id: string
+          id: string
+          next_index: number
+          next_on: string | null
+          paid_by: string
+          paused: boolean
+          split: Json
+          start_on: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          amount_kind: string
+          category?: string
+          created_at?: string
+          created_by?: string
+          description: string
+          end_on?: string | null
+          frequency: string
+          group_id: string
+          id?: string
+          next_index?: number
+          next_on?: string | null
+          paid_by: string
+          paused?: boolean
+          split: Json
+          start_on: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          amount_cents?: number | null
+          amount_kind?: string
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          end_on?: string | null
+          frequency?: string
+          group_id?: string
+          id?: string
+          next_index?: number
+          next_on?: string | null
+          paid_by?: string
+          paused?: boolean
+          split?: Json
+          start_on?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_expenses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_expenses_group_id_paid_by_fkey"
+            columns: ["group_id", "paid_by"]
+            isOneToOne: false
+            referencedRelation: "group_members"
+            referencedColumns: ["group_id", "id"]
+          },
+        ]
+      }
       settlements: {
         Row: {
           amount_cents: number
@@ -301,6 +440,10 @@ export type Database = {
           scans_used: number
         }[]
       }
+      complete_recurring_bill: {
+        Args: { p_bill_id: string; p_expense_id: string }
+        Returns: undefined
+      }
       create_group: { Args: { p_name: string }; Returns: string }
       delete_expense: { Args: { p_expense_id: string }; Returns: undefined }
       delete_settlement: {
@@ -339,6 +482,23 @@ export type Database = {
         }
         Returns: string
       }
+      save_recurring: {
+        Args: {
+          p_amount_cents: number
+          p_amount_kind: string
+          p_category: string
+          p_description: string
+          p_end_on: string
+          p_frequency: string
+          p_group_id: string
+          p_id?: string
+          p_paid_by: string
+          p_split: Json
+          p_start_on: string
+          p_visibility: string
+        }
+        Returns: string
+      }
       set_expense_receipt: {
         Args: { p_expense_id: string; p_path: string }
         Returns: undefined
@@ -347,6 +507,7 @@ export type Database = {
         Args: { p_make_admin: boolean; p_member_id: string }
         Returns: undefined
       }
+      skip_recurring_bill: { Args: { p_bill_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

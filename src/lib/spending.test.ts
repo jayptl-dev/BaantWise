@@ -114,6 +114,7 @@ describe("groupSpendingRows", () => {
       original_amount_cents: null,
       fx_rate: null,
       fx_rate_date: null,
+      recurring_id: null,
       shares: [],
     };
     const rows = groupSpendingRows("g", [

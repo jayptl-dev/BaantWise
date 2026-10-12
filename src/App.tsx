@@ -11,6 +11,8 @@ import InvitePage from "./pages/InvitePage";
 import MySpending from "./pages/MySpending";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import Recurring from "./pages/Recurring";
+import RecurringEdit from "./pages/RecurringEdit";
 import SearchExpenses from "./pages/SearchExpenses";
 
 // Which screen shows for which address. Cloudflare sends every address to this
@@ -56,6 +58,30 @@ export default function App() {
         element={
           <SignedInPage>
             <GroupSpending />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/recurring"
+        element={
+          <SignedInPage>
+            <Recurring />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/recurring/new"
+        element={
+          <SignedInPage>
+            <RecurringEdit />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/groups/:id/recurring/:ruleId/edit"
+        element={
+          <SignedInPage>
+            <RecurringEdit />
           </SignedInPage>
         }
       />
