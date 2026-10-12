@@ -187,14 +187,15 @@ export function originalSenderIn(text: string): string | null {
   return line ? line.slice(0, 200) : null;
 }
 
-const AMOUNT_WORDS = /(amount due|total due|balance due|total amount due|amount payable|current outstanding balance|outstanding balance|current balance|balance owing|new balance|total balance|payment due|amount owing|please pay|total charges|total|amount)\b[^$\d\n]{0,40}(?:CA?\$|C\$|\$|CAD\s*)\s?(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:\.\d{2}))/i;
+const AMOUNT_WORDS = /(amount due|total due|balance due|total amount due|amount payable|current outstanding balance|outstanding balance|current balance|balance owing|new balance|total balance|payment due|amount owing|please pay|total charges|total|amount)\b[^$\d]{0,40}(?:CA?\$|C\$|\$|CAD\s*)\s?(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:\.\d{2}))/i;
 
 function toCentsText(text: string): number | null {
   const cents = Math.round(Number(text.replace(/,/g, '')) * 100);
   return cleanCents(cents);
 }
 
-// Without Gemini: a simple reading that finds "Amount due: $123.45" and the like.
+// Without Gemini: a simple reading that finds "Amount due: $123.45" and the like, also when
+// the label and the amount are on separate lines (table cells in a plain-text email).
 export function readBillByRules(p: { text: string; subject: string; sender: string | null; sentOn: string | null; today: string }): Bill {
   const haystack = `${p.subject}\n${p.text}`;
   const m = haystack.match(AMOUNT_WORDS);

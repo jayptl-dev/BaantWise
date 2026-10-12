@@ -38,7 +38,7 @@ const MAX_EMAIL_BYTES = 20 * 1024 * 1024;
 const MAX_PDF_BYTES = 5 * 1024 * 1024;
 const MAX_TEXT = 15000;
 const DAILY_LIMIT = 30;
-const GEMINI_TIMEOUT_MS = 12000; // then the simple reading takes over
+const GEMINI_TIMEOUT_MS = 15000; // then the simple reading takes over
 
 const REJECT = {
   unknown_address: "This Baantwise bill address doesn't exist. Open your group in Baantwise to find its current address.",
@@ -234,9 +234,10 @@ async function handle(req: Request): Promise<Response> {
         | { group_id: string; group_name: string; user_id: string | null; member_name: string | null; email: string | null; bills_today: number }
         | undefined;
     };
-    // Many bill emails have only a stub as plain text ("view this email online"): use the HTML then.
-    const plain = (email.text ?? '').trim();
-    const text = (plain.length >= 200 || !email.html ? plain : htmlToText(email.html)).slice(0, MAX_TEXT);
+    // The HTML part, turned into plain lines, is the most complete: tables keep each label and
+    // its amount on one line. Plain text only when there's no HTML (it's often a stub).
+    const fromHtml = email.html ? htmlToText(email.html) : '';
+    const text = (fromHtml.length >= 40 ? fromHtml : (email.text ?? '').trim() || fromHtml).slice(0, MAX_TEXT);
 
     // 2. Gmail's "confirm your forwarding address": pass the code on to that member.
     if (isGmailConfirmation(fromHeader, subject)) {
