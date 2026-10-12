@@ -135,3 +135,39 @@ export function usableDefault(split: DefaultSplit | null, activeMemberIds: reado
   if (split.method === "percent" && members.reduce((s, m) => s + m.value, 0) !== HUNDRED_PERCENT) return null;
   return { method: split.method, members };
 }
+
+// ---------------------------------------------------------------------------
+// Switching split screens keeps the split: the amounts each person has now are
+// turned into the new screen's numbers.
+// ---------------------------------------------------------------------------
+
+export type PersonCents = { id: string; cents: number };
+
+// Percents (in hundredths) that match the amounts, adding up to exactly 100%.
+// The amounts they give back can differ by a cent from the original because percents
+// only have 2 decimals.
+export function percentsFromAmounts(parts: readonly PersonCents[], payerId?: string): Map<string, number> {
+  return splitByWeights(HUNDRED_PERCENT, parts.map((p) => ({ id: p.id, weight: BigInt(Math.max(0, p.cents)) })), payerId);
+}
+
+// Whole-number shares (1–1000) that give back the amounts, with the smallest numbers
+// that do (50/25/25 → 2/1/1). Shares can't match every split exactly (28.81 / 26.40 /
+// 16.20 would need huge numbers), so then it's the closest match, and `exact` is false.
+export function sharesFromAmounts(
+  parts: readonly PersonCents[],
+  totalCents: number,
+  payerId?: string,
+): { shares: Map<string, number>; exact: boolean } {
+  const live = parts.filter((p) => p.cents > 0);
+  const biggest = Math.max(0, ...live.map((p) => p.cents));
+  let best: { shares: Map<string, number>; error: number } | null = null;
+  if (biggest === 0) return { shares: new Map(live.map((p) => [p.id, 1])), exact: false };
+  for (let top = 1; top <= MAX_SHARES; top++) {
+    const shares = new Map(live.map((p) => [p.id, Math.max(1, Math.round((p.cents * top) / biggest))]));
+    const back = centsByShares(totalCents, live.map((p) => ({ id: p.id, shares: shares.get(p.id)! })), payerId);
+    const error = live.reduce((sum, p) => sum + Math.abs((back.get(p.id) ?? 0) - p.cents), 0);
+    if (!best || error < best.error) best = { shares, error };
+    if (error === 0) break;
+  }
+  return { shares: best!.shares, exact: best!.error === 0 };
+}

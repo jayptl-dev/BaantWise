@@ -23,7 +23,9 @@ type ItemSplitSheetProps = {
   lines: ItemLine[];
   setLines: (update: (current: ItemLine[]) => ItemLine[]) => void;
   people: Member[]; // in member order
-  totalCents: number | null; // the expense's Amount
+  totalCents: number | null; // the expense's Amount, in the expense's own currency
+  format?: (cents: number) => string; // how to write amounts (default CA$); a US$ receipt passes its own
+  maxCents?: number; // the largest Amount allowed in that currency
   payerId: string;
   nameFor: (member: Member) => string;
   onUse: (shares: Map<string, number>) => void; // only people above $0
@@ -33,7 +35,18 @@ type ItemSplitSheetProps = {
 // "Split by item": tick who had each thing on the receipt. Tax, tip and anything else
 // not on an item are shared in proportion. The items are only used for this split;
 // they're never saved.
-export function ItemSplitSheet({ lines, setLines, people, totalCents, payerId, nameFor, onUse, onClose }: ItemSplitSheetProps) {
+export function ItemSplitSheet({
+  lines,
+  setLines,
+  people,
+  totalCents,
+  format = formatCents,
+  maxCents = MAX_CENTS,
+  payerId,
+  nameFor,
+  onUse,
+  onClose,
+}: ItemSplitSheetProps) {
   const ids = useId();
   const [open, setOpen] = useState<number | null>(lines[0]?.key ?? null);
 
@@ -41,7 +54,7 @@ export function ItemSplitSheet({ lines, setLines, people, totalCents, payerId, n
   const itemsTotal = lines.reduce((sum, line) => sum + cents(line), 0);
   const rest = totalCents === null ? null : totalCents - itemsTotal;
   const everyItemHasSomeone = lines.length > 0 && lines.every((line) => line.people.size > 0);
-  const amountOk = totalCents !== null && totalCents > 0 && totalCents <= MAX_CENTS;
+  const amountOk = totalCents !== null && totalCents > 0 && totalCents <= maxCents;
   const ready = amountOk && everyItemHasSomeone;
 
   function change(key: number, update: (line: Line) => Line) {
@@ -93,7 +106,7 @@ export function ItemSplitSheet({ lines, setLines, people, totalCents, payerId, n
                 onClick={() => setOpen(isOpen ? null : line.key)}
               >
                 <span className="item-name">{line.name || "Item"}</span>
-                <span className="item-amount">{formatCents(cents(line))}</span>
+                <span className="item-amount">{format(cents(line))}</span>
                 <span className="item-who">{whoLine(line)}</span>
               </button>
               {isOpen && (
@@ -160,7 +173,7 @@ export function ItemSplitSheet({ lines, setLines, people, totalCents, payerId, n
           <p className="field-error">Enter the expense's Amount first.</p>
         ) : (
           <p>
-            Tax, tip and other: <strong>{formatCents(rest)}</strong>, shared in proportion
+            Tax, tip and other: <strong>{format(rest)}</strong>, shared in proportion
           </p>
         )}
         {amountOk && !everyItemHasSomeone && lines.length > 0 && (
