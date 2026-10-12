@@ -29,7 +29,15 @@ function Landing() {
         </p>
       )}
       <h1>Baantwise</h1>
-      <p className="tagline">Split bills fairly. Coming soon.</p>
+      <p className="tagline">Split bills with roommates, friends and trips. Free, with no ads.</p>
+      <ul className="landing-features">
+        <li>Add shared expenses and see who owes whom, with the fewest payments to settle up.</li>
+        <li>Split equally, by exact amounts, by percent or by shares, or item by item from a scanned receipt.</li>
+        <li>Forward a bill email, like your hydro or internet bill, and Baantwise fills in the amount.</li>
+        <li>Rent and other recurring bills add themselves. Friendly payment reminders by email.</li>
+        <li>Keep some expenses private between just the people in them.</li>
+        <li>Baantwise only keeps track: it never holds or moves your money.</li>
+      </ul>
       <p className="name-note">
         The name blends the Hindi word <em lang="hi-Latn">baant</em>, meaning
         "to divide or share out", with "-wise".
