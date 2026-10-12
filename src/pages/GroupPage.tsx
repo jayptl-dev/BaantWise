@@ -177,6 +177,44 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
 
       <BalancesSection data={data} me={me} feedback={balanceFeedback} onSaved={paymentChanged} />
 
+      <section className="section" aria-labelledby="expenses-heading">
+        <h2 id="expenses-heading">Expenses and payments</h2>
+        <div className="section-actions">
+          <Link to={`/groups/${group.id}/expenses/new`} className="button">
+            Add expense
+          </Link>
+          <div className="button-pair">
+            <Link to={`/groups/${group.id}/recurring`} className="button secondary">
+              🔁 Recurring
+            </Link>
+            <Link to={`/groups/${group.id}/bills`} className="button secondary">
+              📧 Bills by email
+            </Link>
+          </div>
+        </div>
+        <BillsNotice groupId={group.id} />
+        <ForwardedBillsNotice groupId={group.id} />
+        {activity.length === 0 ? (
+          <p className="muted">No expenses yet</p>
+        ) : (
+          <ul className="expense-list">
+            {activity.map((entry) =>
+              entry.kind === "expense" ? (
+                <ExpenseRow key={entry.expense.id} expense={entry.expense} data={data} myMemberId={myMemberId} />
+              ) : (
+                <PaymentRow
+                  key={entry.payment.id}
+                  payment={entry.payment}
+                  data={data}
+                  myMemberId={myMemberId}
+                  onOpen={() => setOpenPaymentId(entry.payment.id)}
+                />
+              ),
+            )}
+          </ul>
+        )}
+      </section>
+
       <section className="section" aria-labelledby="people-heading">
         <h2 id="people-heading">People</h2>
         <ul className="member-list">
@@ -212,7 +250,7 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
         <FeedbackLine feedback={feedback} />
 
         <div className="section-actions">
-          <div className="button-row">
+          <div className="button-pair">
             <button type="button" className="button" onClick={shareLink}>
               Share invite link
             </button>
@@ -248,42 +286,6 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
         </div>
       </section>
 
-      <section className="section" aria-labelledby="expenses-heading">
-        <h2 id="expenses-heading">Expenses and payments</h2>
-        <div className="section-actions button-row">
-          <Link to={`/groups/${group.id}/expenses/new`} className="button">
-            Add expense
-          </Link>
-          <Link to={`/groups/${group.id}/recurring`} className="button secondary">
-            🔁 Recurring
-          </Link>
-          <Link to={`/groups/${group.id}/bills`} className="button secondary">
-            📧 Bills by email
-          </Link>
-        </div>
-        <BillsNotice groupId={group.id} />
-        <ForwardedBillsNotice groupId={group.id} />
-        {activity.length === 0 ? (
-          <p className="muted">No expenses yet</p>
-        ) : (
-          <ul className="expense-list">
-            {activity.map((entry) =>
-              entry.kind === "expense" ? (
-                <ExpenseRow key={entry.expense.id} expense={entry.expense} data={data} myMemberId={myMemberId} />
-              ) : (
-                <PaymentRow
-                  key={entry.payment.id}
-                  payment={entry.payment}
-                  data={data}
-                  myMemberId={myMemberId}
-                  onOpen={() => setOpenPaymentId(entry.payment.id)}
-                />
-              ),
-            )}
-          </ul>
-        )}
-      </section>
-
       {dialog}
       {sharePopupOpen && (
         <ShareDialog groupName={group.name} link={inviteLink} onClose={() => setSharePopupOpen(false)} />
@@ -310,9 +312,12 @@ function ExpenseRow({ expense, data, myMemberId }: { expense: Expense; data: Gro
   return (
     <li>
       <Link to={`/groups/${data.group.id}/expenses/${expense.id}`} className="expense-link">
+        <span className="expense-icon">
+          <CategoryEmoji category={expense.category} />
+        </span>
         <span className="expense-main">
           <span className="expense-title">
-            <CategoryEmoji category={expense.category} /> {expense.description}
+            {expense.description}
             {expense.receipt_path && <ReceiptIcon />}
             {expense.recurring_id && (
               <span className="repeat-mark" title="Added by a recurring expense">
@@ -352,6 +357,9 @@ function PaymentRow({
   return (
     <li>
       <button type="button" className="expense-link" onClick={onOpen}>
+        <span className="expense-icon payment" aria-hidden="true">
+          ⇄
+        </span>
         <span className="expense-main">
           <span className="expense-title">
             {whoPaidWhom(payment, data, myMemberId)} {formatCents(payment.amount_cents)}

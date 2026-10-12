@@ -30,6 +30,34 @@ function Landing() {
       )}
       <h1>Baantwise</h1>
       <p className="tagline">Split bills with roommates, friends and trips. Free, with no ads.</p>
+
+      {/* What a group's balance looks like, so people see the idea before signing in. */}
+      <figure className="landing-sample">
+        <div aria-hidden="true">
+          <p className="overall lent">
+            <span className="overall-label">Your house</span>
+            <span className="overall-value">You're owed $54.86</span>
+          </p>
+          <ul className="balance-list">
+            <li className="balance-row">
+              <span className="balance-text">
+                Sam owes you <strong>$70.93</strong>
+              </span>
+              <span className="sample-chip">Remind</span>
+            </li>
+            <li className="balance-row">
+              <span className="balance-text">
+                You owe Priya <strong>$16.07</strong>
+              </span>
+              <span className="sample-chip">Pay</span>
+            </li>
+          </ul>
+        </div>
+        <figcaption className="visually-hidden">
+          An example: Baantwise shows each person what they're owed and who to pay.
+        </figcaption>
+      </figure>
+
       <ul className="landing-features">
         <li>Add shared expenses and see who owes whom, with the fewest payments to settle up.</li>
         <li>Split equally, by exact amounts, by percent or by shares, or item by item from a scanned receipt.</li>
