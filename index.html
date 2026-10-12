@@ -4,8 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Baantwise: a free app to split bills with roommates, friends and trips. No ads." />
-    <meta name="theme-color" content="#eef3f1" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f1716" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4eee6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)" />
+    <script>
+      // Apply the look chosen in Profile before the page paints (see src/lib/palette.ts).
+      try {
+        var look = localStorage.getItem("baantwise-palette");
+        if (look === "teal") {
+          document.documentElement.dataset.palette = look;
+          var metas = document.querySelectorAll('meta[name="theme-color"]');
+          metas[0].content = "#eef3f1";
+          metas[1].content = "#0f1716";
+        }
+      } catch (e) {}
+    </script>
     <link rel="icon" href="data:," />
     <title>Baantwise</title>
   </head>

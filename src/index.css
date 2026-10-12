@@ -1,21 +1,29 @@
 /* Mobile-first: base styles are for phones, the media query adds room on larger screens.
 
-   The look: a cool, calm page with white panels, one deep teal, and one bold moment,
-   the balance slip ("You're owed $54.86") at the top of each group. Lists are grouped
-   into one panel with hairlines between rows, not a stack of separate cards. */
+   The look: a calm page with white panels, one main colour, and one bold moment, the
+   balance slip ("You're owed $54.86") at the top of each group. Lists are grouped into
+   one panel with hairlines between rows, not a stack of separate cards.
+
+   Colours come in "looks" (src/lib/palette.ts). Autumn, below, is the default and
+   Baantwise's own look; other looks override the colour tokens with
+   :root[data-palette="..."], once for light and once for dark mode. Money keeps its
+   meaning in every look: --lent (you're owed) and --owe (you owe). */
 :root {
-  --bg: #eef3f1;
-  --surface: #ffffff;
-  --text: #13201e;
-  --muted: #56635f;
-  --accent: #0b6e66;
-  --accent-strong: #075a53;
+  --bg: #f4eee6; /* birch bark */
+  --surface: #fffdfa;
+  --text: #2a1d16; /* dark bark */
+  --muted: #6b5a4e;
+  --accent: #a3401a; /* rust, like oak leaves in October */
+  --accent-strong: #7e2f12;
   --on-accent: #ffffff;
-  --border: #d5dfdb;
-  --line: #e6edea; /* hairlines between rows inside a panel */
-  --soft: #dcefea;
-  --owe: #b4470a;
-  --owe-soft: #fbeadd;
+  --accent-shadow: rgb(126 47 18 / 0.25);
+  --lent: #2f6247; /* evergreen: money coming back to you */
+  --on-lent: #ffffff;
+  --border: #e3d6c8;
+  --line: #efe5da; /* hairlines between rows inside a panel */
+  --soft: #f7e3d2;
+  --owe: #b3261e; /* maple red: you owe */
+  --owe-soft: #fbe4df;
   --danger: #b42318;
   --on-danger: #ffffff;
   --shadow: 0 1px 2px rgb(19 32 30 / 0.05), 0 6px 18px rgb(19 32 30 / 0.05);
@@ -31,6 +39,48 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --bg: #17120f;
+    --surface: #221b16;
+    --text: #f1e8df;
+    --muted: #b7a698;
+    --accent: #f0915a;
+    --accent-strong: #f6ad80;
+    --on-accent: #2a130a;
+    --accent-shadow: rgb(0 0 0 / 0.3);
+    --lent: #7fc39d;
+    --on-lent: #0e2418;
+    --border: #3a2f27;
+    --line: #2e251f;
+    --soft: #3a2519;
+    --owe: #f58a7c;
+    --owe-soft: #3a1f1b;
+    --danger: #fda29b;
+    --on-danger: #1f0c0a;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  }
+}
+
+/* Teal: calm teal and cool grey. */
+:root[data-palette="teal"] {
+  --bg: #eef3f1;
+  --surface: #ffffff;
+  --text: #13201e;
+  --muted: #56635f;
+  --accent: #0b6e66;
+  --accent-strong: #075a53;
+  --on-accent: #ffffff;
+  --accent-shadow: rgb(7 90 83 / 0.25);
+  --lent: #0b6e66;
+  --on-lent: #ffffff;
+  --border: #d5dfdb;
+  --line: #e6edea;
+  --soft: #dcefea;
+  --owe: #b4470a;
+  --owe-soft: #fbeadd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="teal"] {
     --bg: #0f1716;
     --surface: #18221f;
     --text: #e6eeec;
@@ -38,14 +88,14 @@
     --accent: #5fd4c4;
     --accent-strong: #84e3d6;
     --on-accent: #082522;
+    --accent-shadow: rgb(0 0 0 / 0.3);
+    --lent: #5fd4c4;
+    --on-lent: #082522;
     --border: #2b3835;
     --line: #233030;
     --soft: #1b3431;
     --owe: #f5b04e;
     --owe-soft: #33261a;
-    --danger: #fda29b;
-    --on-danger: #1f0c0a;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
   }
 }
 
@@ -470,7 +520,7 @@ button.member-name {
   text-decoration: none;
   color: var(--on-accent);
   background: var(--accent);
-  box-shadow: 0 1px 2px rgb(7 90 83 / 0.25);
+  box-shadow: 0 1px 2px var(--accent-shadow);
   cursor: pointer;
 }
 
@@ -808,7 +858,7 @@ button.expense-link {
 }
 
 .my-part.lent {
-  color: var(--accent);
+  color: var(--lent);
 }
 
 .my-part.owe {
@@ -996,7 +1046,7 @@ button.expense-link {
 .segment input:checked + span {
   color: var(--on-accent);
   background: var(--accent);
-  box-shadow: 0 1px 2px rgb(7 90 83 / 0.25);
+  box-shadow: 0 1px 2px var(--accent-shadow);
 }
 
 .segment input:focus-visible + span {
@@ -1366,8 +1416,8 @@ dialog.photo-overlay::backdrop {
 }
 
 .overall.lent {
-  --slip-bg: var(--accent);
-  --slip-text: var(--on-accent);
+  --slip-bg: var(--lent);
+  --slip-text: var(--on-lent);
 }
 
 .overall.owe {
@@ -2057,4 +2107,78 @@ p.scan-box {
   left: 0.875rem;
   font-size: 1.625rem;
   font-weight: 750;
+}
+
+/* ---------- Profile: Look ---------- */
+
+.look-options {
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.look-option {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+.look-option + .look-option {
+  border-top: 1px solid var(--line);
+}
+
+.look-option input {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.look-option input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Three dots of each look's colours: background, main colour, "you're owed". */
+.look-swatch {
+  flex: none;
+  display: inline-flex;
+}
+
+.look-swatch span {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+}
+
+.look-swatch span + span {
+  margin-left: -0.375rem;
+}
+
+.look-swatch.autumn span:nth-child(1) { background: #f4eee6; box-shadow: inset 0 0 0 1px #e3d6c8; }
+.look-swatch.autumn span:nth-child(2) { background: #a3401a; }
+.look-swatch.autumn span:nth-child(3) { background: #2f6247; }
+.look-swatch.teal span:nth-child(1) { background: #eef3f1; box-shadow: inset 0 0 0 1px #d5dfdb; }
+.look-swatch.teal span:nth-child(2) { background: #0b6e66; }
+.look-swatch.teal span:nth-child(3) { background: #b4470a; }
+
+.look-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.look-name {
+  font-weight: 650;
+}
+
+.look-note {
+  color: var(--muted);
+  font-size: 0.9375rem;
 }
