@@ -4,6 +4,8 @@ import {
   cleanBill,
   cleanDate,
   htmlToText,
+  isAutomatic,
+  isFromBaantwise,
   isGmailConfirmation,
   nameFromSender,
   originalSenderIn,
@@ -117,5 +119,28 @@ describe("shared secret", () => {
     expect(sameSecret("abc", "abc")).toBe(true);
     expect(sameSecret("abc", "abd")).toBe(false);
     expect(sameSecret("", "")).toBe(false);
+  });
+});
+
+describe("email loops and automatic forwards", () => {
+  it("spots Baantwise's own emails coming back", () => {
+    expect(isFromBaantwise({ from: "Baantwise · Cabin trip <bills+cabin-1@mail.baantwise.com>", headers: [] })).toBe(true);
+    expect(isFromBaantwise({ from: "Jay <jay@gmail.com>", headers: [{ key: "X-Baantwise", value: "notice" }] })).toBe(true);
+    expect(isFromBaantwise({ from: "Enbridge <noreply@enbridge.com>", headers: [] })).toBe(false);
+  });
+  it("knows a rule forward from a person pressing Forward", () => {
+    expect(isAutomatic({ envelopeFrom: "jay+caf_=bills+x=mail.baantwise.com@gmail.com", headers: [] })).toBe(true);
+    expect(isAutomatic({ envelopeFrom: "jay@gmail.com", headers: [{ key: "X-Forwarded-For", value: "jay@gmail.com x@y.z" }] })).toBe(true);
+    expect(isAutomatic({ envelopeFrom: "jay@gmail.com", headers: [{ key: "Auto-Submitted", value: "auto-replied" }] })).toBe(true);
+    expect(isAutomatic({ envelopeFrom: "jay@gmail.com", headers: [{ key: "Auto-Submitted", value: "no" }] })).toBe(false);
+    expect(isAutomatic({ envelopeFrom: "jay@gmail.com", headers: [] })).toBe(false);
+  });
+  it("reads Enbridge's payment reminder", () => {
+    const text = htmlToText(
+      "<table><tr><td>Account Number</td><td>910068283460</td></tr><tr><td>Due Date</td><td>October 1, 2026</td></tr><tr><td>Current Outstanding Balance</td><td>$ 69.31</td></tr></table>",
+    );
+    const bill = readBillByRules({ text, subject: "Fwd: Enbridge - Your Payment is Due", sender: "Enbridge Gas <noreply@enbridge.com>", sentOn: "2026-09-25", today: "2026-10-12" });
+    expect(bill.amountCents).toBe(6931);
+    expect(bill.isBill).toBe(true);
   });
 });

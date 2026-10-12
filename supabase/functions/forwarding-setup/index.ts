@@ -103,7 +103,7 @@ function setupEmail(p: { groupName: string; groupId: string; address: string; to
     'Within a minute it shows up under "Bills to review". If it does, everything works.',
     '',
     'Step 3 (optional). Make it automatic.',
-    '- Gmail (on a computer): Settings > See all settings > "Forwarding and POP/IMAP" > "Add a forwarding address" > paste the address. Gmail sends a confirmation code to it; Baantwise emails that code to you. Enter it in Gmail. Then make a filter: search for the biller (for example from:enbridge.com), "Create filter", tick "Forward it to" and pick this address.',
+    '- Gmail (on a computer): Settings > See all settings > "Forwarding and POP/IMAP" > "Add a forwarding address" > paste the address. Gmail sends a confirmation code to it; Baantwise emails that code to you. Enter it in Gmail. Then make a filter: search for the biller (for example from:enbridge.com), "Create filter", tick "Forward it to" and pick this address. Keep "Disable forwarding" selected on the Forwarding page: the filter forwards only the bills.',
     '- Outlook: Settings > Mail > Rules > "Add new rule": when the sender is the biller, "Forward to" this address.',
     '',
     'Important: forward from the email address you use to sign in to Baantwise. Emails from other addresses are turned away.',
@@ -122,7 +122,7 @@ function setupEmail(p: { groupName: string; groupId: string; address: string; to
 <p><a href="${link}" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#0f766e;color:#ffffff;text-decoration:none">Open Bills to review</a></p>
 <h3 style="margin-bottom:4px">Step 3 (optional). Make it automatic</h3>
 <ul style="margin-top:0">
-<li><strong>Gmail</strong> (on a computer): Settings &gt; See all settings &gt; Forwarding and POP/IMAP &gt; Add a forwarding address &gt; paste the address. Gmail sends a confirmation code to it, and Baantwise emails that code to you. Enter it in Gmail. Then make a filter: search for the biller (for example <code>from:enbridge.com</code>), choose Create filter, tick <em>Forward it to</em> and pick this address.</li>
+<li><strong>Gmail</strong> (on a computer): Settings &gt; See all settings &gt; Forwarding and POP/IMAP &gt; Add a forwarding address &gt; paste the address. Gmail sends a confirmation code to it, and Baantwise emails that code to you. Enter it in Gmail. Then make a filter: search for the biller (for example <code>from:enbridge.com</code>), choose Create filter, tick <em>Forward it to</em> and pick this address. Keep <em>Disable forwarding</em> selected on the Forwarding page, so only the bills are forwarded, not all your email.</li>
 <li><strong>Outlook</strong>: Settings &gt; Mail &gt; Rules &gt; Add new rule: when the sender is the biller, Forward to this address.</li>
 </ul>
 <p style="color:#55625f;font-size:14px">Important: forward from the email address you use to sign in to Baantwise. Emails from other addresses are turned away.</p>
@@ -174,7 +174,10 @@ async function handle(req: Request): Promise<Response> {
     const sent = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: `${fromName} <${address}>`, to: [to], subject: mail.subject, html: mail.html, text: mail.text }),
+      body: JSON.stringify({
+        from: `${fromName} <${address}>`, to: [to], subject: mail.subject, html: mail.html, text: mail.text,
+        headers: { 'Auto-Submitted': 'auto-generated', 'X-Baantwise': 'setup' },
+      }),
       signal: AbortSignal.timeout(15000),
     }).catch(() => null);
     if (!sent || !sent.ok) {
