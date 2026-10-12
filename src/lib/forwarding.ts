@@ -23,6 +23,16 @@ export function contactCardLink(token: string, groupName: string, groupId: strin
   return `/api/contact-card?${params.toString()}`;
 }
 
+// What to tell people after they tap "Save to contacts", for their kind of phone.
+// iPhone: the contact opens as a preview whose ✓ only closes it; saving is the
+// "Create New Contact" button at the bottom. Android: it downloads a contact file.
+export function contactSaveHint(userAgent: string, touchPoints = 0): string {
+  const iPhone = /iPhone|iPad|iPod/.test(userAgent) || (/Macintosh/.test(userAgent) && touchPoints > 1);
+  if (iPhone) return 'On iPhone: scroll down and tap "Create New Contact". The ✓ at the top only closes the preview.';
+  if (/Android/.test(userAgent)) return "On Android: open the contact file that downloads, then tap Save or Import.";
+  return 'On a phone: iPhone shows a preview, so scroll down and tap "Create New Contact" (the ✓ only closes it). Android downloads a contact file to open.';
+}
+
 export type ForwardedBill = {
   id: string;
   biller: string | null;
