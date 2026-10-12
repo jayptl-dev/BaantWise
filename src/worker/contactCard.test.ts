@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contactCardLink, forwardAddress } from "../lib/forwarding";
+import { contactCardLink, contactSaveHint, forwardAddress } from "../lib/forwarding";
 import { contactCard, contactCardResponse, foldLine } from "./contactCard";
 
 const unfold = (card: string) => card.replace(/\r\n /g, "");
@@ -33,5 +33,18 @@ describe("contact card for a group's bill address", () => {
     const res = contactCardResponse(new URL(link, "https://baantwise.com"));
     expect(res.headers.get("Content-Type")).toBe("text/vcard; charset=utf-8");
     expect(res.headers.get("Cache-Control")).toBe("no-store");
+  });
+});
+
+describe("contactSaveHint", () => {
+  it("tells iPhone people to tap Create New Contact", () => {
+    expect(contactSaveHint("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)")).toMatch(/Create New Contact/);
+    expect(contactSaveHint("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 5)).toMatch(/^On iPhone/); // iPad
+  });
+  it("tells Android people to open the file", () => {
+    expect(contactSaveHint("Mozilla/5.0 (Linux; Android 15; Pixel 9)")).toMatch(/^On Android/);
+  });
+  it("covers both on a computer", () => {
+    expect(contactSaveHint("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).toMatch(/iPhone.*Android/);
   });
 });

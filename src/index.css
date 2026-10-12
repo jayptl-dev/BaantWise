@@ -1789,6 +1789,11 @@ p.scan-box {
   margin: 0.75rem 0 0.5rem;
 }
 
+.save-contact-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+}
+
 /* Bills by email: a hint that a forwarded bill may already be an expense. */
 .bill-duplicate {
   font-style: italic;

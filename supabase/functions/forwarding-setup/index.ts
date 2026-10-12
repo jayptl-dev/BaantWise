@@ -82,8 +82,11 @@ function oneLine(text: string, max: number): string {
   return Array.from(text.replace(/\s+/g, ' ').trim()).slice(0, max).join('');
 }
 
-function setupEmail(p: { groupName: string; groupId: string; address: string }) {
+function setupEmail(p: { groupName: string; groupId: string; address: string; token: string }) {
   const link = `${SITE}/groups/${p.groupId}/bills`;
+  // The same contact card as "Save to contacts" in the app (src/worker/contactCard.ts).
+  const contact = `${SITE}/api/contact-card?${new URLSearchParams({ token: p.token, group: p.groupName, id: p.groupId })}`;
+  const iphoneTip = 'On iPhone, scroll down and tap "Create New Contact". The checkmark at the top only closes the preview. On Android, open the contact file that downloads.';
   const text = [
     `This email comes from your ${p.groupName} bill address:`,
     '',
@@ -91,7 +94,9 @@ function setupEmail(p: { groupName: string; groupId: string; address: string }) 
     '',
     'Forward a bill email (like Enbridge, Bell or your hydro company) to this address, and Baantwise reads the biller, the amount and the date. Nothing is added to the group until you check it and press Save.',
     '',
-    'Step 1. Save the address. Add this sender to your contacts, so it\'s easy to pick when you forward.',
+    'Step 1. Save the address as a contact, so forwarding a bill is just: Forward, type "Baan", Send.',
+    `Tap to save it: ${contact}`,
+    iphoneTip,
     '',
     'Step 2. Test it now with an old bill. Find a bill email you already got, forward it to this address, then open Baantwise:',
     link,
@@ -108,8 +113,10 @@ function setupEmail(p: { groupName: string; groupId: string; address: string }) 
 <p>This email comes from your <strong>${e(p.groupName)}</strong> bill address:</p>
 <p style="font-size:17px;padding:10px 12px;background:#f0f5f4;border-radius:8px;word-break:break-all"><strong>${e(p.address)}</strong></p>
 <p>Forward a bill email (like Enbridge, Bell or your hydro company) to this address, and Baantwise reads the biller, the amount and the date. Nothing is added to the group until you check it and press Save.</p>
-<h3 style="margin-bottom:4px">Step 1. Save the address</h3>
-<p style="margin-top:0">Add this sender to your contacts, so it's easy to pick when you forward.</p>
+<h3 style="margin-bottom:4px">Step 1. Save the address as a contact</h3>
+<p style="margin-top:0">Then forwarding a bill from your phone is just: <strong>Forward</strong> → type <strong>"Baan"</strong> → <strong>Send</strong>.</p>
+<p><a href="${e(contact)}" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#0f766e;color:#ffffff;text-decoration:none">Save to contacts</a></p>
+<p style="color:#55625f;font-size:14px;margin-top:0">${e(iphoneTip)}</p>
 <h3 style="margin-bottom:4px">Step 2. Test it now with an old bill</h3>
 <p style="margin-top:0">Find a bill email you already got and forward it to this address. Within a minute it shows up under <strong>Bills to review</strong>. If it does, everything works.</p>
 <p><a href="${link}" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#0f766e;color:#ffffff;text-decoration:none">Open Bills to review</a></p>
@@ -162,7 +169,7 @@ async function handle(req: Request): Promise<Response> {
 
     const address = `bills+${claim.forward_token}@mail.baantwise.com`;
     const groupName = oneLine(claim.group_name, 60);
-    const mail = setupEmail({ groupName, groupId, address });
+    const mail = setupEmail({ groupName, groupId, address, token: claim.forward_token });
     const fromName = `Baantwise · ${groupName}`.replace(/["<>\\]/g, '').slice(0, 70);
     const sent = await fetch('https://api.resend.com/emails', {
       method: 'POST',

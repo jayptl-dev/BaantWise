@@ -9,6 +9,7 @@ import { formatDay } from "../lib/format";
 import {
   billAmount,
   contactCardLink,
+  contactSaveHint,
   fetchForwarding,
   forwardAddress,
   possibleDuplicate,
@@ -159,6 +160,7 @@ function BillsList({ data }: { data: GroupData }) {
                 <a className="button" href={contactCardLink(state.token, group.name, group.id)}>
                   Save to contacts
                 </a>
+                <p className="muted save-contact-hint">{contactSaveHint(navigator.userAgent, navigator.maxTouchPoints)}</p>
               </>
             )}
             <div className="button-row">
