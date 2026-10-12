@@ -107,10 +107,11 @@ function BillsList({ data }: { data: GroupData }) {
     await run(() => supabase.rpc("reset_forward_address", { p_group_id: group.id }), "The group has a new bill address.");
   }
 
+  // The generated types say p_expense_id is a uuid, but null means "dismiss".
   async function dismiss(bill: ForwardedBill) {
     const sure = await ask(`Dismiss ${bill.biller ?? "this bill"}? Nothing is added to the group.`, "Dismiss", false);
     if (!sure) return;
-    await run(() => supabase.rpc("resolve_forwarded_bill", { p_bill_id: bill.id, p_expense_id: null }), "Dismissed.");
+    await run(() => supabase.rpc("resolve_forwarded_bill", { p_bill_id: bill.id, p_expense_id: null as unknown as string }), "Dismissed.");
   }
 
   return (

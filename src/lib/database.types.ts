@@ -254,7 +254,7 @@ export type Database = {
           created_by?: string | null
           currency?: string
           default_split?: Json | null
-          forward_token?: string
+          forward_token: string
           id?: string
           invite_token?: string
           name: string
@@ -533,13 +533,37 @@ export type Database = {
           member_count: number
         }[]
       }
+      inbound_add_bill: {
+        Args: {
+          p_amount_cents: number
+          p_bill_date: string
+          p_biller: string
+          p_category: string
+          p_currency: string
+          p_group_id: string
+          p_message_key: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      inbound_match: {
+        Args: { p_emails: string[]; p_token: string }
+        Returns: {
+          bills_today: number
+          email: string
+          group_id: string
+          group_name: string
+          member_name: string
+          user_id: string
+        }[]
+      }
       join_group: { Args: { p_token: string }; Returns: string }
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
       remove_member: { Args: { p_member_id: string }; Returns: undefined }
       reset_forward_address: { Args: { p_group_id: string }; Returns: string }
       reset_invite_link: { Args: { p_group_id: string }; Returns: string }
       resolve_forwarded_bill: {
-        Args: { p_bill_id: string; p_expense_id: string | null }
+        Args: { p_bill_id: string; p_expense_id: string }
         Returns: undefined
       }
       save_expense: {
