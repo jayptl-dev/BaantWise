@@ -557,6 +557,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      inbound_noise: {
+        Args: { p_add: boolean; p_user_id: string }
+        Returns: {
+          noisy: boolean
+          warn: boolean
+        }[]
+      }
       join_group: { Args: { p_token: string }; Returns: string }
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
       remove_member: { Args: { p_member_id: string }; Returns: undefined }
