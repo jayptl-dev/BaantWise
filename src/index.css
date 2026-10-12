@@ -1538,50 +1538,29 @@ dialog.photo-overlay::backdrop {
   background: var(--accent);
 }
 
-/* Twelve thin columns. On a narrow phone they scroll sideways inside the box. */
-.month-bars {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(2.75rem, 1fr));
-  gap: 0.25rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-}
-
+/* Months: one row each, newest first, the same bar style as the categories. */
 .month-bars li {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 6.5rem;
   align-items: center;
-  gap: 0.25rem;
-  min-width: 0;
-}
-
-.month-value {
-  font-size: 0.6875rem;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.month-track {
-  display: flex;
-  align-items: flex-end;
-  width: 100%;
-  max-width: 2rem;
-  height: 8rem;
-  border-radius: 0.3rem;
-  background: var(--soft);
-  overflow: hidden;
-}
-
-.month-fill {
-  display: block;
-  width: 100%;
-  background: var(--accent);
+  gap: 0.75rem;
+  min-height: 2.25rem;
 }
 
 .month-label {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   white-space: nowrap;
+}
+
+.month-value {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.month-bars .bar-track {
+  grid-column: auto;
 }
 
 /* ---------- Receipt scanning ---------- */
@@ -1675,7 +1654,9 @@ p.scan-box {
   padding: 0 0 0.75rem;
 }
 
-.item-people .choice {
+/* Pop-ups make every label a block; a tick box keeps its box and name side by side. */
+.dialog-body .choice {
+  display: flex;
   font-weight: 400;
 }
 

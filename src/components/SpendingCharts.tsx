@@ -133,7 +133,6 @@ function CategoryBars(props: {
 function MonthBars({ rows, today, mine }: { rows: SpendingRow[]; today: string; mine: boolean }) {
   const months = useMemo(() => monthlyTotals(rows, MONTHS_SHOWN, today), [rows, today]);
   const biggest = Math.max(0, ...months.map((m) => m.totalCents));
-  const thisYear = today.slice(0, 4);
 
   return (
     <section className="section" aria-labelledby="by-month">
@@ -144,13 +143,13 @@ function MonthBars({ rows, today, mine }: { rows: SpendingRow[]; today: string; 
         </p>
       ) : (
         <ul className="month-bars">
-          {months.map((m) => (
+          {[...months].reverse().map((m) => (
             <li key={m.month}>
-              <span className="month-value">{m.totalCents > 0 ? formatCents(m.totalCents) : "$0"}</span>
-              <span className="month-track" aria-hidden="true">
-                <span className="month-fill" style={{ height: `${barSize(m.totalCents, biggest)}%` }} />
+              <span className="month-label">{monthLabel(m.month, true)}</span>
+              <span className="bar-track" aria-hidden="true">
+                <span className="bar-fill" style={{ width: `${barSize(m.totalCents, biggest)}%` }} />
               </span>
-              <span className="month-label">{monthLabel(m.month, !m.month.startsWith(thisYear))}</span>
+              <span className="month-value">{formatCents(m.totalCents)}</span>
             </li>
           ))}
         </ul>
