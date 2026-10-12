@@ -1,4 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router";
+import { DefaultSplitSection } from "../components/DefaultSplitSection";
 import { NameForm } from "../components/NameForm";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
@@ -114,6 +115,8 @@ function SettingsDetails({ data, reload }: { data: GroupData; reload: () => void
               onSubmit={renameGroup}
             />
           </section>
+
+          <DefaultSplitSection key={JSON.stringify(group.default_split)} data={data} busy={busy} run={run} />
 
           <section className="section" aria-labelledby="invite-heading">
             <h2 id="invite-heading">Invite link</h2>

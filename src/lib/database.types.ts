@@ -60,6 +60,8 @@ export type Database = {
           paid_by: string
           receipt_path: string | null
           spent_on: string
+          split_method: string
+          split_snapshot: Json | null
           updated_at: string
           visibility: string
         }
@@ -75,6 +77,8 @@ export type Database = {
           paid_by: string
           receipt_path?: string | null
           spent_on?: string
+          split_method?: string
+          split_snapshot?: Json | null
           updated_at?: string
           visibility?: string
         }
@@ -90,6 +94,8 @@ export type Database = {
           paid_by?: string
           receipt_path?: string | null
           spent_on?: string
+          split_method?: string
+          split_snapshot?: Json | null
           updated_at?: string
           visibility?: string
         }
@@ -153,6 +159,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string
+          default_split: Json | null
           id: string
           invite_token: string
           name: string
@@ -161,6 +168,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          default_split?: Json | null
           id?: string
           invite_token?: string
           name: string
@@ -169,6 +177,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          default_split?: Json | null
           id?: string
           invite_token?: string
           name?: string
@@ -271,6 +280,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_receipt_scan: {
+        Args: never
+        Returns: {
+          allowed: boolean
+          resets_on: string
+          scans_limit: number
+          scans_used: number
+        }[]
+      }
       create_group: { Args: { p_name: string }; Returns: string }
       delete_expense: { Args: { p_expense_id: string }; Returns: undefined }
       delete_settlement: {
@@ -300,6 +318,7 @@ export type Database = {
           p_paid_by: string
           p_shares: Json
           p_spent_on?: string
+          p_split?: Json
           p_visibility?: string
         }
         Returns: string

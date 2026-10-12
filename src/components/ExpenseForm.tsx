@@ -11,6 +11,22 @@ import {
   splitEqually,
 } from "../lib/money";
 import { attachReceipt, detachReceipt } from "../lib/receipts";
+import {
+  centsByPercent,
+  centsByShares,
+  defaultSplitNeedsUpdate,
+  evenPercents,
+  HUNDRED_PERCENT,
+  percentNumber,
+  readDefaultSplit,
+  readPercent,
+  readShares,
+  readSnapshot,
+  SPLIT_METHODS,
+  splitForSave,
+  usableDefault,
+  type SplitMethod,
+} from "../lib/splitMethods";
 import { PhotoProblem, shrinkPhoto } from "../lib/shrinkPhoto";
 import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
@@ -24,7 +40,7 @@ import { LockIcon } from "./LockIcon";
 import { ReceiptThumbnail, SavedReceipt } from "./ReceiptPhoto";
 import { useConfirm } from "./useConfirm";
 
-type SplitMode = "equal" | "exact";
+type SplitMode = SplitMethod; // "equally" | "exact" | "percent" | "shares"
 
 type FormErrors = {
   description?: string;
@@ -58,7 +74,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     return [...data.members, ...data.formerMembers.filter((m) => onExpense.has(m.id))];
   }, [data, expense]);
 
-  const [start] = useState(() => startingSplit(expense, people));
+  const [start] = useState(() => startingSplit(expense, people, data));
+  const [defaultOutdated] = useState(() => {
+    const saved = expense ? null : readDefaultSplit(group.default_split);
+    return saved !== null && defaultSplitNeedsUpdate(saved, data.members.map((m) => m.id));
+  });
   const [description, setDescription] = useState(expense?.description ?? "");
   const [amountText, setAmountText] = useState(expense ? centsToDecimal(expense.amount_cents) : "");
   const [paidBy, setPaidBy] = useState(expense?.paid_by ?? me.id);
@@ -66,6 +86,9 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const [mode, setMode] = useState<SplitMode>(start.mode);
   const [ticked, setTicked] = useState<Set<string>>(start.ticked);
   const [exactText, setExactText] = useState<Record<string, string>>(start.exact);
+  // "By %" and "By shares": the number typed for each ticked person.
+  const [percentText, setPercentText] = useState<Record<string, string>>(start.percent);
+  const [sharesText, setSharesText] = useState<Record<string, string>>(start.shares);
   const [visibility, setVisibility] = useState<Visibility>(expense?.visibility ?? "group");
   // The category someone picked (when editing, the saved one). Until they pick one, a new
   // expense follows a suggestion from its description; their own pick always wins.
@@ -105,6 +128,26 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const tickedIds = people.filter((p) => ticked.has(p.id)).map((p) => p.id); // in list order
   const equalShares = amount === null ? null : splitEqually(amount, tickedIds, paidBy);
 
+  // "By %": hundredths of a percent per ticked person (null = empty or not a percent).
+  const percents = new Map(tickedIds.map((id) => [id, readPercent(percentText[id] ?? "")]));
+  const percentTotal = [...percents.values()].reduce<number>((sum, v) => sum + (v ?? 0), 0);
+  const percentsOk = tickedIds.length > 0 && [...percents.values()].every((v) => v !== null) && percentTotal === HUNDRED_PERCENT;
+  const percentShares =
+    amount === null || !percentsOk
+      ? null
+      : centsByPercent(amount, tickedIds.map((id) => ({ id, hundredths: percents.get(id)! })), paidBy);
+
+  // "By shares": a whole number from 1 to 1000 per ticked person.
+  const shareCounts = new Map(tickedIds.map((id) => [id, readShares(sharesText[id] ?? "")]));
+  const sharesOk = tickedIds.length > 0 && [...shareCounts.values()].every((v) => v !== null);
+  const sharesShares =
+    amount === null || !sharesOk
+      ? null
+      : centsByShares(amount, tickedIds.map((id) => ({ id, shares: shareCounts.get(id)! })), paidBy);
+
+  // The cents each person ends up with, for the modes that work it out.
+  const workedOut = mode === "equally" ? equalShares : mode === "percent" ? percentShares : mode === "shares" ? sharesShares : null;
+
   // Exact amounts. Each box can also add and take away, like "115.22+64.88".
   // An empty box means that person isn't in the split.
   const exactRead = new Map(people.map((p) => [p.id, readMoney(exactText[p.id] ?? "", true)]));
@@ -113,7 +156,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
 
   // The people splitting it, and so who a private expense is shared with.
   const splitIds =
-    mode === "equal" ? tickedIds : people.filter((p) => exactCents.get(p.id) !== null).map((p) => p.id);
+    mode === "exact" ? people.filter((p) => exactCents.get(p.id) !== null).map((p) => p.id) : tickedIds;
   // The database's rule: the payer, the people splitting it, and whoever added it (you).
   const involved = new Set([paidBy, ...splitIds, me.id]);
   const onlyMe = involved.size === 1;
@@ -167,6 +210,15 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     if (cents !== null && cents !== undefined && cents >= 0) {
       setExactText((current) => ({ ...current, [id]: centsToDecimal(cents) }));
     }
+  }
+
+  // A percent or shares box: only digits (and, for percents, up to 2 decimals) get in.
+  function changeValue(id: string, text: string) {
+    const tidy = text.replace(/\s/g, "").replace(/,/g, ".");
+    const fits = mode === "percent" ? /^\d{0,3}(\.\d{0,2})?$/.test(tidy) : /^\d{0,4}$/.test(tidy);
+    if (!fits) return;
+    if (mode === "percent") setPercentText((current) => ({ ...current, [id]: tidy }));
+    else setSharesText((current) => ({ ...current, [id]: tidy }));
   }
 
   async function choosePhoto(event: ChangeEvent<HTMLInputElement>) {
@@ -228,6 +280,7 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   }
 
   function toggle(id: string) {
+    if (mode === "shares" && !sharesText[id]) setSharesText((current) => ({ ...current, [id]: "1" }));
     setTicked((current) => {
       const next = new Set(current);
       if (next.has(id)) next.delete(id);
@@ -241,14 +294,23 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     setFeedback(null);
     setLimitNote(null);
     // Carry the split over, so switching doesn't start from scratch.
-    if (next === "exact" && equalShares) {
+    if (next === "exact" && workedOut) {
       const filledIn = people.map((p) => {
-        const cents = equalShares.get(p.id);
+        const cents = workedOut.get(p.id);
         return [p.id, cents === undefined ? "" : centsToDecimal(cents)];
       });
       setExactText(Object.fromEntries(filledIn));
     }
-    if (next === "equal" && splitIds.length > 0) setTicked(new Set(splitIds));
+    const nextTicked = splitIds.length > 0 ? splitIds : tickedIds;
+    if (next !== "exact") setTicked(new Set(nextTicked));
+    // Empty boxes start as an even split (By %) or 1 share each (By shares).
+    if (next === "percent" && nextTicked.some((id) => !percentText[id])) {
+      const even = evenPercents(nextTicked);
+      setPercentText(Object.fromEntries(nextTicked.map((id) => [id, String(percentNumber(even.get(id)!))])));
+    }
+    if (next === "shares") {
+      setSharesText((current) => ({ ...Object.fromEntries(nextTicked.map((id) => [id, "1"])), ...current }));
+    }
     setMode(next);
   }
 
@@ -273,10 +335,34 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     if (includeMissing && !people.some((p) => p.id === paidBy)) errors.paidBy = "Choose who paid.";
     if (includeMissing && !/^\d{4}-\d{2}-\d{2}$/.test(spentOn)) errors.date = "Choose the date.";
 
-    if (mode === "equal") {
-      if (includeMissing && tickedIds.length === 0) errors.split = "Tick at least one person to split with.";
+    if (mode !== "exact") {
+      if (includeMissing && tickedIds.length === 0) {
+        errors.split = "Tick at least one person to split with.";
+        return errors;
+      }
+    }
+    if (mode === "percent") {
+      for (const id of tickedIds) {
+        const typed = percentText[id] ?? "";
+        if (percents.get(id) === null && (typed !== "" || includeMissing)) {
+          errors.people.set(id, "Enter a percent from 0 to 100, like 33.33.");
+        }
+      }
+      if (includeMissing && errors.people.size === 0 && percentTotal !== HUNDRED_PERCENT) {
+        errors.split = "The percentages must add up to exactly 100%.";
+      }
       return errors;
     }
+    if (mode === "shares") {
+      for (const id of tickedIds) {
+        const typed = sharesText[id] ?? "";
+        if (shareCounts.get(id) === null && (typed !== "" || includeMissing)) {
+          errors.people.set(id, "Enter a whole number of shares from 1 to 1000.");
+        }
+      }
+      return errors;
+    }
+    if (mode === "equally") return errors;
     for (const p of people) {
       const cents = exactCents.get(p.id) ?? null;
       if (cents !== null && cents < 0) errors.people.set(p.id, `${whose(p)} can't be less than $0.00.`);
@@ -321,8 +407,14 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     }
     const shares = splitIds.map((id) => ({
       member_id: id,
-      share_cents: (mode === "equal" ? equalShares?.get(id) : exactCents.get(id)) ?? 0,
+      share_cents: (mode === "exact" ? exactCents.get(id) : workedOut?.get(id)) ?? 0,
     }));
+    const typedValues =
+      mode === "percent"
+        ? tickedIds.map((id) => ({ member_id: id, value: percents.get(id)! }))
+        : mode === "shares"
+          ? tickedIds.map((id) => ({ member_id: id, value: shareCounts.get(id)! }))
+          : [];
     let expenseId = expense?.id ?? "";
     const saved = await run(
       async () => {
@@ -336,6 +428,8 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           p_spent_on: spentOn,
           p_expense_id: expense?.id,
           p_category: category,
+          // Always sent: on an edit, leaving it out would reset it to "exact".
+          p_split: splitForSave(mode, typedValues),
         });
         if (result.data) expenseId = result.data;
         return result;
@@ -440,16 +534,19 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
 
         <fieldset>
           <legend>Split</legend>
+          {defaultOutdated && (
+            <p className="hint">Default split needs updating: someone joined or left. A group admin can fix it in Group settings.</p>
+          )}
           <div className="segmented">
-            {(["equal", "exact"] as const).map((option) => (
-              <label key={option} className="segment">
+            {SPLIT_METHODS.map((option) => (
+              <label key={option.key} className="segment">
                 <input
                   type="radio"
                   name="split-mode"
-                  checked={mode === option}
-                  onChange={() => switchMode(option)}
+                  checked={mode === option.key}
+                  onChange={() => switchMode(option.key)}
                 />
-                <span>{option === "equal" ? "Equally" : "Exact amounts"}</span>
+                <span>{option.label}</span>
               </label>
             ))}
           </div>
@@ -459,6 +556,10 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
               Split by item
             </button>
           )}
+          {mode === "percent" && <p className="hint">Tick who's in it, then give each person a percent.</p>}
+          {mode === "shares" && (
+            <p className="hint">Tick who's in it. Someone with 2 shares pays twice as much as someone with 1.</p>
+          )}
           {mode === "exact" && (
             <p className="hint">
               Leave a box empty if that person isn't in it. A box can add and take away, like 10+2.50.
@@ -467,22 +568,41 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
           <ul className="split-list">
             {people.map((p) => {
               const boxId = `${ids.split}-${p.id}`;
-              if (mode === "equal") {
+              if (mode !== "exact") {
+                const isTicked = ticked.has(p.id);
+                const valueBox = mode === "percent" || mode === "shares";
+                const problem = errors.people.get(p.id);
                 return (
                   <li key={p.id}>
                     <label className="choice">
                       <input
                         id={boxId}
                         type="checkbox"
-                        checked={ticked.has(p.id)}
+                        checked={isTicked}
                         onChange={() => toggle(p.id)}
                         {...problemProps(errorId("split"), errors.split)}
                       />
                       <span>{nameFor(p)}</span>
                     </label>
+                    {valueBox && isTicked && (
+                      <span className="money-input small value-input">
+                        <input
+                          value={(mode === "percent" ? percentText : sharesText)[p.id] ?? ""}
+                          onChange={(event) => changeValue(p.id, event.target.value)}
+                          inputMode={mode === "percent" ? "decimal" : "numeric"}
+                          placeholder={mode === "percent" ? "0" : "1"}
+                          autoComplete="off"
+                          aria-label={mode === "percent" ? `${nameFor(p)}: percent` : `${nameFor(p)}: shares`}
+                          aria-invalid={problem ? true : undefined}
+                          aria-describedby={problem ? errorId(p.id) : undefined}
+                        />
+                        <span aria-hidden="true">{mode === "percent" ? "%" : "×"}</span>
+                      </span>
+                    )}
                     <span className="split-amount">
-                      {equalShares?.has(p.id) ? formatCents(equalShares.get(p.id)!) : ""}
+                      {workedOut?.has(p.id) ? formatCents(workedOut.get(p.id)!) : ""}
                     </span>
+                    <FieldError id={errorId(p.id)} text={problem} live />
                   </li>
                 );
               }
@@ -520,6 +640,15 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             })}
           </ul>
 
+          {mode === "percent" && (
+            <p className={percentTotal === HUNDRED_PERCENT ? "split-status done" : "split-status"} aria-live="polite">
+              {percentTotal === HUNDRED_PERCENT
+                ? "Adds up to 100%"
+                : percentTotal < HUNDRED_PERCENT
+                  ? `${percentNumber(HUNDRED_PERCENT - percentTotal)}% left to give out (now ${percentNumber(percentTotal)}%)`
+                  : `${percentNumber(percentTotal - HUNDRED_PERCENT)}% too much (now ${percentNumber(percentTotal)}%)`}
+            </p>
+          )}
           {mode === "exact" && amount !== null && (
             <p className={exactTotal === amount ? "split-status done" : "split-status"} aria-live="polite">
               {exactTotal < amount && `${formatCents(amount - exactTotal)} left to assign`}
@@ -612,7 +741,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
 
         <FeedbackLine feedback={feedback} />
         <div className="form-actions">
-          <button type="submit" className="button" disabled={working || preparingPhoto}>
+          <button
+            type="submit"
+            className="button"
+            disabled={working || preparingPhoto || (mode === "percent" && !percentsOk)}
+          >
             {savingPhoto ? "Saving the photo…" : expense ? "Save changes" : "Add expense"}
           </button>
           <button type="button" className="button secondary" onClick={() => onDone()} disabled={working}>
@@ -637,20 +770,57 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   );
 }
 
-// How the split starts: a new expense is split equally between everyone.
-// An existing one opens as "Equally" if its shares are exactly an equal split,
-// otherwise as "Exact amounts" with each person's share filled in.
-function startingSplit(expense: Expense | undefined, people: Member[]) {
+// How the split starts.
+// - A new expense: the group's default split (By % or By shares) if it has one that
+//   still works, otherwise equally between everyone.
+// - An existing one reopens the way it was made (split_method). Percent and shares
+//   come back from the numbers typed then (split_snapshot). Older expenses, saved
+//   before this was remembered, open as "Equally" if their shares are exactly an equal
+//   split, otherwise as "Exact" with each person's share filled in.
+function startingSplit(expense: Expense | undefined, people: Member[], data: GroupData) {
+  const blank = { percent: {} as Record<string, string>, shares: {} as Record<string, string> };
   if (!expense) {
-    return { mode: "equal" as SplitMode, ticked: new Set(people.map((p) => p.id)), exact: {} };
+    const usable = usableDefault(
+      readDefaultSplit(data.group.default_split),
+      data.members.map((m) => m.id),
+    );
+    if (usable) {
+      const typed = Object.fromEntries(
+        usable.members.map((m) => [m.member_id, String(usable.method === "percent" ? percentNumber(m.value) : m.value)]),
+      );
+      return {
+        mode: usable.method as SplitMode,
+        ticked: new Set(usable.members.map((m) => m.member_id)),
+        exact: {},
+        ...blank,
+        [usable.method]: typed,
+      };
+    }
+    return { mode: "equally" as SplitMode, ticked: new Set(people.map((p) => p.id)), exact: {}, ...blank };
   }
   const shares = new Map(expense.shares.map((s) => [s.member_id, s.share_cents]));
   const inSplit = people.filter((p) => shares.has(p.id)).map((p) => p.id);
-  const equal = splitEqually(expense.amount_cents, inSplit, expense.paid_by);
-  const isEqual = inSplit.length === shares.size && inSplit.every((id) => equal.get(id) === shares.get(id));
   const exact: Record<string, string> = {};
   for (const [id, cents] of shares) exact[id] = centsToDecimal(cents);
-  return { mode: (isEqual ? "equal" : "exact") as SplitMode, ticked: new Set(inSplit), exact };
+
+  if (expense.split_method === "percent" || expense.split_method === "shares") {
+    const method = expense.split_method;
+    const values = readSnapshot(method, expense.split_snapshot);
+    if (values.length > 0) {
+      const typed = Object.fromEntries(
+        values.map((v) => [v.member_id, String(method === "percent" ? percentNumber(v.value) : v.value)]),
+      );
+      return { mode: method as SplitMode, ticked: new Set(values.map((v) => v.member_id)), exact, ...blank, [method]: typed };
+    }
+  }
+  if (expense.split_method === "exact") {
+    // Saved as exact on purpose, or saved before split methods were remembered:
+    // reopen as Equally only if it really is an equal split.
+    const equal = splitEqually(expense.amount_cents, inSplit, expense.paid_by);
+    const isEqual = inSplit.length === shares.size && inSplit.every((id) => equal.get(id) === shares.get(id));
+    return { mode: (isEqual ? "equally" : "exact") as SplitMode, ticked: new Set(inSplit), exact, ...blank };
+  }
+  return { mode: "equally" as SplitMode, ticked: new Set(inSplit), exact, ...blank };
 }
 
 function countPlus(text: string): number {

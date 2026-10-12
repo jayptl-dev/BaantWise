@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Tables } from "./database.types";
+import type { Json, Tables } from "./database.types";
 import { friendlyError } from "./errors";
 import { fetchExpenses, type Expense, type ExpensesToLoad } from "./expenses";
 import { isUuid } from "./format";
@@ -19,7 +19,8 @@ export type Member = {
 };
 
 export type GroupData = {
-  group: { id: string; name: string; invite_token: string; currency: string }; // currency: "CAD" for now
+  // currency: "CAD" for now. default_split: pre-fills new expenses (see splitMethods.ts).
+  group: { id: string; name: string; invite_token: string; currency: string; default_split: Json | null };
   members: Member[]; // active members only, oldest first
   formerMembers: Member[]; // people who left or were removed: their names stay on old expenses
   expenses: Expense[]; // newest first; only loaded when asked for (see useGroup)
@@ -42,7 +43,7 @@ async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad)
   if (!isUuid(id)) return { status: "missing" };
 
   const [groupResult, membersResult, expensesResult, paymentsResult] = await Promise.all([
-    supabase.from("groups").select("id, name, invite_token, currency").eq("id", id).maybeSingle(),
+    supabase.from("groups").select("id, name, invite_token, currency, default_split").eq("id", id).maybeSingle(),
     supabase
       .from("group_members")
       .select("id, user_id, display_name, is_admin, removed_at")

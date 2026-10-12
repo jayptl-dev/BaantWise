@@ -69,11 +69,18 @@ export function isSummaryLine(name: string): boolean {
 }
 
 // Receipt text is untrusted data: keep plain printable text on one line, limit its length.
+// Characters that never belong in a name: control codes, invisible spacing and
+// direction marks, and < > (so text can never look like HTML).
+function isUnsafeChar(code: number): boolean {
+  return code <= 0x1f || (code >= 0x7f && code <= 0x9f) || (code >= 0x200b && code <= 0x200f) ||
+    (code >= 0x2028 && code <= 0x202e) || (code >= 0x2060 && code <= 0x2069) || code === 0xfeff ||
+    code === 0x3c || code === 0x3e;
+}
+
 export function cleanText(value: unknown, maxLength: number): string | null {
   if (typeof value !== 'string') return null;
-  const oneLine = value
-    .normalize('NFKC')
-    .replace(/[\u0000-\u001F\u007F-\u009F​-‏ -‮⁠-⁩﻿<>]/g, ' ')
+  const oneLine = Array.from(value.normalize('NFKC'), (ch) => (isUnsafeChar(ch.codePointAt(0) ?? 0) ? ' ' : ch))
+    .join('')
     .replace(/\s+/g, ' ')
     .trim();
   const text = Array.from(oneLine).slice(0, maxLength).join('').trim();
