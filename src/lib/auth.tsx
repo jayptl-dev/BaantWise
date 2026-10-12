@@ -118,14 +118,13 @@ function friendlySignInError(error: AuthError): string {
   if (isAuthRetryableFetchError(error)) {
     return "Couldn't reach Baantwise. Check your connection and try again.";
   }
-  // After a redirect sign-in, Google reports "access_denied" when someone cancels,
-  // or isn't on the beta tester list.
+  // After a redirect sign-in, Google reports "access_denied" when someone cancels.
   if (isAuthImplicitGrantRedirectError(error) && error.details?.error === "access_denied") {
-    return "Sign-in was cancelled, or this Google account isn't in the private beta yet.";
+    return "Sign-in was cancelled. Please try again.";
   }
   // Supabase turned the account away.
   if (error.code === "signup_disabled" || error.code === "user_banned") {
-    return "This Google account isn't in the private beta yet.";
+    return "New sign-ups are paused right now. Please try again later.";
   }
   return "Sign-in didn't work. Please try again.";
 }

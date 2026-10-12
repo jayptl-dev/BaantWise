@@ -1862,3 +1862,14 @@ p.scan-box {
 .delete-list li + li {
   margin-top: 0.25rem;
 }
+
+/* Landing: what Baantwise does (Google's sign-in review needs this on the home page). */
+.landing-features {
+  margin: 0 0 1.5rem;
+  padding-left: 1.25rem;
+  line-height: 1.5;
+}
+
+.landing-features li + li {
+  margin-top: 0.375rem;
+}
