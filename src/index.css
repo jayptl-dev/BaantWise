@@ -1583,3 +1583,121 @@ dialog.photo-overlay::backdrop {
   font-size: 0.75rem;
   white-space: nowrap;
 }
+
+/* ---------- Receipt scanning ---------- */
+
+.scan-box {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+}
+
+.scan-box .hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+}
+
+p.scan-box {
+  font-size: 0.9375rem;
+}
+
+.scan-notes {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--soft);
+}
+
+.scan-notes p {
+  margin: 0;
+}
+
+.scan-notes p + p {
+  margin-top: 0.25rem;
+}
+
+.item-split-button {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.item-list {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  border-bottom: 1px solid var(--border);
+}
+
+.item-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 0.75rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.5rem 0;
+  border: 0;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: none;
+  cursor: pointer;
+}
+
+.item-summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.item-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.item-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.item-who {
+  grid-column: 1 / -1;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.item.needs-person .item-who {
+  color: var(--owe);
+}
+
+.item-edit {
+  padding: 0 0 0.75rem;
+}
+
+.item-people .choice {
+  font-weight: 400;
+}
+
+.item-fields {
+  display: grid;
+  grid-template-columns: 1fr 7rem;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.item-fields .field + .field {
+  margin-top: 0;
+}
+
+.danger-text {
+  color: var(--danger);
+}
+
+.item-footer {
+  margin-top: 0.75rem;
+}
+
+.item-footer p {
+  margin: 0;
+}
