@@ -1,0 +1,83 @@
+# Nightly database backup.
+#
+# Supabase's free plan keeps no backups you can download, so this makes our own:
+# every night it copies the whole database (accounts, groups, expenses, payments,
+# settings, migration history), locks the copy with a passphrase, and keeps it
+# on GitHub for 30 days. How to restore one: docs/BACKUPS.md.
+#
+# It needs two repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL     the Session pooler connection string, with the database password in it
+#   BACKUP_PASSPHRASE   any long passphrase; you need it to open a backup
+# Receipt photos (Storage) are not in the copy; the expenses still are.
+
+name: Nightly backup
+
+on:
+  schedule:
+    # 07:23 UTC = 03:23 in Toronto (02:23 in winter). Off the hour so it isn't delayed.
+    - cron: "23 7 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check the secrets are set
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Add the SUPABASE_DB_URL and BACKUP_PASSPHRASE secrets (see docs/BACKUPS.md)."
+            exit 1
+          fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Copy the database
+        run: |
+          set -euo pipefail
+          mkdir backup
+          cd backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f data.sql --use-copy --data-only \
+            -x "storage.buckets_vectors" -x "storage.vector_indexes"
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f history_schema.sql --schema supabase_migrations
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f history_data.sql --use-copy --data-only --schema supabase_migrations
+          # A copy that is suspiciously small means something went wrong.
+          for f in roles.sql schema.sql data.sql; do
+            test -s "$f" || { echo "::error::$f is empty"; exit 1; }
+          done
+          grep -Eq 'COPY "?public"?\."?expenses"?' data.sql || { echo "::error::data.sql has no expenses table"; exit 1; }
+          ls -l
+
+      - name: Lock the copy with the passphrase
+        run: |
+          set -euo pipefail
+          stamp=$(date -u +%Y-%m-%d)
+          echo "STAMP=$stamp" >> "$GITHUB_ENV"
+          tar -czf "baantwise-$stamp.tar.gz" -C backup .
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+            --passphrase-fd 0 -o "baantwise-$stamp.tar.gz.gpg" "baantwise-$stamp.tar.gz" <<< "$BACKUP_PASSPHRASE"
+          # Only the locked file leaves this machine.
+          rm -rf backup "baantwise-$stamp.tar.gz"
+          ls -l
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: baantwise-backup-${{ env.STAMP }}
+          path: baantwise-${{ env.STAMP }}.tar.gz.gpg
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0

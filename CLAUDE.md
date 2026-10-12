@@ -55,6 +55,10 @@ Put the full explanation in the commit message and the pull request description,
 - The privacy policy (`src/pages/Privacy.tsx`, /privacy) describes what the app collects, reads, keeps and shares. When a change affects any of that, update the page and its date.
 - After a database change, regenerate `src/lib/database.types.ts` (Supabase connector `generate_typescript_types`) so the types match.
 
+## Backups
+
+- Supabase's free plan has no downloadable backups. `.github/workflows/backup.yml` dumps the database nightly with the Supabase CLI (roles, schema, data, migration history), encrypts it with gpg using the `BACKUP_PASSPHRASE` secret and keeps it as a 30-day GitHub Actions artifact. Secrets: `SUPABASE_DB_URL` (Session pooler string), `BACKUP_PASSPHRASE`. Receipt photos aren't included. Setup and restore steps: `docs/BACKUPS.md`. The privacy policy mentions the backups; keep it true.
+
 ## Commands
 
 - `npm install`: install packages
