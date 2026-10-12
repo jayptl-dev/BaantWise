@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { computeBalances, type Balances } from "../lib/balances";
 import { peopleById, type Visibility } from "../lib/expenses";
 import { formatCents } from "../lib/money";
+import { sendReminder } from "../lib/reminders";
 import type { Feedback } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
 import { LockIcon } from "./LockIcon";
@@ -24,6 +25,9 @@ type BalancesSectionProps = {
 export function BalancesSection({ data, me, feedback, onSaved }: BalancesSectionProps) {
   const balances = useMemo(() => computeBalances(data.expenses, data.payments, me.id), [data, me.id]);
   const [settling, setSettling] = useState<SettleTarget | null>(null);
+  // A reminder being sent ("from|visibility"), and how it went.
+  const [reminding, setReminding] = useState<string | null>(null);
+  const [reminderNote, setReminderNote] = useState<Feedback>(null);
   const people = peopleById(data);
   const nameOf = (id: string) => people.get(id)?.display_name ?? "Someone";
 
@@ -43,7 +47,22 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
     else if (to === me.id) label = "Received";
     else if (people.get(from)?.user_id === null && people.get(to)?.user_id === null) label = "Record payment";
     if (!label) return null;
+    // Someone with an account owes me: I can also send them a reminder email.
+    const canRemind = to === me.id && people.get(from)?.user_id;
+    const key = `${from}|${visibility}`;
     return (
+      <span className="balance-actions">
+      {canRemind && (
+        <button
+          type="button"
+          className="button secondary balance-button"
+          disabled={reminding !== null}
+          onClick={() => remind(from, visibility)}
+        >
+          {reminding === key ? "Sending…" : "Remind"}
+          <span className="visually-hidden"> {nameOf(from)}</span>
+        </button>
+      )}
       <button
         type="button"
         className="button secondary balance-button"
@@ -57,6 +76,19 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
           </span>
         )}
       </button>
+      </span>
+    );
+  }
+
+  async function remind(from: string, visibility: Visibility) {
+    setReminding(`${from}|${visibility}`);
+    setReminderNote(null);
+    const result = await sendReminder(data.group.id, from, visibility === "group" ? "group" : "private");
+    setReminding(null);
+    setReminderNote(
+      result.ok
+        ? { text: `Reminder sent to ${nameOf(from)}. We emailed you a copy too.`, isError: false }
+        : { text: result.message, isError: true },
     );
   }
 
@@ -68,6 +100,7 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
       <h2 id="balances-heading">Balances</h2>
       <Overall cents={balances.overall} />
       <FeedbackLine feedback={feedback} />
+      <FeedbackLine feedback={reminderNote} />
 
       <h3 className="balance-heading">In the group</h3>
       {balances.transfers.length === 0 ? (

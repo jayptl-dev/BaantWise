@@ -205,6 +205,14 @@ How it works:
 - Expenses it adds have `recurring_id` set and show 🔁. Deleting a rule never deletes them.
 - Privacy follows the rule's "Who can see this?", like an expense. Only the person who set it up can change, pause or delete it.
 
+## Payment reminders
+
+On a group's **Balances**, when someone with an account owes you, a **Remind** button sits next to **Received**. It emails them a friendly reminder (the amount, the group, and your Interac or PayPal.Me details if you added them on your profile), and sends you a copy. Guests without an account can't get emails.
+
+- The Supabase Edge Function `send-reminder` works the amount out itself, from what the sender can see and with the app's own balance maths. `supabase/functions/send-reminder/balances.ts` is an exact copy of `src/lib/balances.ts`, and a test (`sharedCode.test.ts`) fails if they drift apart. So nobody can make an email say a made-up amount.
+- One reminder per person per group every 3 days, and 20 a day per sender (`claim_reminder`; only who, to whom and when are kept, for 30 days).
+- Emails go through Resend from `reminders@mail.baantwise.com`. Secret: `RESEND_API_KEY` (Supabase → Edge Functions → Secrets; Resend key with "Sending access" only).
+
 ## Balances and settling up
 
 Baantwise never moves money. It only works out who owes whom and writes down payments people say they made.

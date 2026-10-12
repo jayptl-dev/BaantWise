@@ -1783,3 +1783,11 @@ p.scan-box {
   min-height: 2.5rem;
   padding: 0.375rem 0.75rem;
 }
+
+/* "Remind" sits next to "Received" on a balance someone owes me. */
+.balance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
