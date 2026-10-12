@@ -4,6 +4,8 @@
 
 export const MAX_CENTS = 100_000_000; // $1,000,000.00, same limit as the database
 
+import { splitEvenly } from "./split";
+
 const CAD = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD" });
 
 // 1234 → "12.34", -5 → "-0.05". Exact, because it's built from the digits.
@@ -85,15 +87,7 @@ export function refuseExactChange(change: ExactChange): string | null {
 // Split a total equally, in whole cents. Leftover cents go out one each,
 // starting with the payer if they're in the split, then in list order.
 // $10.00 three ways paid by Jay: Jay 334, the others 333 each.
+// (The shared leftover-cent rule lives in split.ts.)
 export function splitEqually(totalCents: number, memberIds: string[], payerId: string): Map<string, number> {
-  const shares = new Map<string, number>();
-  const count = memberIds.length;
-  if (count === 0) return shares;
-  const leftover = totalCents % count;
-  const base = (totalCents - leftover) / count;
-  const order = memberIds.includes(payerId)
-    ? [payerId, ...memberIds.filter((id) => id !== payerId)]
-    : memberIds;
-  order.forEach((id, index) => shares.set(id, base + (index < leftover ? 1 : 0)));
-  return shares;
+  return splitEvenly(totalCents, memberIds, payerId);
 }

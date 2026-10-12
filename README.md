@@ -152,6 +152,23 @@ Each expense can have one receipt photo. It follows the expense's own privacy: i
 
 The code is in `src/lib/shrinkPhoto.ts` (with tests in `shrinkPhoto.test.ts`), `src/lib/receipts.ts` (upload, link, remove, viewing links) and `src/components/ReceiptPhoto.tsx` (icon, thumbnail, full-screen view).
 
+## Receipt scanning
+
+On **Add expense**, **Scan receipt** reads a photo of a receipt and fills in what it can: what for (the shop), the date, the category and the amount. Everything stays editable, and the photo becomes the expense's receipt photo once it's saved. If the receipt is in another currency, the amount is left empty for you to type in CAD.
+
+**Split by item** (shown when the scan found items) lets you tick who had each item. Tax, tip and anything else not on an item is shared in proportion. "Use this split" fills in **Exact amounts**. The items are never saved.
+
+How it works:
+- The photo is shrunk in the browser (`shrinkPhoto.ts`, the same as receipt photos), then sent to our Supabase Edge Function `scan-receipt` (`supabase/functions/scan-receipt/index.ts`), which asks Google Gemini to read it. The function checks and cleans every value and stores nothing: not the photo, not the text.
+- Each person gets 100 scans a month (Toronto time), counted by the database function `claim_receipt_scan` (only the count is kept).
+- The leftover-cent rule for every automatic split lives in `src/lib/split.ts` (tested in `split.test.ts`); Equally uses it too.
+
+Secrets (Supabase → Edge Functions → Secrets, never in this repo):
+- `GEMINI_API_KEY`: from Google AI Studio. Without it, everyone sees "Receipt scanning is coming soon".
+- `SCAN_ALLOWED_USER_IDS`: the user ids allowed to scan while Gemini is on the free tier (comma-separated).
+- `SCAN_OPEN_TO_ALL`: set to `true` only after Gemini billing is on, to let everyone scan.
+- `GEMINI_MODEL` (optional): defaults to `gemini-3.1-flash-lite`.
+
 ## Balances and settling up
 
 Baantwise never moves money. It only works out who owes whom and writes down payments people say they made.

@@ -15,7 +15,10 @@ import { PhotoProblem, shrinkPhoto } from "../lib/shrinkPhoto";
 import { supabase } from "../lib/supabase";
 import { useDbAction } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
+import type { ScannedReceipt } from "../lib/receiptScan";
 import { CategoryButton } from "./CategoryPicker";
+import { ItemSplitSheet, linesFromScan, type ItemLine } from "./ItemSplitSheet";
+import { ScanReceipt } from "./ScanReceipt";
 import { FeedbackLine } from "./Status";
 import { LockIcon } from "./LockIcon";
 import { ReceiptThumbnail, SavedReceipt } from "./ReceiptPhoto";
@@ -81,6 +84,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   const [savingPhoto, setSavingPhoto] = useState(false);
   const photoInput = useRef<HTMLInputElement>(null);
   const savedPhoto = removeSaved ? null : (expense?.receipt_path ?? null);
+
+  // What the last receipt scan said, and its items for "Split by item" (never saved).
+  const [scanNotes, setScanNotes] = useState<string[]>([]);
+  const [itemLines, setItemLines] = useState<ItemLine[] | null>(null);
+  const [itemSheetOpen, setItemSheetOpen] = useState(false);
   const working = busy || savingPhoto;
 
   // The preview only lives in this browser tab; free it when it's replaced or the form closes.
@@ -179,6 +187,38 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
     } finally {
       setPreparingPhoto(false);
     }
+  }
+
+  // A scanned receipt fills in what it could read; everything stays editable. Its photo
+  // becomes the receipt photo once the expense is saved.
+  function applyScan(receipt: ScannedReceipt, photo: Blob) {
+    setFeedback(null);
+    setPhotoProblem(null);
+    setRemoveSaved(false);
+    setNewPhoto({ blob: photo, url: URL.createObjectURL(photo) });
+    if (receipt.merchant) setDescription(Array.from(receipt.merchant).slice(0, DESCRIPTION_MAX).join(""));
+    if (receipt.date) setSpentOn(receipt.date);
+    if (receipt.category !== "other") setPickedCategory(receipt.category);
+    const notes: string[] = [];
+    const foreign = receipt.currency !== null && receipt.currency !== group.currency;
+    if (foreign) {
+      setAmountText("");
+      notes.push(`This receipt is in ${receipt.currency}. Enter the amount in ${group.currency}.`);
+    } else if (receipt.totalCents !== null && receipt.totalCents <= MAX_CENTS) {
+      setAmountText(centsToDecimal(receipt.totalCents));
+    }
+    notes.push("Check the details. Scans can make mistakes.");
+    if (receipt.hasWarnings) notes.push("Some numbers on this receipt don't add up. Please check them.");
+    setScanNotes(notes);
+    setItemLines(receipt.items.length > 0 ? linesFromScan(receipt.items) : null);
+  }
+
+  // "Use this split" from Split by item: switch to Exact amounts, filled in.
+  function applyItemSplit(shares: Map<string, number>) {
+    setLimitNote(null);
+    setExactText(Object.fromEntries(people.map((p) => [p.id, shares.has(p.id) ? centsToDecimal(shares.get(p.id)!) : ""])));
+    setMode("exact");
+    setItemSheetOpen(false);
   }
 
   function removePhoto() {
@@ -322,6 +362,14 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
   return (
     <>
       <form className="expense-form" onSubmit={handleSubmit} noValidate>
+        {!expense && <ScanReceipt disabled={working} onScanned={applyScan} />}
+        {scanNotes.length > 0 && (
+          <div className="scan-notes" role="status">
+            {scanNotes.map((note) => (
+              <p key={note}>{note}</p>
+            ))}
+          </div>
+        )}
         <div className="field">
           <label htmlFor={ids.description}>What for?</label>
           <div className="description-row">
@@ -406,6 +454,11 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
             ))}
           </div>
 
+          {itemLines && (
+            <button type="button" className="button secondary item-split-button" onClick={() => setItemSheetOpen(true)}>
+              Split by item
+            </button>
+          )}
           {mode === "exact" && (
             <p className="hint">
               Leave a box empty if that person isn't in it. A box can add and take away, like 10+2.50.
@@ -568,6 +621,18 @@ export function ExpenseForm({ data, me, expense, onDone }: ExpenseFormProps) {
         </div>
       </form>
       {dialog}
+      {itemSheetOpen && itemLines && (
+        <ItemSplitSheet
+          lines={itemLines}
+          setLines={(update) => setItemLines((current) => (current ? update(current) : current))}
+          people={data.members}
+          totalCents={amount}
+          payerId={paidBy}
+          nameFor={nameFor}
+          onUse={applyItemSplit}
+          onClose={() => setItemSheetOpen(false)}
+        />
+      )}
     </>
   );
 }
