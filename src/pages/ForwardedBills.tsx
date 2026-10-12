@@ -8,6 +8,7 @@ import { friendlyError } from "../lib/errors";
 import { formatDay } from "../lib/format";
 import {
   billAmount,
+  contactCardLink,
   fetchForwarding,
   forwardAddress,
   possibleDuplicate,
@@ -149,8 +150,19 @@ function BillsList({ data }: { data: GroupData }) {
               Forward from the email you sign in with ({user?.email ?? "your account's email"}). Emails from other
               addresses are turned away.
             </p>
+            {state.token && (
+              <>
+                <p className="save-contact-tip">
+                  📇 Save it as a contact. Then forwarding a bill from your phone is just: <strong>Forward</strong> → type{" "}
+                  <strong>"Baan"</strong> → <strong>Send</strong>.
+                </p>
+                <a className="button" href={contactCardLink(state.token, group.name, group.id)}>
+                  Save to contacts
+                </a>
+              </>
+            )}
             <div className="button-row">
-              <button type="button" className="button" onClick={emailSteps} disabled={sending || !address}>
+              <button type="button" className="button secondary" onClick={emailSteps} disabled={sending || !address}>
                 {sending ? "Sending…" : "Email me the setup steps"}
               </button>
               {iAmAdmin && (

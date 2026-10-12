@@ -1,6 +1,7 @@
 // The Cloudflare Worker for baantwise.com. On the web it only runs for /api/* (see
 // "run_worker_first" in wrangler.jsonc); every other address is the React app,
 // served straight from the built files. It also receives bill emails (./email.ts).
+import { contactCardResponse } from "./contactCard";
 import { receiveEmail, type EmailEnv, type IncomingEmail } from "./email";
 import { fxRates } from "./fxRates";
 
@@ -24,6 +25,9 @@ export default {
       const response = await fxRates(url, fetch, new Date());
       if (response.ok && cache) ctx.waitUntil(cache.put(key, response.clone()));
       return response;
+    }
+    if (url.pathname === "/api/contact-card" && request.method === "GET") {
+      return contactCardResponse(url);
     }
     if (url.pathname.startsWith("/api/")) {
       return new Response(JSON.stringify({ error: "Not found" }), {

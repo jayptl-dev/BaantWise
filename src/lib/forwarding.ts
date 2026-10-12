@@ -16,6 +16,13 @@ export function forwardAddress(token: string): string {
   return `bills+${token}@${BILL_DOMAIN}`;
 }
 
+// "Save to contacts": the Worker serves the group's bill address as a contact card
+// (src/worker/contactCard.ts). Phones show it with "Create new contact" to check and save.
+export function contactCardLink(token: string, groupName: string, groupId: string): string {
+  const params = new URLSearchParams({ token, group: groupName, id: groupId });
+  return `/api/contact-card?${params.toString()}`;
+}
+
 export type ForwardedBill = {
   id: string;
   biller: string | null;
