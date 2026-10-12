@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } fro
 import { GOOGLE_CLIENT_ID } from "../config";
 import { useAuth } from "../lib/auth";
 import { loadGoogleScript, makeNonce, type GoogleId } from "../lib/googleSignIn";
+import { SiteFooter } from "./SiteFooter";
 
 export const BETA_NOTE = "Baantwise is in private beta, so only invited testers can sign in right now.";
 
@@ -133,6 +134,7 @@ export function SignInPage({ line }: { line: string }) {
         <p className="auth-message">{BETA_NOTE}</p>
         <AuthMessage />
       </section>
+      <SiteFooter />
     </main>
   );
 }

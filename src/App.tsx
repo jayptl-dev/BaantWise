@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import InvitePage from "./pages/InvitePage";
 import MySpending from "./pages/MySpending";
 import NotFound from "./pages/NotFound";
+import Privacy from "./pages/Privacy";
 import Profile from "./pages/Profile";
 import Recurring from "./pages/Recurring";
 import RecurringEdit from "./pages/RecurringEdit";
@@ -134,6 +135,7 @@ export default function App() {
           </SignedInPage>
         }
       />
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="/join/:token" element={<InvitePage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
