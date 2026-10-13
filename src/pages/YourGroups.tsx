@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { NameForm } from "../components/NameForm";
 import { SampleGroupDialog } from "../components/SampleGroupDialog";
 import { ChartIcon } from "../components/ChartIcon";
+import { FriendsIcon } from "../components/FriendsIcon";
 import { SearchIcon } from "../components/SearchIcon";
 import { FeedbackLine, LoadError, Loading } from "../components/Status";
 import { friendlyError } from "../lib/errors";
@@ -21,6 +22,7 @@ async function fetchGroups(): Promise<ListState> {
   const { data, error } = await supabase
     .from("groups")
     .select("id, name, is_sample, group_members(removed_at)")
+    .eq("is_direct", false)
     .order("created_at", { ascending: false });
   if (error) return { status: "error", message: friendlyError(error) };
   return {
@@ -105,6 +107,9 @@ export default function YourGroups() {
       <div className="group-header">
         <h1 className="page-title">Your groups</h1>
         <div className="header-actions">
+          <Link to="/friends" className="icon-button" aria-label="Friends" title="Friends">
+            <FriendsIcon />
+          </Link>
           <Link to="/spending" className="icon-button" aria-label="My spending" title="My spending">
             <ChartIcon />
           </Link>
@@ -131,19 +136,6 @@ export default function YourGroups() {
         </div>
       )}
 
-      {state.status === "ready" && !state.groups.some((g) => g.sample) && (
-        <section className="sample-offer" aria-labelledby="sample-offer-heading">
-          <h2 id="sample-offer-heading">Just looking around?</h2>
-          <p className="muted">
-            Open a sample house with two months of shared bills and see how Baantwise works. Only you can see it.
-          </p>
-          <button type="button" className="button secondary" onClick={() => setSamplePicker(true)}>
-            Try a sample group
-          </button>
-        </section>
-      )}
-      {samplePicker && <SampleGroupDialog onClose={() => setSamplePicker(false)} />}
-
       {state.status === "ready" && state.groups.length > 0 && (
         <>
           <div className="section-actions">
@@ -165,6 +157,19 @@ export default function YourGroups() {
           </ul>
         </>
       )}
+
+      {state.status === "ready" && !state.groups.some((g) => g.sample) && (
+        <section className="sample-offer" aria-labelledby="sample-offer-heading">
+          <h2 id="sample-offer-heading">Just looking around?</h2>
+          <p className="muted">
+            Open a sample house with two months of shared bills and see how Baantwise works. Only you can see it.
+          </p>
+          <button type="button" className="button secondary" onClick={() => setSamplePicker(true)}>
+            Try a sample group
+          </button>
+        </section>
+      )}
+      {samplePicker && <SampleGroupDialog onClose={() => setSamplePicker(false)} />}
     </>
   );
 }

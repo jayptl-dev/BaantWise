@@ -2348,3 +2348,34 @@ dialog.tour {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
 }
+
+/* ---------- Friends ---------- */
+
+.friends-intro {
+  margin: -0.5rem 0 1.25rem;
+}
+
+.friends-subheading {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+/* The small "Add" / "Save" button next to a username box. */
+.description-row .friend-add {
+  flex: none;
+  width: auto;
+  margin-top: 0.375rem;
+}
+
+.description-row .prefixed-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-link-button {
+  margin-top: 0.5rem;
+}
+
+.shared-note {
+  margin: -0.5rem 0 0.75rem;
+}

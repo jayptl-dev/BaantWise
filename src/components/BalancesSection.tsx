@@ -52,30 +52,30 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
     const key = `${from}|${visibility}`;
     return (
       <span className="balance-actions">
-      {canRemind && (
+        {canRemind && (
+          <button
+            type="button"
+            className="button secondary balance-button"
+            disabled={reminding !== null}
+            onClick={() => remind(from, visibility)}
+          >
+            {reminding === key ? "Sending…" : "Remind"}
+            <span className="visually-hidden"> {nameOf(from)}</span>
+          </button>
+        )}
         <button
           type="button"
           className="button secondary balance-button"
-          disabled={reminding !== null}
-          onClick={() => remind(from, visibility)}
+          onClick={() => setSettling({ from, to, visibility })}
         >
-          {reminding === key ? "Sending…" : "Remind"}
-          <span className="visually-hidden"> {nameOf(from)}</span>
+          {label}
+          {label === "Record payment" && (
+            <span className="visually-hidden">
+              {" "}
+              from {nameOf(from)} to {nameOf(to)}
+            </span>
+          )}
         </button>
-      )}
-      <button
-        type="button"
-        className="button secondary balance-button"
-        onClick={() => setSettling({ from, to, visibility })}
-      >
-        {label}
-        {label === "Record payment" && (
-          <span className="visually-hidden">
-            {" "}
-            from {nameOf(from)} to {nameOf(to)}
-          </span>
-        )}
-      </button>
       </span>
     );
   }
@@ -102,9 +102,11 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
       <FeedbackLine feedback={feedback} />
       <FeedbackLine feedback={reminderNote} />
 
-      <h3 className="balance-heading">In the group</h3>
+      <h3 className="balance-heading">{data.group.is_direct ? "Between you two" : "In the group"}</h3>
       {balances.transfers.length === 0 ? (
-        <p className="muted">Everyone in the group is settled up.</p>
+        <p className="muted">
+          {data.group.is_direct ? "You two are settled up." : "Everyone in the group is settled up."}
+        </p>
       ) : (
         <ul className="balance-list">
           {balances.transfers.map((t) => (

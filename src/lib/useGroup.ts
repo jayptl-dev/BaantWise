@@ -21,7 +21,16 @@ export type Member = {
 export type GroupData = {
   // currency: "CAD" for now. default_split: pre-fills new expenses (see splitMethods.ts).
   // is_sample: a private sample group (see sampleGroup.ts): no invites, receipts or bill emails.
-  group: { id: string; name: string; invite_token: string; currency: string; default_split: Json | null; is_sample: boolean };
+  // is_direct: a friendship (see friends.ts); its name is then the other person's name.
+  group: {
+    id: string;
+    name: string;
+    invite_token: string;
+    currency: string;
+    default_split: Json | null;
+    is_sample: boolean;
+    is_direct: boolean;
+  };
   members: Member[]; // active members only, oldest first
   formerMembers: Member[]; // people who left or were removed: their names stay on old expenses
   expenses: Expense[]; // newest first; only loaded when asked for (see useGroup)
@@ -44,7 +53,7 @@ async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad)
   if (!isUuid(id)) return { status: "missing" };
 
   const [groupResult, membersResult, expensesResult, paymentsResult] = await Promise.all([
-    supabase.from("groups").select("id, name, invite_token, currency, default_split, is_sample").eq("id", id).maybeSingle(),
+    supabase.from("groups").select("id, name, invite_token, currency, default_split, is_sample, is_direct").eq("id", id).maybeSingle(),
     supabase
       .from("group_members")
       .select("id, user_id, display_name, is_admin, removed_at")
@@ -88,7 +97,12 @@ async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad)
   return {
     status: "ready",
     data: {
-      group: groupResult.data,
+      group: groupResult.data.is_direct
+        ? {
+            ...groupResult.data,
+            name: membersResult.data.find((m) => m.user_id !== userId)?.display_name ?? "Friend",
+          }
+        : groupResult.data,
       members: active.map(toMember),
       formerMembers: membersResult.data.filter((m) => m.removed_at !== null).map(toMember),
       expenses: expensesResult.expenses,

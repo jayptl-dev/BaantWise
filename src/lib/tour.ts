@@ -40,8 +40,8 @@ export const TOUR_STEPS: TourStep[] = [
   },
   {
     emoji: "🙋",
-    title: "Your profile",
-    text: "Add your Interac e-Transfer or PayPal.Me so friends can pay you back in one tap, and pick a look you like. You can see this tour again there anytime.",
+    title: "Friends and your profile",
+    text: "Split with one person on the Friends page (the two-people button). In your profile, add Interac or PayPal.Me so friends can pay you back, and pick a username so they can find you.",
   },
   {
     emoji: "📲",

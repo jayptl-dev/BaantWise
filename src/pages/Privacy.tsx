@@ -152,6 +152,10 @@ export default function Privacy() {
             <li>Forwarded bills you've added or dismissed are erased after 90 days.</li>
             <li>Reminder and email-forwarding records are erased after 30 and 8 days.</li>
             <li>
+              A username, if you choose one, is kept until you remove it in your Profile. Anyone who knows it can add you
+              as a friend.
+            </li>
+            <li>
               A locked backup of the database is made every night and kept for 30 days, so it can be restored if something
               goes wrong. Something you delete, including your account, can stay in these backups until they expire.
             </li>
