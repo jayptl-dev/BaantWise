@@ -61,6 +61,10 @@ Put the full explanation in the commit message and the pull request description,
 - `src/lib/palette.ts` lists the looks; Profile → Look (`LookSection`) saves the choice in this browser only (`localStorage` key `baantwise-palette`). The small script in `index.html` applies it before the page paints, so a new look must be added there too.
 - Planned: seasonal looks, and a "Seasonal" choice that switches by itself.
 
+## Welcome tour
+
+- New people see a short pop-up tour once, on their first signed-in page (not on `/join/…`; it waits until they've joined). The cards are `TOUR_STEPS` in `src/lib/tour.ts`; keep them true to what the app does when features change. Seen-state is in this browser only (`localStorage` key `baantwise-tour-seen`). Profile → "Show the welcome tour again" reopens it (window event `baantwise:show-tour`, handled in `AppLayout`).
+
 ## Backups
 
 - Supabase's free plan has no downloadable backups. `.github/workflows/backup.yml` dumps the database nightly with the Supabase CLI (roles, schema, data, migration history), encrypts it with gpg using the `BACKUP_PASSPHRASE` secret and keeps it as a 30-day GitHub Actions artifact. Secrets: `SUPABASE_DB_URL` (Session pooler string), `BACKUP_PASSPHRASE`. Receipt photos aren't included. Setup and restore steps: `docs/BACKUPS.md`. The privacy policy mentions the backups; keep it true.
