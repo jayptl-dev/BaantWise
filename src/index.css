@@ -1397,9 +1397,21 @@ dialog.photo-overlay::backdrop {
   border-radius: var(--radius-panel) var(--radius-panel) 0.25rem 0.25rem;
   color: var(--slip-text);
   background: var(--slip-bg);
-  box-shadow: var(--shadow);
-  -webkit-mask: radial-gradient(circle 0.4rem at 50% 100%, #0000 98%, #000) 50% 100% / 1.05rem 100% repeat-x;
-  mask: radial-gradient(circle 0.4rem at 50% 100%, #0000 98%, #000) 50% 100% / 1.05rem 100% repeat-x;
+}
+
+/* The torn edge: little half-circles in the page colour along the bottom. Drawn on
+   top rather than cut out with a CSS mask, which iPhone Safari sometimes paints
+   solid black. */
+.overall::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: calc(0.4rem + 1px);
+  background: radial-gradient(circle 0.4rem at 50% 100%, var(--bg) 97%, transparent 100%) 50% 100% / 1.05rem 100%
+    repeat-x;
+  pointer-events: none;
 }
 
 .overall-label {

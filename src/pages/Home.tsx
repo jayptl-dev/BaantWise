@@ -1,8 +1,8 @@
-import { useLocation } from "react-router";
 import { AppLayout } from "../components/AppLayout";
 import { AuthMessage, SignInButton } from "../components/SignIn";
 import { FullPageLoading } from "../components/Status";
 import { useAuth } from "../lib/auth";
+import { useOneTimeNote } from "../lib/useOneTimeNote";
 import YourGroups from "./YourGroups";
 import { SiteFooter } from "../components/SiteFooter";
 
@@ -20,7 +20,7 @@ export default function Home() {
 
 function Landing() {
   // Just deleted your account in Profile.
-  const deleted = (useLocation().state as { accountDeleted?: boolean } | null)?.accountDeleted === true;
+  const deleted = useOneTimeNote((state) => (state as { accountDeleted?: boolean } | null)?.accountDeleted) === true;
   return (
     <main className="landing">
       {deleted && (
