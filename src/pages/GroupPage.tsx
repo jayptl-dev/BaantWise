@@ -109,10 +109,7 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
   async function rename(member: Member, name: string) {
     const renamed = await run(() =>
       mustChange(
-        supabase
-          .from("group_members")
-          .update({ display_name: name }, { count: "exact" })
-          .eq("id", member.id),
+        supabase.from("group_members").update({ display_name: name }, { count: "exact" }).eq("id", member.id),
         "You can't rename this person.",
       ),
     );
@@ -124,9 +121,7 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
     const makeAdmin = !member.is_admin;
     await run(
       () => supabase.rpc("set_member_admin", { p_member_id: member.id, p_make_admin: makeAdmin }),
-      makeAdmin
-        ? `${member.display_name} is now an admin.`
-        : `${member.display_name} is no longer an admin.`,
+      makeAdmin ? `${member.display_name} is now an admin.` : `${member.display_name} is no longer an admin.`,
     );
   }
 
@@ -175,6 +170,13 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
         </div>
       </div>
 
+      {group.is_sample && (
+        <p className="sample-note" role="note">
+          <strong>This is a sample group.</strong> Nothing here is real, so try anything: add expenses, record payments,
+          change splits. Receipt scanning, bills by email and invites are off here. Delete it anytime in group settings.
+        </p>
+      )}
+
       <BalancesSection data={data} me={me} feedback={balanceFeedback} onSaved={paymentChanged} />
 
       <section className="section" aria-labelledby="expenses-heading">
@@ -183,14 +185,20 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
           <Link to={`/groups/${group.id}/expenses/new`} className="button">
             Add expense
           </Link>
-          <div className="button-pair">
+          {group.is_sample ? (
             <Link to={`/groups/${group.id}/recurring`} className="button secondary">
               🔁 Recurring
             </Link>
-            <Link to={`/groups/${group.id}/bills`} className="button secondary">
-              📧 Bills by email
-            </Link>
-          </div>
+          ) : (
+            <div className="button-pair">
+              <Link to={`/groups/${group.id}/recurring`} className="button secondary">
+                🔁 Recurring
+              </Link>
+              <Link to={`/groups/${group.id}/bills`} className="button secondary">
+                📧 Bills by email
+              </Link>
+            </div>
+          )}
         </div>
         <BillsNotice groupId={group.id} />
         <ForwardedBillsNotice groupId={group.id} />
@@ -250,14 +258,16 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
         <FeedbackLine feedback={feedback} />
 
         <div className="section-actions">
-          <div className="button-pair">
-            <button type="button" className="button" onClick={shareLink}>
-              Share invite link
-            </button>
-            <button type="button" className="button secondary" onClick={copyLink} aria-live="polite">
-              {copied ? "Link copied" : "Copy link"}
-            </button>
-          </div>
+          {!group.is_sample && (
+            <div className="button-pair">
+              <button type="button" className="button" onClick={shareLink}>
+                Share invite link
+              </button>
+              <button type="button" className="button secondary" onClick={copyLink} aria-live="polite">
+                {copied ? "Link copied" : "Copy link"}
+              </button>
+            </div>
+          )}
 
           {addingGuest ? (
             <NameForm

@@ -16,7 +16,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     emoji: "🏠",
     title: "Groups",
-    text: "Make a group for your home, a trip or a night out. Share the invite link so others can join. For someone who won't sign up, add them as a guest.",
+    text: "Make a group for your home, a trip or a night out, and share the invite link so others can join. Just looking? Tap Try a sample group to play with a pretend house first.",
   },
   {
     emoji: "➕",
@@ -42,6 +42,11 @@ export const TOUR_STEPS: TourStep[] = [
     emoji: "🙋",
     title: "Your profile",
     text: "Add your Interac e-Transfer or PayPal.Me so friends can pay you back in one tap, and pick a look you like. You can see this tour again there anytime.",
+  },
+  {
+    emoji: "📲",
+    title: "Put it on your home screen",
+    text: "Open Baantwise like an app. iPhone: in Safari, tap Share, then Add to Home Screen. Android: in Chrome, tap ⋮ (top right), then Install app or Add to Home screen.",
   },
 ];
 

@@ -118,24 +118,29 @@ function SettingsDetails({ data, reload }: { data: GroupData; reload: () => void
 
           <DefaultSplitSection key={JSON.stringify(group.default_split)} data={data} busy={busy} run={run} />
 
-          <section className="section" aria-labelledby="invite-heading">
-            <h2 id="invite-heading">Invite link</h2>
-            <p className="muted">
-              Make a new link if the old one was shared with the wrong people. The old link stops working.
-            </p>
-            <button type="button" className="button secondary" onClick={resetLink} disabled={busy}>
-              Reset invite link
-            </button>
-          </section>
+          {!group.is_sample && (
+            <section className="section" aria-labelledby="invite-heading">
+              <h2 id="invite-heading">Invite link</h2>
+              <p className="muted">
+                Make a new link if the old one was shared with the wrong people. The old link stops working.
+              </p>
+              <button type="button" className="button secondary" onClick={resetLink} disabled={busy}>
+                Reset invite link
+              </button>
+            </section>
+          )}
         </>
       )}
 
       <section className="section" aria-labelledby="leave-heading">
         <h2 id="leave-heading">{iAmAdmin ? "Leave or delete" : "Leave"}</h2>
         <div className="button-row">
-          <button type="button" className="button secondary danger" onClick={leaveGroup} disabled={busy}>
-            Leave group
-          </button>
+          {/* A sample has nobody else in it, so it's deleted rather than left. */}
+          {!group.is_sample && (
+            <button type="button" className="button secondary danger" onClick={leaveGroup} disabled={busy}>
+              Leave group
+            </button>
+          )}
           {iAmAdmin && (
             <button type="button" className="button danger" onClick={deleteGroup} disabled={busy}>
               Delete group

@@ -673,7 +673,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   return (
     <>
       <form className="expense-form" onSubmit={handleSubmit} noValidate>
-        {!expense && !recurring && <ScanReceipt disabled={working} onScanned={applyScan} />}
+        {!expense && !recurring && !data.group.is_sample && <ScanReceipt disabled={working} onScanned={applyScan} />}
         {scanNotes.length > 0 && (
           <div className="scan-notes" role="status">
             {scanNotes.map((note) => (
@@ -987,7 +987,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
           <FieldError id={errorId("split")} text={errors.split} />
         </fieldset>
 
-        {!recurring && (
+        {!recurring && !data.group.is_sample && (
         <fieldset className="receipt-field">
           <legend>Receipt photo</legend>
           {newPhoto ? <ReceiptThumbnail src={newPhoto.url} /> : savedPhoto && <SavedReceipt path={savedPhoto} />}
