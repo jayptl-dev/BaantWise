@@ -63,7 +63,7 @@ Put the full explanation in the commit message and the pull request description,
 
 ## Welcome tour
 
-- New people see a short pop-up tour once, on their first signed-in page (not on `/join/…`; it waits until they've joined). The cards are `TOUR_STEPS` in `src/lib/tour.ts`; keep them true to what the app does when features change. Seen-state is in this browser only (`localStorage` key `baantwise-tour-seen`). Profile → "Show the welcome tour again" reopens it (window event `baantwise:show-tour`, handled in `AppLayout`).
+- New people see a short pop-up tour once, on their first signed-in page (not on `/join/…`; it waits until they've joined). The cards are `TOUR_STEPS` in `src/lib/tour.ts`; keep them true to what the app does when features change. Seen-state is per account, in this browser only (`localStorage` key `baantwise-tour-seen:<user id>`). Profile → "Show the welcome tour again" reopens it (window event `baantwise:show-tour`, handled in `AppLayout`).
 
 ## Sample groups
 

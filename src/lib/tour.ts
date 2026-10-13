@@ -1,5 +1,5 @@
 // The welcome tour: a few pop-up cards that explain what Baantwise does, shown once
-// to someone new (remembered in this browser only), and again from Profile.
+// to each new account on each browser, and again from Profile.
 
 export const TOUR_KEY = "baantwise-tour-seen";
 // Fired by Profile → "Show the welcome tour again"; AppLayout listens for it.
@@ -50,20 +50,33 @@ export const TOUR_STEPS: TourStep[] = [
   },
 ];
 
-type Store = Pick<Storage, "getItem" | "setItem">;
+type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
-export function hasSeenTour(store: Store | undefined = safeStorage()): boolean {
+// Remembered per account, so a new account (or someone else) on the same phone
+// still gets the tour.
+const keyFor = (userId: string) => `${TOUR_KEY}:${userId}`;
+
+export function hasSeenTour(userId: string, store: Store | undefined = safeStorage()): boolean {
   try {
     // If storage can't be read, don't keep showing the tour on every page.
-    return store ? store.getItem(TOUR_KEY) === "1" : true;
+    if (!store) return true;
+    if (store.getItem(keyFor(userId)) === "1") return true;
+    // Before October 13, 2026 it was one note for the whole browser: it counts for
+    // whoever signs in first, then it's gone.
+    if (store.getItem(TOUR_KEY) === "1") {
+      store.setItem(keyFor(userId), "1");
+      store.removeItem(TOUR_KEY);
+      return true;
+    }
+    return false;
   } catch {
     return true;
   }
 }
 
-export function markTourSeen(store: Store | undefined = safeStorage()) {
+export function markTourSeen(userId: string, store: Store | undefined = safeStorage()) {
   try {
-    store?.setItem(TOUR_KEY, "1");
+    store?.setItem(keyFor(userId), "1");
   } catch {
     // Private window: it just shows once per visit.
   }
