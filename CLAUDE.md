@@ -69,6 +69,10 @@ Put the full explanation in the commit message and the pull request description,
 
 - "Try a sample group" (Your groups) → `SampleGroupDialog` → `create_sample_group(p_persona)`: a private "Maple Street (sample)" group (`groups.is_sample`) with the person as Priya, Sam, Alex or Jordan and the others as guests, plus two months of expenses and payments. One per person (asking again opens it). The database blocks invites (`get_invite`, `join_group`), receipt photos (`can_add_receipt`) and forwarded bills (`inbound_match`) for samples; the app also hides receipt scanning, the receipt photo, Bills by email, the invite buttons, and Leave group (delete it instead). `SAMPLE_PEOPLE` in `src/lib/sampleGroup.ts` must match the SQL (a test checks).
 
+## Friends
+
+- `/friends` (two-people button on Your groups): split with one person outside any group. A friendship is a private two-person group (`groups.is_direct`, both admins, no guests, a trigger refuses a third person), so the group page, expenses, payments, balances and settle up all work unchanged. `useGroup` names it after the other person; Your groups leaves friendships out. Add a friend with `add_friend_from_member` (someone in a shared group), `add_friend_by_username` (optional `profiles.username`, set in Profile) or `my_friend_link` (a one-person direct group whose invite token is the link; opening it through `/join/` makes the friendship; one unused link at a time). A friend's page shows "Groups you're both in" instead of People; its settings page only has the default split and Remove friend (`leave_group`; the friendship is deleted when no one with an account is left). See `src/lib/friends.ts` and `supabase/migrations/20261013010000_friends.sql`.
+
 ## Install on the phone
 
 - `public/manifest.webmanifest` + icons (`public/icon.svg` is the source; the PNGs are rendered from it) make Baantwise installable: Android Chrome ⋮ → Install app, iPhone Safari Share → Add to Home Screen. No service worker on purpose (Chrome's menu install doesn't need one, and it avoids stale caches). The last welcome-tour card explains it.

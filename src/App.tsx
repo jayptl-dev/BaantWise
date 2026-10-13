@@ -4,6 +4,7 @@ import AddExpense from "./pages/AddExpense";
 import EditExpense from "./pages/EditExpense";
 import ExpenseDetails from "./pages/ExpenseDetails";
 import ForwardedBills from "./pages/ForwardedBills";
+import Friends from "./pages/Friends";
 import GroupPage from "./pages/GroupPage";
 import GroupSettings from "./pages/GroupSettings";
 import GroupSpending from "./pages/GroupSpending";
@@ -28,6 +29,14 @@ export default function App() {
         element={
           <SignedInPage>
             <GroupPage />
+          </SignedInPage>
+        }
+      />
+      <Route
+        path="/friends"
+        element={
+          <SignedInPage line="Sign in to see your friends.">
+            <Friends />
           </SignedInPage>
         }
       />

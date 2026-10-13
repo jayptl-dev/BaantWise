@@ -247,6 +247,7 @@ export type Database = {
           forward_token: string
           id: string
           invite_token: string
+          is_direct: boolean
           is_sample: boolean
           name: string
         }
@@ -258,6 +259,7 @@ export type Database = {
           forward_token: string
           id?: string
           invite_token?: string
+          is_direct?: boolean
           is_sample?: boolean
           name: string
         }
@@ -269,6 +271,7 @@ export type Database = {
           forward_token?: string
           id?: string
           invite_token?: string
+          is_direct?: boolean
           is_sample?: boolean
           name?: string
         }
@@ -282,6 +285,7 @@ export type Database = {
           id: string
           interac_contact: string | null
           paypal_me: string | null
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -290,6 +294,7 @@ export type Database = {
           id: string
           interac_contact?: string | null
           paypal_me?: string | null
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -298,6 +303,7 @@ export type Database = {
           id?: string
           interac_contact?: string | null
           paypal_me?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -517,6 +523,8 @@ export type Database = {
           scans_used: number
         }[]
       }
+      add_friend_by_username: { Args: { p_username: string }; Returns: string }
+      add_friend_from_member: { Args: { p_member_id: string }; Returns: string }
       complete_recurring_bill: {
         Args: { p_bill_id: string; p_expense_id: string }
         Returns: undefined
@@ -534,6 +542,7 @@ export type Database = {
           already_member: boolean
           group_id: string
           group_name: string
+          is_direct: boolean
           member_count: number
         }[]
       }
@@ -563,6 +572,7 @@ export type Database = {
       }
       join_group: { Args: { p_token: string }; Returns: string }
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
+      my_friend_link: { Args: never; Returns: string }
       prepare_account_deletion: { Args: never; Returns: undefined }
       remove_member: { Args: { p_member_id: string }; Returns: undefined }
       reset_forward_address: { Args: { p_group_id: string }; Returns: string }

@@ -16,6 +16,7 @@ type Invite = Database["public"]["Functions"]["get_invite"]["Returns"][number];
 type InviteState =
   | { status: "loading" }
   | { status: "invalid" }
+  | { status: "own-link" } // your own friend link, opened by you
   | { status: "error"; message: string }
   | { status: "ready"; invite: Invite };
 
@@ -27,7 +28,7 @@ export default function InvitePage() {
   if (checking) return <FullPageLoading />;
   if (!user) {
     // After signing in, this same page shows the invite and "Join group".
-    return <SignInPage line="You've been invited to a group on Baantwise. Sign in to join." />;
+    return <SignInPage line="You've been invited on Baantwise. Sign in to continue." />;
   }
   return (
     <AppLayout>
@@ -63,6 +64,8 @@ function InviteDetails({ token }: { token: string }) {
       const invite = data?.[0];
       if (!invite) {
         setState({ status: "invalid" });
+      } else if (invite.is_direct && invite.already_member && invite.member_count === 1) {
+        setState({ status: "own-link" });
       } else if (invite.already_member) {
         navigate(`/groups/${invite.group_id}`, { replace: true });
       } else {
@@ -104,6 +107,16 @@ function InviteDetails({ token }: { token: string }) {
       />
     );
   }
+  if (state.status === "own-link") {
+    return (
+      <div className="state">
+        <p>This is your own friend link. Send it to a friend: whoever opens it becomes your friend.</p>
+        <Link to="/friends" className="button secondary">
+          Go to Friends
+        </Link>
+      </div>
+    );
+  }
   if (state.status === "invalid") {
     return (
       <div className="state">
@@ -118,12 +131,24 @@ function InviteDetails({ token }: { token: string }) {
   const { invite } = state;
   return (
     <>
-      <h1 className="page-title">
-        You're invited to {invite.group_name} <span className="muted">· {peopleCount(invite.member_count)}</span>
-      </h1>
-      <button type="button" className="button" onClick={join} disabled={busy}>
-        {busy ? "Joining…" : "Join group"}
-      </button>
+      {invite.is_direct ? (
+        <>
+          <h1 className="page-title">{invite.group_name} wants to add you as a friend</h1>
+          <p className="muted">Then you can split costs with each other, outside any group.</p>
+          <button type="button" className="button" onClick={join} disabled={busy}>
+            {busy ? "Adding…" : `Add ${invite.group_name} as a friend`}
+          </button>
+        </>
+      ) : (
+        <>
+          <h1 className="page-title">
+            You're invited to {invite.group_name} <span className="muted">· {peopleCount(invite.member_count)}</span>
+          </h1>
+          <button type="button" className="button" onClick={join} disabled={busy}>
+            {busy ? "Joining…" : "Join group"}
+          </button>
+        </>
+      )}
       <FeedbackLine feedback={feedback} />
     </>
   );

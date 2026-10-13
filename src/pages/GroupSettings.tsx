@@ -91,6 +91,38 @@ function SettingsDetails({ data, reload }: { data: GroupData; reload: () => void
     if (deleted) navigate("/", { replace: true, state: { notice: `"${group.name}" was deleted.` } });
   }
 
+  async function removeFriend() {
+    const sure = await ask(
+      `Remove ${group.name} from your friends? You'll stop seeing what's between you. ${group.name} still keeps their copy, and you can add each other again later.`,
+      "Remove friend",
+    );
+    if (!sure) return;
+    const left = await run(() => supabase.rpc("leave_group", { p_group_id: group.id }), undefined, false);
+    if (left) navigate("/friends", { replace: true });
+  }
+
+  // A friendship has no name, invite link or other people to manage: just removing.
+  if (group.is_direct) {
+    return (
+      <>
+        <Link to={`/groups/${group.id}`} className="back-link">
+          ← Back to {group.name}
+        </Link>
+        <h1 className="page-title">Friend settings</h1>
+        <FeedbackLine feedback={feedback} />
+        <DefaultSplitSection key={JSON.stringify(group.default_split)} data={data} busy={busy} run={run} />
+        <section className="section" aria-labelledby="remove-heading">
+          <h2 id="remove-heading">Remove friend</h2>
+          <p className="muted">Settle up first if you can. Shared expenses stay on their side.</p>
+          <button type="button" className="button secondary danger" onClick={removeFriend} disabled={busy}>
+            Remove {group.name}
+          </button>
+        </section>
+        {dialog}
+      </>
+    );
+  }
+
   return (
     <>
       <Link to={`/groups/${group.id}`} className="back-link">

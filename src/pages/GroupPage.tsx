@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Avatar } from "../components/Avatar";
 import { BalancesSection } from "../components/BalancesSection";
@@ -17,6 +17,7 @@ import { ShareDialog } from "../components/ShareDialog";
 import { FeedbackLine, GroupGone, GroupMissing, LoadError, Loading } from "../components/Status";
 import { useConfirm } from "../components/useConfirm";
 import { useAuth } from "../lib/auth";
+import { sharedGroups } from "../lib/friends";
 import { involvedIds, myPart, peopleById, peopleInvolved, type Expense } from "../lib/expenses";
 import { formatDay, PERSON_NAME_MAX } from "../lib/format";
 import { formatCents } from "../lib/money";
@@ -141,9 +142,15 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
   return (
     <>
       {/* The installed app has no browser back button, so every page has its own way back. */}
-      <Link to="/" className="back-link">
-        ← Your groups
-      </Link>
+      {group.is_direct ? (
+        <Link to="/friends" className="back-link">
+          ← Friends
+        </Link>
+      ) : (
+        <Link to="/" className="back-link">
+          ← Your groups
+        </Link>
+      )}
       <div className="group-header">
         <h1 className="page-title">{group.name}</h1>
         <div className="header-actions">
@@ -227,78 +234,84 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
         )}
       </section>
 
-      <section className="section" aria-labelledby="people-heading">
-        <h2 id="people-heading">People</h2>
-        <ul className="member-list">
-          {members.map((member) => {
-            const isMe = member.user_id === user?.id;
-            return (
-              <MemberRow
-                key={member.id}
-                member={member}
-                isMe={isMe}
-                canRename={isMe || member.user_id === null || iAmAdmin}
-                canManage={iAmAdmin && !isMe}
-                editing={editingId === member.id}
-                menuOpen={menuFor === member.id}
-                busy={busy}
-                onStartRename={() => {
-                  setEditingId(member.id);
-                  setMenuFor(null);
-                  setFeedback(null);
-                }}
-                onCancelRename={() => setEditingId(null)}
-                onRename={(name) => rename(member, name)}
-                onToggleMenu={() => {
-                  setMenuFor(menuFor === member.id ? null : member.id);
-                  setFeedback(null);
-                }}
-                onToggleAdmin={() => toggleAdmin(member)}
-                onRemove={() => removeMember(member)}
-              />
-            );
-          })}
-        </ul>
-        <FeedbackLine feedback={feedback} />
+      {group.is_direct ? (
+        <SharedGroups otherUserId={members.find((m) => m.user_id !== user?.id)?.user_id ?? null} />
+      ) : (
+        <>
+          <section className="section" aria-labelledby="people-heading">
+            <h2 id="people-heading">People</h2>
+            <ul className="member-list">
+              {members.map((member) => {
+                const isMe = member.user_id === user?.id;
+                return (
+                  <MemberRow
+                    key={member.id}
+                    member={member}
+                    isMe={isMe}
+                    canRename={isMe || member.user_id === null || iAmAdmin}
+                    canManage={iAmAdmin && !isMe}
+                    editing={editingId === member.id}
+                    menuOpen={menuFor === member.id}
+                    busy={busy}
+                    onStartRename={() => {
+                      setEditingId(member.id);
+                      setMenuFor(null);
+                      setFeedback(null);
+                    }}
+                    onCancelRename={() => setEditingId(null)}
+                    onRename={(name) => rename(member, name)}
+                    onToggleMenu={() => {
+                      setMenuFor(menuFor === member.id ? null : member.id);
+                      setFeedback(null);
+                    }}
+                    onToggleAdmin={() => toggleAdmin(member)}
+                    onRemove={() => removeMember(member)}
+                  />
+                );
+              })}
+            </ul>
+            <FeedbackLine feedback={feedback} />
 
-        <div className="section-actions">
-          {!group.is_sample && (
-            <div className="button-pair">
-              <button type="button" className="button" onClick={shareLink}>
-                Share invite link
-              </button>
-              <button type="button" className="button secondary" onClick={copyLink} aria-live="polite">
-                {copied ? "Link copied" : "Copy link"}
-              </button>
+            <div className="section-actions">
+              {!group.is_sample && (
+                <div className="button-pair">
+                  <button type="button" className="button" onClick={shareLink}>
+                    Share invite link
+                  </button>
+                  <button type="button" className="button secondary" onClick={copyLink} aria-live="polite">
+                    {copied ? "Link copied" : "Copy link"}
+                  </button>
+                </div>
+              )}
+
+              {addingGuest ? (
+                <NameForm
+                  label="Guest's name"
+                  hint="A guest is just a name, for someone who won't sign in."
+                  max={PERSON_NAME_MAX}
+                  submitLabel="Add guest"
+                  emptyMessage="Type the guest's name."
+                  busy={busy}
+                  autoFocus
+                  onSubmit={addGuest}
+                  onCancel={() => setAddingGuest(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => {
+                    setAddingGuest(true);
+                    setFeedback(null);
+                  }}
+                >
+                  Add a guest
+                </button>
+              )}
             </div>
-          )}
-
-          {addingGuest ? (
-            <NameForm
-              label="Guest's name"
-              hint="A guest is just a name, for someone who won't sign in."
-              max={PERSON_NAME_MAX}
-              submitLabel="Add guest"
-              emptyMessage="Type the guest's name."
-              busy={busy}
-              autoFocus
-              onSubmit={addGuest}
-              onCancel={() => setAddingGuest(false)}
-            />
-          ) : (
-            <button
-              type="button"
-              className="button secondary"
-              onClick={() => {
-                setAddingGuest(true);
-                setFeedback(null);
-              }}
-            >
-              Add a guest
-            </button>
-          )}
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
       {dialog}
       {sharePopupOpen && (
@@ -495,5 +508,35 @@ function SettingsIcon() {
       <circle cx="12" cy="12" r="7" />
       <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1l2.1-2.1M17 7l2.1-2.1" />
     </svg>
+  );
+}
+
+// On a friend's page: the groups you're both in, so their group balances are a tap away.
+function SharedGroups({ otherUserId }: { otherUserId: string | null }) {
+  const [groups, setGroups] = useState<{ id: string; name: string }[]>([]);
+  useEffect(() => {
+    if (!otherUserId) return;
+    let active = true;
+    sharedGroups(otherUserId).then((list) => active && setGroups(list));
+    return () => {
+      active = false;
+    };
+  }, [otherUserId]);
+  if (groups.length === 0) return null;
+  return (
+    <section className="section" aria-labelledby="shared-groups-heading">
+      <h2 id="shared-groups-heading">Groups you're both in</h2>
+      <p className="muted shared-note">Money in these groups is settled inside each group.</p>
+      <ul className="group-list">
+        {groups.map((g) => (
+          <li key={g.id}>
+            <Link to={`/groups/${g.id}`} className="group-link">
+              <span className="group-name">{g.name}</span>
+              <span className="muted">Open</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
