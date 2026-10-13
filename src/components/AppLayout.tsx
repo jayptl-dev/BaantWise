@@ -1,18 +1,37 @@
-import { useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
 import { displayNameOf, photoOf, useAuth } from "../lib/auth";
+import { hasSeenTour, markTourSeen, SHOW_TOUR_EVENT } from "../lib/tour";
+import { WelcomeTour } from "./WelcomeTour";
 import { Avatar } from "./Avatar";
 import { SiteFooter } from "./SiteFooter";
 import { FullPageLoading } from "./Status";
 import { SignInPage } from "./SignIn";
 
 // The frame around every signed-in screen: a small header, then the page.
+// Someone new sees the welcome tour once, on their first signed-in page.
 export function AppLayout({ children }: { children: ReactNode }) {
+  const [tourWanted, setTourWanted] = useState(() => !hasSeenTour());
+  // Joining a group comes first; the tour waits for the next page.
+  const joining = useLocation().pathname.startsWith("/join/");
+
+  useEffect(() => {
+    const show = () => setTourWanted(true);
+    window.addEventListener(SHOW_TOUR_EVENT, show);
+    return () => window.removeEventListener(SHOW_TOUR_EVENT, show);
+  }, []);
+
+  function closeTour() {
+    markTourSeen();
+    setTourWanted(false);
+  }
+
   return (
     <div className="app">
       <AppHeader />
       <main>{children}</main>
       <SiteFooter />
+      {tourWanted && !joining && <WelcomeTour onClose={closeTour} />}
     </div>
   );
 }

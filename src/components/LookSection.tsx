@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { applyPalette, PALETTES, readPalette, savePalette, type PaletteKey } from "../lib/palette";
+import { SHOW_TOUR_EVENT } from "../lib/tour";
 
 // Profile → "Look": pick the app's colours. Changes straight away; saved on this device.
 export function LookSection() {
@@ -37,6 +38,13 @@ export function LookSection() {
           </label>
         ))}
       </div>
+      <button
+        type="button"
+        className="button secondary tour-again"
+        onClick={() => window.dispatchEvent(new Event(SHOW_TOUR_EVENT))}
+      >
+        Show the welcome tour again
+      </button>
     </section>
   );
 }

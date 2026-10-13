@@ -2182,3 +2182,89 @@ p.scan-box {
   color: var(--muted);
   font-size: 0.9375rem;
 }
+
+/* ---------- Welcome tour ---------- */
+
+dialog.tour {
+  border: 0;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.25);
+}
+
+.tour .dialog-body {
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.tour-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.75rem;
+}
+
+.tour-count {
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.tour-top .text-button {
+  margin-right: -0.5rem;
+  color: var(--muted);
+}
+
+/* The big emoji sits on a small soft disc, like the category tiles. */
+.tour-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin: 0.25rem 0 1rem;
+  border-radius: 1.25rem;
+  font-size: 2.25rem;
+  line-height: 1;
+  background: var(--soft);
+}
+
+.tour .dialog-body h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.tour-text {
+  margin: 0;
+  min-height: 9.3em; /* six lines: keeps the buttons from jumping between cards */
+  line-height: 1.55;
+}
+
+.tour-dots {
+  display: flex;
+  gap: 0.375rem;
+  margin: 1rem 0 0.25rem;
+}
+
+.tour-dots span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--border);
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.tour-dots span.on {
+  width: 1.5rem;
+  background: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-dots span {
+    transition: none;
+  }
+}
+
+.tour-again {
+  margin-top: 1rem;
+}
