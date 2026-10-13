@@ -2268,3 +2268,83 @@ dialog.tour {
 .tour-again {
   margin-top: 1rem;
 }
+
+/* ---------- Sample groups ---------- */
+
+.sample-offer {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-panel);
+}
+
+.sample-offer h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+}
+
+.sample-offer p {
+  margin: 0 0 1rem;
+}
+
+.sample-badge {
+  margin-left: 0.5rem;
+  vertical-align: 0.1em;
+}
+
+/* At the top of a sample group: says it's pretend and what's switched off. */
+.sample-note {
+  margin: 0 0 1.25rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-panel);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  background: var(--soft);
+}
+
+.sample-intro {
+  margin: -0.5rem 0 1rem;
+}
+
+.sample-people {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.sample-people li + li {
+  border-top: 1px solid var(--line);
+}
+
+.sample-person {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+.sample-person:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--soft) 45%, transparent);
+}
+
+.sample-person:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.sample-person:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}

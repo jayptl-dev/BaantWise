@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Baantwise app icon: a rust tile with a birch receipt slip, its bottom edge torn
+       like the balance slip in the app, split down the middle (baant = to share out). -->
+  <rect width="512" height="512" fill="#a3401a"/>
+  <mask id="tear"><rect width="512" height="512" fill="#fff"/><g fill="#000"><circle cx="147.5" cy="404" r="13.0"/><circle cx="178.5" cy="404" r="13.0"/><circle cx="209.5" cy="404" r="13.0"/><circle cx="240.5" cy="404" r="13.0"/><circle cx="271.5" cy="404" r="13.0"/><circle cx="302.5" cy="404" r="13.0"/><circle cx="333.5" cy="404" r="13.0"/><circle cx="364.5" cy="404" r="13.0"/></g></mask>
+  <path mask="url(#tear)" d="M132 128 q0 -28 28 -28 h192 q28 0 28 28 v276 h-248 z" fill="#f4eee6"/>
+  <rect x="249.0" y="100" width="14" height="324" fill="#a3401a"/>
+  <g fill="#2f6247"><rect x="166" y="162" width="70" height="18" rx="9"/><rect x="284.0" y="162" width="70" height="18" rx="9"/><rect x="166" y="220" width="50" height="18" rx="9"/><rect x="284.0" y="220" width="56" height="18" rx="9"/><rect x="166" y="278" width="70" height="18" rx="9"/><rect x="284.0" y="278" width="62" height="18" rx="9"/><rect x="166" y="336" width="40" height="18" rx="9"/><rect x="284.0" y="336" width="50" height="18" rx="9"/></g>
+</svg>

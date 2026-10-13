@@ -247,6 +247,7 @@ export type Database = {
           forward_token: string
           id: string
           invite_token: string
+          is_sample: boolean
           name: string
         }
         Insert: {
@@ -257,6 +258,7 @@ export type Database = {
           forward_token: string
           id?: string
           invite_token?: string
+          is_sample?: boolean
           name: string
         }
         Update: {
@@ -267,6 +269,7 @@ export type Database = {
           forward_token?: string
           id?: string
           invite_token?: string
+          is_sample?: boolean
           name?: string
         }
         Relationships: []
@@ -519,6 +522,7 @@ export type Database = {
         Returns: undefined
       }
       create_group: { Args: { p_name: string }; Returns: string }
+      create_sample_group: { Args: { p_persona: string }; Returns: string }
       delete_expense: { Args: { p_expense_id: string }; Returns: undefined }
       delete_settlement: {
         Args: { p_settlement_id: string }

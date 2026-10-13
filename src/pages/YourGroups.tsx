@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { NameForm } from "../components/NameForm";
+import { SampleGroupDialog } from "../components/SampleGroupDialog";
 import { ChartIcon } from "../components/ChartIcon";
 import { SearchIcon } from "../components/SearchIcon";
 import { FeedbackLine, LoadError, Loading } from "../components/Status";
@@ -10,18 +11,16 @@ import { supabase } from "../lib/supabase";
 import type { Feedback } from "../lib/useDbAction";
 import { useRefreshOnReturn } from "../lib/useRefreshOnReturn";
 
-type GroupSummary = { id: string; name: string; people: number };
+type GroupSummary = { id: string; name: string; people: number; sample: boolean };
 
 type ListState =
-  | { status: "loading" }
-  | { status: "error"; message: string }
-  | { status: "ready"; groups: GroupSummary[] };
+  { status: "loading" } | { status: "error"; message: string } | { status: "ready"; groups: GroupSummary[] };
 
 // The groups you're in (Row Level Security only returns those), newest first.
 async function fetchGroups(): Promise<ListState> {
   const { data, error } = await supabase
     .from("groups")
-    .select("id, name, group_members(removed_at)")
+    .select("id, name, is_sample, group_members(removed_at)")
     .order("created_at", { ascending: false });
   if (error) return { status: "error", message: friendlyError(error) };
   return {
@@ -31,6 +30,7 @@ async function fetchGroups(): Promise<ListState> {
       name: group.name,
       // Active members only (guests included): people who left or were removed don't count.
       people: group.group_members.filter((m) => m.removed_at === null).length,
+      sample: group.is_sample,
     })),
   };
 }
@@ -44,6 +44,7 @@ export default function YourGroups() {
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [samplePicker, setSamplePicker] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -130,6 +131,19 @@ export default function YourGroups() {
         </div>
       )}
 
+      {state.status === "ready" && !state.groups.some((g) => g.sample) && (
+        <section className="sample-offer" aria-labelledby="sample-offer-heading">
+          <h2 id="sample-offer-heading">Just looking around?</h2>
+          <p className="muted">
+            Open a sample house with two months of shared bills and see how Baantwise works. Only you can see it.
+          </p>
+          <button type="button" className="button secondary" onClick={() => setSamplePicker(true)}>
+            Try a sample group
+          </button>
+        </section>
+      )}
+      {samplePicker && <SampleGroupDialog onClose={() => setSamplePicker(false)} />}
+
       {state.status === "ready" && state.groups.length > 0 && (
         <>
           <div className="section-actions">
@@ -140,7 +154,10 @@ export default function YourGroups() {
             {state.groups.map((group) => (
               <li key={group.id}>
                 <Link to={`/groups/${group.id}`} className="group-link">
-                  <span className="group-name">{group.name}</span>
+                  <span className="group-name">
+                    {group.name}
+                    {group.sample && <span className="badge sample-badge">Sample</span>}
+                  </span>
                   <span className="muted">{peopleCount(group.people)}</span>
                 </Link>
               </li>

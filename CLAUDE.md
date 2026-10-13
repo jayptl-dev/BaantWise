@@ -65,6 +65,14 @@ Put the full explanation in the commit message and the pull request description,
 
 - New people see a short pop-up tour once, on their first signed-in page (not on `/join/…`; it waits until they've joined). The cards are `TOUR_STEPS` in `src/lib/tour.ts`; keep them true to what the app does when features change. Seen-state is in this browser only (`localStorage` key `baantwise-tour-seen`). Profile → "Show the welcome tour again" reopens it (window event `baantwise:show-tour`, handled in `AppLayout`).
 
+## Sample groups
+
+- "Try a sample group" (Your groups) → `SampleGroupDialog` → `create_sample_group(p_persona)`: a private "Maple Street (sample)" group (`groups.is_sample`) with the person as Priya, Sam, Alex or Jordan and the others as guests, plus two months of expenses and payments. One per person (asking again opens it). The database blocks invites (`get_invite`, `join_group`), receipt photos (`can_add_receipt`) and forwarded bills (`inbound_match`) for samples; the app also hides receipt scanning, the receipt photo, Bills by email, the invite buttons, and Leave group (delete it instead). `SAMPLE_PEOPLE` in `src/lib/sampleGroup.ts` must match the SQL (a test checks).
+
+## Install on the phone
+
+- `public/manifest.webmanifest` + icons (`public/icon.svg` is the source; the PNGs are rendered from it) make Baantwise installable: Android Chrome ⋮ → Install app, iPhone Safari Share → Add to Home Screen. No service worker on purpose (Chrome's menu install doesn't need one, and it avoids stale caches). The last welcome-tour card explains it.
+
 ## Backups
 
 - Supabase's free plan has no downloadable backups. `.github/workflows/backup.yml` dumps the database nightly with the Supabase CLI (roles, schema, data, migration history), encrypts it with gpg using the `BACKUP_PASSPHRASE` secret and keeps it as a 30-day GitHub Actions artifact. Secrets: `SUPABASE_DB_URL` (Session pooler string), `BACKUP_PASSPHRASE`. Receipt photos aren't included. Setup and restore steps: `docs/BACKUPS.md`. The privacy policy mentions the backups; keep it true.

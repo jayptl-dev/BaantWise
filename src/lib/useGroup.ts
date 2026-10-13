@@ -20,7 +20,8 @@ export type Member = {
 
 export type GroupData = {
   // currency: "CAD" for now. default_split: pre-fills new expenses (see splitMethods.ts).
-  group: { id: string; name: string; invite_token: string; currency: string; default_split: Json | null };
+  // is_sample: a private sample group (see sampleGroup.ts): no invites, receipts or bill emails.
+  group: { id: string; name: string; invite_token: string; currency: string; default_split: Json | null; is_sample: boolean };
   members: Member[]; // active members only, oldest first
   formerMembers: Member[]; // people who left or were removed: their names stay on old expenses
   expenses: Expense[]; // newest first; only loaded when asked for (see useGroup)
@@ -43,7 +44,7 @@ async function fetchGroup(id: string, userId: string, expenses?: ExpensesToLoad)
   if (!isUuid(id)) return { status: "missing" };
 
   const [groupResult, membersResult, expensesResult, paymentsResult] = await Promise.all([
-    supabase.from("groups").select("id, name, invite_token, currency, default_split").eq("id", id).maybeSingle(),
+    supabase.from("groups").select("id, name, invite_token, currency, default_split, is_sample").eq("id", id).maybeSingle(),
     supabase
       .from("group_members")
       .select("id, user_id, display_name, is_admin, removed_at")
