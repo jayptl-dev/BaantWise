@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { NameForm } from "../components/NameForm";
 import { SampleGroupDialog } from "../components/SampleGroupDialog";
 import { ChartIcon } from "../components/ChartIcon";
@@ -11,6 +11,7 @@ import { GROUP_NAME_MAX, peopleCount } from "../lib/format";
 import { supabase } from "../lib/supabase";
 import type { Feedback } from "../lib/useDbAction";
 import { useRefreshOnReturn } from "../lib/useRefreshOnReturn";
+import { useOneTimeNote } from "../lib/useOneTimeNote";
 
 type GroupSummary = { id: string; name: string; people: number; sample: boolean };
 
@@ -40,7 +41,7 @@ async function fetchGroups(): Promise<ListState> {
 export default function YourGroups() {
   const navigate = useNavigate();
   // A short note passed along after leaving or deleting a group.
-  const notice = (useLocation().state as { notice?: string } | null)?.notice;
+  const notice = useOneTimeNote((state) => (state as { notice?: string } | null)?.notice);
   const [state, setState] = useState<ListState>({ status: "loading" });
   const [version, setVersion] = useState(0);
   const [creating, setCreating] = useState(false);
