@@ -11,7 +11,13 @@ import { SignInPage } from "./SignIn";
 // The frame around every signed-in screen: a small header, then the page.
 // Someone new sees the welcome tour once, on their first signed-in page.
 export function AppLayout({ children }: { children: ReactNode }) {
-  const [tourWanted, setTourWanted] = useState(() => !hasSeenTour());
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const [tourWanted, setTourWanted] = useState(() => (userId ? !hasSeenTour(userId) : false));
+  // Signing in as someone else (or a brand-new account) without reloading.
+  useEffect(() => {
+    if (userId) setTourWanted(!hasSeenTour(userId));
+  }, [userId]);
   // Joining a group comes first; the tour waits for the next page.
   const joining = useLocation().pathname.startsWith("/join/");
 
@@ -22,7 +28,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   }, []);
 
   function closeTour() {
-    markTourSeen();
+    if (userId) markTourSeen(userId);
     setTourWanted(false);
   }
 
