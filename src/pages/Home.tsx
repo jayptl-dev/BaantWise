@@ -30,6 +30,11 @@ function Landing() {
       )}
       <h1>Baantwise</h1>
       <p className="tagline">Split bills with roommates, friends and trips. Free, with no ads.</p>
+      {/* Up top on purpose: first-time visitors worried we'd ask for bank details. */}
+      <p className="trust-note">
+        <strong>Your money stays with you.</strong> Baantwise never asks for bank or card details, and it never holds
+        or moves money. It only keeps track of who owes whom.
+      </p>
 
       {/* What a group's balance looks like, so people see the idea before signing in. */}
       <figure className="landing-sample">
@@ -64,7 +69,6 @@ function Landing() {
         <li>Forward a bill email, like your hydro or internet bill, and Baantwise fills in the amount.</li>
         <li>Rent and other recurring bills add themselves. Friendly payment reminders by email.</li>
         <li>Keep some expenses private between just the people in them.</li>
-        <li>Baantwise only keeps track: it never holds or moves your money.</li>
       </ul>
       <p className="name-note">
         The name blends the Hindi word <em lang="hi-Latn">baant</em>, meaning
@@ -72,7 +76,7 @@ function Landing() {
       </p>
 
       <section className="account" aria-label="Account">
-        <p className="beta-note">Sign in with Google to try it. It's free.</p>
+        <p className="beta-note">Sign in with Google to try it. It's free, and no bank details are needed.</p>
         <SignInButton />
         <AuthMessage />
       </section>
