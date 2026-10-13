@@ -191,7 +191,9 @@ begin
   end loop;
 
   insert into public.settlements (group_id, from_member, to_member, amount_cents, paid_on, visibility, created_by, created_at)
-  values (v_group, m_alex, m_priya, 50000, v_today - 30, 'group', v_uid, now() - interval '30 days'),
+  values (v_group, m_sam, m_priya, 70000, v_today - 52, 'group', v_uid, now() - interval '52 days'),
+         (v_group, m_jordan, m_priya, 70000, v_today - 48, 'group', v_uid, now() - interval '48 days'),
+         (v_group, m_alex, m_priya, 50000, v_today - 30, 'group', v_uid, now() - interval '30 days'),
          (v_group, m_jordan, m_sam, 6000, v_today - 12, 'group', v_uid, now() - interval '12 days');
 
   return v_group;
