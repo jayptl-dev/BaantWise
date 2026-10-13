@@ -140,6 +140,10 @@ function GroupDetails({ data, reload }: { data: GroupData; reload: () => void })
 
   return (
     <>
+      {/* The installed app has no browser back button, so every page has its own way back. */}
+      <Link to="/" className="back-link">
+        ← Your groups
+      </Link>
       <div className="group-header">
         <h1 className="page-title">{group.name}</h1>
         <div className="header-actions">
