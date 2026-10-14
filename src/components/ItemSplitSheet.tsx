@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { centsToDecimal, formatCents, MAX_CENTS, readMoney } from "../lib/money";
 import type { ScannedItem } from "../lib/receiptScan";
+import { carryForward, firstUnticked, itemsSoFar } from "../lib/itemSplit";
 import { splitByItems } from "../lib/split";
 import type { Member } from "../lib/useGroup";
 import { Sheet } from "./Sheet";
@@ -32,9 +33,11 @@ type ItemSplitSheetProps = {
   onClose: () => void;
 };
 
-// "Split by item": tick who had each thing on the receipt. Tax, tip and anything else
-// not on an item are shared in proportion. The items are only used for this split;
-// they're never saved.
+// "Split by item", one item at a time: pick the item (dropdown, or Back and Next), tick
+// who had it, and see each person's running total. Moving on to an item nobody is
+// ticked on starts it with the same people as the item before. Tax, tip and anything
+// else not on an item are shared in proportion. The items are only used for this
+// split; they're never saved.
 export function ItemSplitSheet({
   lines,
   setLines,
@@ -48,125 +51,181 @@ export function ItemSplitSheet({
   onClose,
 }: ItemSplitSheetProps) {
   const ids = useId();
-  const [open, setOpen] = useState<number | null>(lines[0]?.key ?? null);
+  const [index, setIndex] = useState(0);
+  const [warning, setWarning] = useState<string | null>(null);
 
   const cents = (line: Line) => readMoney(line.amountText)?.cents ?? 0;
-  const itemsTotal = lines.reduce((sum, line) => sum + cents(line), 0);
+  const steps = lines.map((line) => ({ amountCents: cents(line), people: line.people }));
+  const itemsTotal = steps.reduce((sum, step) => sum + step.amountCents, 0);
   const rest = totalCents === null ? null : totalCents - itemsTotal;
-  const everyItemHasSomeone = lines.length > 0 && lines.every((line) => line.people.size > 0);
+  const everyItemHasSomeone = lines.length > 0 && firstUnticked(steps) === -1;
   const amountOk = totalCents !== null && totalCents > 0 && totalCents <= maxCents;
-  const ready = amountOk && everyItemHasSomeone;
+  const order = people.map((p) => p.id);
+  const soFar = itemsSoFar(steps, order, payerId);
+
+  const at = Math.min(index, Math.max(lines.length - 1, 0));
+  const line: Line | undefined = lines[at];
+  const isLast = at >= lines.length - 1;
 
   function change(key: number, update: (line: Line) => Line) {
-    setLines((current) => current.map((line) => (line.key === key ? update(line) : line)));
+    setLines((current) => current.map((l) => (l.key === key ? update(l) : l)));
   }
 
-  function togglePerson(key: number, memberId: string) {
-    change(key, (line) => {
-      const next = new Set(line.people);
-      if (next.has(memberId)) next.delete(memberId);
-      else next.add(memberId);
-      return { ...line, people: next };
-    });
+  function setPeople(next: Set<string>) {
+    if (!line) return;
+    setWarning(null);
+    change(line.key, (l) => ({ ...l, people: next }));
   }
 
-  function use() {
-    if (!ready || totalCents === null) return;
+  function togglePerson(memberId: string) {
+    if (!line) return;
+    const next = new Set(line.people);
+    if (next.has(memberId)) next.delete(memberId);
+    else next.add(memberId);
+    setPeople(next);
+  }
+
+  function goTo(to: number) {
+    setWarning(null);
+    setIndex(Math.max(0, Math.min(to, lines.length - 1)));
+  }
+
+  function next() {
+    if (isLast) {
+      finish();
+      return;
+    }
+    // The ticks carry over to the next item if nobody is on it yet.
+    setLines((current) => carryForward(current, at, at + 1));
+    goTo(at + 1);
+  }
+
+  function finish() {
+    if (!amountOk || totalCents === null) {
+      setWarning("Enter the expense's Amount first.");
+      return;
+    }
+    const missing = firstUnticked(steps);
+    if (missing !== -1) {
+      setIndex(missing);
+      setWarning(`Nobody is ticked for "${lines[missing].name || "this item"}". Tick at least one person.`);
+      return;
+    }
     const shares = splitByItems(
       totalCents,
-      lines.map((line) => ({ amountCents: cents(line), memberIds: [...line.people] })),
-      people.map((p) => p.id),
+      lines.map((l) => ({ amountCents: cents(l), memberIds: [...l.people] })),
+      order,
       payerId,
     );
     onUse(new Map([...shares].filter(([, c]) => c > 0)));
   }
 
-  function whoLine(line: Line): string {
-    if (line.people.size === 0) return "Nobody yet";
-    if (line.people.size === people.length && people.length > 1) return "Everyone";
-    return people
-      .filter((p) => line.people.has(p.id))
-      .map((p) => p.display_name)
-      .join(", ");
+  function removeItem() {
+    if (!line) return;
+    setWarning(null);
+    setLines((current) => current.filter((l) => l.key !== line.key));
+    setIndex(Math.max(0, Math.min(at, lines.length - 2)));
   }
+
+  const nextLabel = isLast ? "Done" : "Next";
 
   return (
     <Sheet title="Split by item" onClose={onClose}>
-      <p className="hint">Tap an item, then tick who had it. Tap someone again to untick them.</p>
-      {lines.length === 0 && <p className="muted">No items left.</p>}
-      <ul className="item-list">
-        {lines.map((line) => {
-          const isOpen = open === line.key;
-          return (
-            <li key={line.key} className={line.people.size === 0 ? "item needs-person" : "item"}>
-              <button
-                type="button"
-                className="item-summary"
-                aria-expanded={isOpen}
-                onClick={() => setOpen(isOpen ? null : line.key)}
-              >
-                <span className="item-name">{line.name || "Item"}</span>
-                <span className="item-amount">{format(cents(line))}</span>
-                <span className="item-who">{whoLine(line)}</span>
-              </button>
-              {isOpen && (
-                <div className="item-edit">
-                  <div className="item-people">
-                    {people.map((p) => (
-                      <label key={p.id} className="choice">
-                        <input
-                          type="checkbox"
-                          checked={line.people.has(p.id)}
-                          onChange={() => togglePerson(line.key, p.id)}
-                        />
-                        <span>{nameFor(p)}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div className="item-fields">
-                    <div className="field">
-                      <label htmlFor={`${ids}-name-${line.key}`}>Item</label>
-                      <input
-                        id={`${ids}-name-${line.key}`}
-                        value={line.name}
-                        maxLength={60}
-                        autoComplete="off"
-                        onChange={(event) => change(line.key, (l) => ({ ...l, name: event.target.value }))}
-                      />
-                    </div>
-                    <div className="field">
-                      <label htmlFor={`${ids}-amount-${line.key}`}>Price</label>
-                      <span className="money-input">
-                        <span aria-hidden="true">$</span>
-                        <input
-                          id={`${ids}-amount-${line.key}`}
-                          value={line.amountText}
-                          inputMode="decimal"
-                          autoComplete="off"
-                          onChange={(event) => {
-                            const read = readMoney(event.target.value);
-                            if (read) change(line.key, (l) => ({ ...l, amountText: read.text }));
-                          }}
-                        />
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="text-button danger-text"
-                    onClick={() => {
-                      setLines((current) => current.filter((l) => l.key !== line.key));
-                      setOpen(null);
+      {!line ? (
+        <p className="muted">No items left.</p>
+      ) : (
+        <>
+          <p className="item-step-count">
+            Item {at + 1} of {lines.length}
+          </p>
+          <div className="item-picker">
+            <label className="visually-hidden" htmlFor={`${ids}-pick`}>
+              Item
+            </label>
+            <select id={`${ids}-pick`} value={at} onChange={(event) => goTo(Number(event.target.value))}>
+              {lines.map((l, i) => (
+                <option key={l.key} value={i}>
+                  {l.people.size > 0 ? "✓ " : ""}
+                  {i + 1}. {l.name || "Item"} · {format(cents(l))}
+                </option>
+              ))}
+            </select>
+            <button type="button" className="button" onClick={next}>
+              {nextLabel}
+            </button>
+          </div>
+
+          <div className="item-quick">
+            <span className="hint">Who had it?</span>
+            <button type="button" className="text-button" onClick={() => setPeople(new Set(order))}>
+              Everyone
+            </button>
+            <button type="button" className="text-button" onClick={() => setPeople(new Set())}>
+              Clear
+            </button>
+          </div>
+          <div className="item-people" role="group" aria-label={`Who had ${line.name || "this item"}`}>
+            {people.map((p) => (
+              <label key={p.id} className="choice item-person">
+                <input type="checkbox" checked={line.people.has(p.id)} onChange={() => togglePerson(p.id)} />
+                <span>{nameFor(p)}</span>
+                <span className="item-person-total">{format(soFar.get(p.id) ?? 0)}</span>
+              </label>
+            ))}
+          </div>
+          <p className="hint">Amounts are each person's items so far, before tax and tip.</p>
+
+          {warning && (
+            <p className="field-error" role="alert">
+              {warning}
+            </p>
+          )}
+
+          <div className="item-step-actions">
+            <button type="button" className="button secondary" onClick={() => goTo(at - 1)} disabled={at === 0}>
+              Back
+            </button>
+            <button type="button" className="button" onClick={next}>
+              {nextLabel}
+            </button>
+          </div>
+
+          <details className="item-fix">
+            <summary>Fix this item's name or price</summary>
+            <div className="item-fields">
+              <div className="field">
+                <label htmlFor={`${ids}-name-${line.key}`}>Item</label>
+                <input
+                  id={`${ids}-name-${line.key}`}
+                  value={line.name}
+                  maxLength={60}
+                  autoComplete="off"
+                  onChange={(event) => change(line.key, (l) => ({ ...l, name: event.target.value }))}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor={`${ids}-amount-${line.key}`}>Price</label>
+                <span className="money-input">
+                  <span aria-hidden="true">$</span>
+                  <input
+                    id={`${ids}-amount-${line.key}`}
+                    value={line.amountText}
+                    inputMode="decimal"
+                    autoComplete="off"
+                    onChange={(event) => {
+                      const read = readMoney(event.target.value);
+                      if (read) change(line.key, (l) => ({ ...l, amountText: read.text }));
                     }}
-                  >
-                    Remove this item
-                  </button>
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                  />
+                </span>
+              </div>
+            </div>
+            <button type="button" className="text-button danger-text" onClick={removeItem}>
+              Remove this item
+            </button>
+          </details>
+        </>
+      )}
 
       <div className="item-footer" aria-live="polite">
         {rest === null ? (
@@ -176,14 +235,18 @@ export function ItemSplitSheet({
             Tax, tip and other: <strong>{format(rest)}</strong>, shared in proportion
           </p>
         )}
-        {amountOk && !everyItemHasSomeone && lines.length > 0 && (
-          <p className="hint">Every item needs at least one person.</p>
+        {lines.length > 0 && !everyItemHasSomeone && (
+          <p className="hint">
+            {lines.length - steps.filter((s) => s.people.size > 0).length} of {lines.length} items still need someone.
+          </p>
         )}
       </div>
       <div className="form-actions">
-        <button type="button" className="button" onClick={use} disabled={!ready}>
-          Use this split
-        </button>
+        {everyItemHasSomeone && !isLast && (
+          <button type="button" className="button" onClick={finish}>
+            Use this split
+          </button>
+        )}
         <button type="button" className="button secondary" onClick={onClose}>
           Cancel
         </button>
