@@ -1821,56 +1821,76 @@ p.scan-box {
   margin-bottom: 0.75rem;
 }
 
-.item-list {
-  margin: 0.75rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.item {
-  border-bottom: 1px solid var(--border);
-}
-
-.item-summary {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0 0.75rem;
-  width: 100%;
-  min-height: 3rem;
-  padding: 0.5rem 0;
-  border: 0;
-  font: inherit;
-  color: var(--text);
-  text-align: left;
-  background: none;
-  cursor: pointer;
-}
-
-.item-summary:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.item-name {
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.item-amount {
-}
-
-.item-who {
-  grid-column: 1 / -1;
+.item-step-count {
+  margin: 0 0 0.5rem;
   font-size: 0.875rem;
+  font-weight: 600;
   color: var(--muted);
 }
 
-.item.needs-person .item-who {
-  color: var(--owe);
+/* The item dropdown with Next beside it. */
+.item-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: stretch;
 }
 
-.item-edit {
-  padding: 0 0 0.75rem;
+.item-picker select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+}
+
+.item-quick {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+}
+
+.item-quick .hint {
+  margin: 0 auto 0 0;
+}
+
+.item-people {
+  border-top: 1px solid var(--border);
+}
+
+.dialog-body .item-person {
+  border-bottom: 1px solid var(--border);
+}
+
+.item-person-total {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.item-step-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.item-fix {
+  margin-top: 1rem;
+}
+
+.item-fix summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
 }
 
 /* Pop-ups make every label a block; a tick box keeps its box and name side by side. */
