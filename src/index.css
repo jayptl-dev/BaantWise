@@ -1828,6 +1828,14 @@ p.scan-box {
   color: var(--muted);
 }
 
+/* The line as printed on the receipt, under the item dropdown. */
+.item-printed {
+  margin: 0.375rem 0 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
 /* The item dropdown with Next beside it. */
 .item-picker {
   display: grid;
