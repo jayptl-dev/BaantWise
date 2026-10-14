@@ -6,7 +6,9 @@ import { splitByItems } from "../lib/split";
 import type { Member } from "../lib/useGroup";
 import { Sheet } from "./Sheet";
 
-export type ItemLine = { key: number; name: string; amountText: string; people: Set<string> };
+// printed: the line as on the receipt, shown small under the plain name so it can be
+// matched to the paper; null when it reads the same.
+export type ItemLine = { key: number; name: string; printed: string | null; amountText: string; people: Set<string> };
 type Line = ItemLine;
 
 // The scanned items as editable lines, nobody ticked yet.
@@ -14,6 +16,7 @@ export function linesFromScan(items: ScannedItem[]): ItemLine[] {
   return items.map((item, index) => ({
     key: index,
     name: item.name,
+    printed: item.printed,
     amountText: centsToDecimal(item.amountCents),
     people: new Set<string>(),
   }));
@@ -154,6 +157,8 @@ export function ItemSplitSheet({
               {nextLabel}
             </button>
           </div>
+
+          {line.printed && <p className="item-printed">On the receipt: {line.printed}</p>}
 
           <div className="item-quick">
             <span className="hint">Who had it?</span>

@@ -12,7 +12,8 @@ const SCAN_TIMEOUT_MS = 70_000;
 export const SCAN_FAILED =
   "Receipt scanning isn't working right now. Try again in a few minutes, or type it in.";
 
-export type ScannedItem = { name: string; quantity: number; amountCents: number };
+// name is the plain name; printed is the line as on the receipt, when it differs.
+export type ScannedItem = { name: string; printed: string | null; quantity: number; amountCents: number };
 
 export type ScannedReceipt = {
   merchant: string | null;
@@ -62,7 +63,15 @@ export function readScan(raw: unknown): ScannedReceipt {
       const name = text(i.name);
       const amountCents = number(i.amount_cents);
       if (!name || amountCents === null) return [];
-      return [{ name, quantity: typeof i.quantity === "number" ? i.quantity : 1, amountCents }];
+      const printed = text(i.printed);
+      return [
+        {
+          name,
+          printed: printed && printed.toLowerCase() !== name.toLowerCase() ? printed : null,
+          quantity: typeof i.quantity === "number" ? i.quantity : 1,
+          amountCents,
+        },
+      ];
     }),
     category: isCategoryKey(r.category) ? r.category : "other",
     hasWarnings: Array.isArray(r.warnings) && r.warnings.length > 0,
