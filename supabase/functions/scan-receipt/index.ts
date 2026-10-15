@@ -232,8 +232,8 @@ const RECEIPT_SCHEMA = {
       items: {
         type: 'object',
         properties: {
-          printed: { type: 'string', description: 'the item text as printed' },
-          name: { type: 'string', description: 'plain readable name' },
+          printed: { type: 'string' },
+          name: { type: 'string' },
           quantity: { type: 'number' },
           amount_cents: { type: 'integer' },
         },
@@ -362,7 +362,7 @@ function limitMessage(limit: number, resetsOn: string): string {
 }
 
 // Sends the photo to Gemini with a strict JSON schema. Retries once on a Google server
-// error, and once without "store" in case the API ever refuses that field.
+// error, and once without "store" if Google refuses the request as invalid.
 async function askGemini(photo: Uint8Array, mimeType: string): Promise<Outcome> {
   const setting = (Deno.env.get('GEMINI_MODEL') ?? '').trim();
   const model = /^[a-z0-9][a-z0-9.-]{2,63}$/.test(setting) ? setting : DEFAULT_MODEL;
@@ -402,8 +402,11 @@ async function askGemini(photo: Uint8Array, mimeType: string): Promise<Outcome> 
       const googleStatus = body?.error?.status ?? null;
       const googleMessage = String(body?.error?.message ?? '').slice(0, 200); // about our request, never the photo
       log({ step: 'gemini', attempt, status: res.status, google_status: googleStatus, google_message: googleMessage });
-      if (res.status === 400 && 'store' in request && /store/i.test(googleMessage)) {
+      // Google's message is often just "Request contains an invalid argument.", so on any
+      // 400 try once more without "store" (the only optional field we send).
+      if (res.status === 400 && 'store' in request) {
         delete request.store;
+        log({ step: 'gemini', attempt, retry: 'without_store' });
         continue;
       }
       if (res.status >= 500 && !retriedServerError) {
