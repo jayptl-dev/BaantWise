@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cleanReceipt,
   isItemFeeLine,
+  isRealDiscountLine,
   isSummaryLine,
   settleTaxMarks,
   type ScanItem,
@@ -80,7 +81,7 @@ describe("deposits and eco fees", () => {
     }
   });
 
-  it("Walmart Nova Scotia: the deposit and the eco fee join the item above; a bag fee stays an item", () => {
+  it("Walmart Nova Scotia: the taxed eco fee joins the taxed batteries; the untaxed deposit stays its own line after the taxed pop", () => {
     const r = read(
       [
         line("COKE 355ML 12PK", 897, true),
@@ -91,12 +92,31 @@ describe("deposits and eco fees", () => {
       ],
       { subtotal_cents: 2269, tax_cents: 317, tip_cents: null, total_cents: 2586 },
     );
-    expect(r.items.map((i) => [i.name, i.amount_cents])).toEqual([
-      ["COKE 355ML 12PK", 907],
-      ["AA BATTERIES 8PK", 1337],
-      ["BAG FEE", 25],
+    expect(r.items.map((i) => [i.name, i.amount_cents, i.taxed])).toEqual([
+      ["COKE 355ML 12PK", 897, true],
+      ["NS DEPOSIT", 10, false],
+      ["AA BATTERIES 8PK", 1337, true],
+      ["BAG FEE", 25, true],
     ]);
     expect(r.warnings).toEqual([]);
+  });
+
+  it("an untaxed deposit joins untaxed milk; an unmarked receipt folds every fee", () => {
+    const marked = read([line("MILK 2L", 499, false), line("DEPOSIT", 10, null), line("CHIPS", 399, true)], {
+      subtotal_cents: 908, tax_cents: 52, tip_cents: null, total_cents: 960,
+    });
+    expect(marked.items.map((i) => [i.name, i.amount_cents])).toEqual([["MILK 2L", 509], ["CHIPS", 399]]);
+    const unmarked = read([line("COLA 2L", 299), line("+Deposit", 25), line("+EHC", 10)], {
+      subtotal_cents: 334, tax_cents: 17, tip_cents: null, total_cents: 351,
+    });
+    expect(unmarked.items.map((i) => [i.name, i.amount_cents])).toEqual([["COLA 2L", 334]]);
+  });
+
+  it("a taxed eco fee after an untaxed deposit still finds its taxed item", () => {
+    const r = read([line("POP 12PK", 699, true), line("DEPOSIT", 120, false), line("ECO FEE", 5, true)], {
+      subtotal_cents: 824, tax_cents: 92, tip_cents: null, total_cents: 916,
+    });
+    expect(r.items.map((i) => [i.name, i.amount_cents])).toEqual([["POP 12PK", 704], ["DEPOSIT", 120]]);
   });
 
   it("a fee line with no item above it stays its own item, so its cost isn't lost", () => {
@@ -112,5 +132,63 @@ describe("summary lines", () => {
       expect(isSummaryLine(text), text).toBe(true);
     }
     expect(isSummaryLine("Garlic fries")).toBe(false);
+  });
+});
+
+describe("likely misreads (from real Canadian receipt formats)", () => {
+  // One chicken breast at $16.49, then a line the reader might list by mistake.
+  const after = (printed: string, amount_cents: number) =>
+    read([line("CHICKEN BREAST", 1649), line(printed, amount_cents)], {
+      subtotal_cents: null, tax_cents: 0, tip_cents: null, total_cents: 5000,
+    }).items.map((i) => [i.name, i.amount_cents]);
+
+  it("takes real discounts off the item above (English and French)", () => {
+    expect(after("YOUR DISCOUNT", -500)).toEqual([["CHICKEN BREAST", 1149]]);
+    expect(after("INSTANT SAVINGS", -400)).toEqual([["CHICKEN BREAST", 1249]]);
+    expect(after("MEMBER PRICING", -149)).toEqual([["CHICKEN BREAST", 1500]]);
+    expect(after("Rabais", -200)).toEqual([["CHICKEN BREAST", 1449]]);
+    expect(after("DISCOUNT", -200)).toEqual([["CHICKEN BREAST", 1449]]);
+    expect(after("COUPON", -100)).toEqual([["CHICKEN BREAST", 1549]]);
+  });
+
+  it("ignores lines that only inform", () => {
+    for (const [text, cents] of [
+      ["YOU SAVED", -80],
+      ["YOUR SAVINGS", -80],
+      ["TOTAL DISCOUNT(S)", -900],
+      ["POINTS EARNED", 100],
+      ["Scene+ Balance", 3450],
+      ["PC Optimum Points Redeemed", -1000],
+      ["Regular price", 599],
+    ] as const) {
+      expect(after(text, cents), text).toEqual([["CHICKEN BREAST", 1649]]);
+    }
+  });
+
+  it("ignores payment, change, tax and tip lines", () => {
+    for (const [text, cents] of [
+      ["MCARD TEND", 5000],
+      ["Remise", 1106],
+      ["CHANGE DUE", 282],
+      ["ROUNDING", -2],
+      ["T.P.S.", 187],
+      ["T.V.Q.", 372],
+      ["AUTO GRAT 18%", 2400],
+      ["Suggested tip 15%", 1125],
+    ] as const) {
+      expect(after(text, cents), text).toEqual([["CHICKEN BREAST", 1649]]);
+    }
+  });
+
+  it("tells real discounts from information lines", () => {
+    expect(isRealDiscountLine("YOUR DISCOUNT")).toBe(true);
+    expect(isRealDiscountLine("Rabais")).toBe(true);
+    expect(isRealDiscountLine("TOTAL DISCOUNT(S)")).toBe(false);
+    expect(isRealDiscountLine("YOUR SAVINGS")).toBe(false);
+  });
+
+  it("keeps ordinary items that share a word with those lines", () => {
+    expect(after("PC ORGANIC MILK", 599)).toEqual([["CHICKEN BREAST", 1649], ["PC ORGANIC MILK", 599]]);
+    expect(after("Auto air freshener", 499)).toEqual([["CHICKEN BREAST", 1649], ["Auto air freshener", 499]]);
   });
 });

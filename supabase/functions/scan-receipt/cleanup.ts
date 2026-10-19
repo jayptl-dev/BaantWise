@@ -48,9 +48,26 @@ const SUMMARY_WORDS = new Set([
   'tip', 'tips', 'gratuity', 'service', 'charge', 'delivery', 'fee', 'fees',
   'change', 'cash', 'visa', 'mastercard', 'master', 'card', 'amex', 'debit', 'credit',
   'interac', 'payment', 'paid', 'tender', 'tendered', 'rounding', 'discount', 'discounts',
-  'coupon', 'savings', 'you', 'saved', 'sous', 'pourboire', 'monnaie', 'comptant',
-  'rabais', 'frais', 'de', 'livraison',
+  'coupon', 'coupons', 'savings', 'you', 'your', 'saved', 'sous', 'pourboire', 'monnaie', 'comptant',
+  'rabais', 'frais', 'de', 'livraison', 'remise', 'economies', 'économies',
+  // loyalty points and payment lines
+  'points', 'point', 'pts', 'earned', 'bonus', 'redeemed', 'redemption', 'scene', 'optimum', 'pc',
+  'rewards', 'moi', 'mcard', 'tend', 'approved', 'auth', 'regular', 'price', 'reg', 'was',
+  // tips that are tips, not items: an automatic gratuity, suggested amounts
+  'auto', 'grat', 'suggested', 'guide', 'guidelines',
+  // the letters of T.P.S., T.V.Q. and DISCOUNT(S), read one by one
+  't', 'p', 's', 'v', 'q',
 ]);
+
+// A minus line that is a real discount on the item above (YOUR DISCOUNT, Rabais, COUPON),
+// as opposed to an information line (YOU SAVED, YOUR SAVINGS, TOTAL DISCOUNT(S)).
+const REAL_DISCOUNT_WORDS = new Set(['discount', 'discounts', 'coupon', 'coupons', 'rabais', 'your', 'de', 's']);
+const REAL_DISCOUNT_CORE = new Set(['discount', 'discounts', 'coupon', 'coupons', 'rabais']);
+
+export function isRealDiscountLine(name: string): boolean {
+  const words = name.toLowerCase().match(/\p{L}+/gu);
+  return !!words && words.some((word) => REAL_DISCOUNT_CORE.has(word)) && words.every((word) => REAL_DISCOUNT_WORDS.has(word));
+}
 
 // Words of a deposit or environmental fee line (with province codes, as in "NS DEPOSIT").
 // Such a line belongs to the item above it.
@@ -161,6 +178,24 @@ export function settleTaxMarks(items: ScanItem[], taxCents: number | null): bool
   return true;
 }
 
+// Folds each deposit or eco fee into the item above it, so the fee goes to the people on
+// that item, but only when both are taxed the same way: an untaxed deposit under taxed
+// pop stays its own (untaxed) line right after it, or the tax would be shared wrongly.
+// Runs after settleTaxMarks, so "unmarked" has already become untaxed (false) on a
+// receipt with tax marks. A fee left on its own keeps a plain line in the list.
+export function foldFeeLines(items: ScanItem[], feeLines: ReadonlySet<ScanItem>): void {
+  for (let i = items.length - 1; i >= 1; i--) {
+    const fee = items[i];
+    if (!feeLines.has(fee)) continue;
+    let owner = i - 1;
+    while (owner > 0 && feeLines.has(items[owner]) && items[owner].taxed !== fee.taxed) owner--;
+    if (items[owner].taxed !== fee.taxed) continue;
+    items[owner].amount_cents += fee.amount_cents;
+    items.splice(i, 1);
+  }
+  if (items.length > MAX_ITEMS) items.length = MAX_ITEMS;
+}
+
 // A real calendar date, from 2000-01-01 up to one day after "today" (YYYY-MM-DD, UTC),
 // because the phone's date can be a day ahead of the server's.
 export function cleanDate(value: unknown, today: string): string | null {
@@ -190,6 +225,7 @@ export function cleanReceipt(raw: unknown, today: string): ScanResult | null {
   if (r.is_receipt === false) return null;
 
   const items: ScanItem[] = [];
+  const feeLines = new Set<ScanItem>(); // deposits and eco fees, folded in after the tax marks
   const minusLines = { applied: 0, unplaced: 0 };
   const rawItems = Array.isArray(r.items) ? r.items : [];
   for (const entry of rawItems.slice(0, 200)) {
@@ -199,26 +235,25 @@ export function cleanReceipt(raw: unknown, today: string): ScanResult | null {
     const name = cleanText(e.name, 60) ?? printedText;
     const amount = toCents(e.amount_cents, -MAX_CENTS);
     if (!name || amount === null || amount === 0) continue; // $0 lines are not something bought
-    // A deposit or eco fee the reader listed on its own: it belongs to the item above.
-    if (amount > 0 && (isItemFeeLine(name) || (printedText !== null && isItemFeeLine(printedText)))) {
-      const owner = items[items.length - 1];
-      if (owner) {
-        owner.amount_cents += amount;
-        continue;
-      }
-    }
-    if (isSummaryLine(name) || (printedText && isSummaryLine(printedText))) continue;
+    // A deposit or eco fee the reader listed on its own belongs to the item above: kept
+    // for now and folded into it after the tax marks are settled (see below).
+    const feeLine = amount > 0 && items.length > 0 &&
+      (isItemFeeLine(name) || (printedText !== null && isItemFeeLine(printedText)));
+    const realDiscount = amount < 0 && (isRealDiscountLine(name) || (printedText !== null && isRealDiscountLine(printedText)));
+    if (!realDiscount && (isSummaryLine(name) || (printedText && isSummaryLine(printedText)))) continue;
     const printed = printedText && printedText.toLowerCase() !== name.toLowerCase() ? printedText : null;
     if (amount < 0) {
       if (applyMinusLine(items, -amount, name, printed)) minusLines.applied += 1;
       else minusLines.unplaced += 1;
       continue;
     }
-    if (items.length >= MAX_ITEMS) continue; // keep reading: a later minus line may still apply
-    items.push({
+    if (items.length >= MAX_ITEMS && !feeLine) continue; // keep reading: a later minus line may still apply
+    const item: ScanItem = {
       name, printed, quantity: toQuantity(e.quantity), amount_cents: amount,
       taxed: typeof e.taxed === 'boolean' ? e.taxed : null,
-    });
+    };
+    items.push(item);
+    if (feeLine) feeLines.add(item);
   }
 
   const subtotal = toCents(r.subtotal_cents, 0);
@@ -249,6 +284,7 @@ export function cleanReceipt(raw: unknown, today: string): ScanResult | null {
   }
 
   if (!settleTaxMarks(items, tax)) warnings.push('tax_marks_unsure');
+  foldFeeLines(items, feeLines);
 
   const category = typeof r.category === 'string' ? r.category.trim().toLowerCase() : '';
   return {
