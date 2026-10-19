@@ -81,7 +81,7 @@ describe("deposits and eco fees", () => {
     }
   });
 
-  it("Walmart Nova Scotia: the deposit and the eco fee join the item above; a bag fee stays an item", () => {
+  it("Walmart Nova Scotia: the taxed eco fee joins the taxed batteries; the untaxed deposit stays its own line after the taxed pop", () => {
     const r = read(
       [
         line("COKE 355ML 12PK", 897, true),
@@ -92,12 +92,31 @@ describe("deposits and eco fees", () => {
       ],
       { subtotal_cents: 2269, tax_cents: 317, tip_cents: null, total_cents: 2586 },
     );
-    expect(r.items.map((i) => [i.name, i.amount_cents])).toEqual([
-      ["COKE 355ML 12PK", 907],
-      ["AA BATTERIES 8PK", 1337],
-      ["BAG FEE", 25],
+    expect(r.items.map((i) => [i.name, i.amount_cents, i.taxed])).toEqual([
+      ["COKE 355ML 12PK", 897, true],
+      ["NS DEPOSIT", 10, false],
+      ["AA BATTERIES 8PK", 1337, true],
+      ["BAG FEE", 25, true],
     ]);
     expect(r.warnings).toEqual([]);
+  });
+
+  it("an untaxed deposit joins untaxed milk; an unmarked receipt folds every fee", () => {
+    const marked = read([line("MILK 2L", 499, false), line("DEPOSIT", 10, null), line("CHIPS", 399, true)], {
+      subtotal_cents: 908, tax_cents: 52, tip_cents: null, total_cents: 960,
+    });
+    expect(marked.items.map((i) => [i.name, i.amount_cents])).toEqual([["MILK 2L", 509], ["CHIPS", 399]]);
+    const unmarked = read([line("COLA 2L", 299), line("+Deposit", 25), line("+EHC", 10)], {
+      subtotal_cents: 334, tax_cents: 17, tip_cents: null, total_cents: 351,
+    });
+    expect(unmarked.items.map((i) => [i.name, i.amount_cents])).toEqual([["COLA 2L", 334]]);
+  });
+
+  it("a taxed eco fee after an untaxed deposit still finds its taxed item", () => {
+    const r = read([line("POP 12PK", 699, true), line("DEPOSIT", 120, false), line("ECO FEE", 5, true)], {
+      subtotal_cents: 824, tax_cents: 92, tip_cents: null, total_cents: 916,
+    });
+    expect(r.items.map((i) => [i.name, i.amount_cents])).toEqual([["POP 12PK", 704], ["DEPOSIT", 120]]);
   });
 
   it("a fee line with no item above it stays its own item, so its cost isn't lost", () => {
