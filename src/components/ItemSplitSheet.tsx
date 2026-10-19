@@ -39,8 +39,8 @@ type ItemSplitSheetProps = {
 // "Split by item", one item at a time: pick the item (dropdown, or Back and Next), tick
 // who had it, and see each person's running total. Moving on to an item nobody is
 // ticked on starts it with the same people as the item before. Tax, tip and anything
-// else not on an item are shared in proportion. The items are only used for this
-// split; they're never saved.
+// else not on an item are shared in proportion. The items and ticks are saved with the
+// expense (lib/expenseItems.ts), so the sheet opens as it was left when editing.
 export function ItemSplitSheet({
   lines,
   setLines,
