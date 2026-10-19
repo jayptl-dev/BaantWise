@@ -1,0 +1,7540 @@
+[
+ {
+  "file": "01_loblaws_on_points-redeem.png",
+  "difficulty": "very_hard",
+  "province": "ON",
+  "chain": "Loblaws",
+  "traps": [
+   "HMRJ vs MRJ clusters glued to names",
+   "(2) quantity prefix + qualifier row",
+   "MEMBER PRICING negative line",
+   "Gross/Tare/Net weighed item",
+   "department headers",
+   "PC Optimum points lines (not items)",
+   "PC Optimum redemption after TOTAL (card charged less)",
+   "H=HST line shows taxable base"
+  ],
+  "receipt_is_broken": false,
+  "notes": "MEMBER PRICING -1.49 belongs to the bagels (4.99 -> 3.50). Olive bar is a prepared/deli item marked HMRJ (taxed); weight net of tare. TOTAL is the bill; the $20 PC Optimum redemption is a payment (card charged 49.61). Points lines are not items.",
+  "expected": {
+   "merchant": "Loblaws",
+   "date": "2026-10-03",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "06038302830 PC SPKL YUZUHMRJ",
+     "name": "PC sparkling yuzu water",
+     "quantity": 1,
+     "amount_cents": 249,
+     "taxed": true
+    },
+    {
+     "printed": "06038388111 NN WHITE BREAD 675GMRJ",
+     "name": "No Name white bread",
+     "quantity": 1,
+     "amount_cents": 279,
+     "taxed": false
+    },
+    {
+     "printed": "(2)06038317042 PC STRBY LEMONADEHMRJ",
+     "name": "PC strawberry lemonade",
+     "quantity": 2,
+     "amount_cents": 500,
+     "taxed": true
+    },
+    {
+     "printed": "05501000080 DI GLZD SSME BNMRJ",
+     "name": "Dempster's glazed sesame bagels",
+     "quantity": 1,
+     "amount_cents": 350,
+     "taxed": false
+    },
+    {
+     "printed": "06038300412 PC KETTLE CHIPS SEA SALTHMRJ",
+     "name": "PC kettle chips",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "05574200160 OLD DUTCH RIPPLE 235GHMRJ",
+     "name": "Old Dutch ripple chips",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": true
+    },
+    {
+     "printed": "4011 BANANASMRJ",
+     "name": "Bananas (1.214 kg)",
+     "quantity": 1,
+     "amount_cents": 185,
+     "taxed": false
+    },
+    {
+     "printed": "4664 TOMATOES ON VINEMRJ",
+     "name": "Tomatoes on the vine",
+     "quantity": 1,
+     "amount_cents": 412,
+     "taxed": false
+    },
+    {
+     "printed": "17003 OLIVE BAR MIXHMRJ",
+     "name": "Olive bar mix (1.040 kg net)",
+     "quantity": 1,
+     "amount_cents": 1603,
+     "taxed": true
+    },
+    {
+     "printed": "06038399008 PC HUMMUS ROASTED GARLICMRJ",
+     "name": "PC roasted garlic hummus",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "06038321234 PC GREEN DISH SOAP 740MLHMRJ",
+     "name": "PC Green dish soap",
+     "quantity": 1,
+     "amount_cents": 379,
+     "taxed": true
+    },
+    {
+     "printed": "05870322277 BOUNTY PAPER TWL 6=12HMRJ",
+     "name": "Bounty paper towels",
+     "quantity": 1,
+     "amount_cents": 1199,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 6353,
+   "tax_cents": 608,
+   "tip_cents": null,
+   "total_cents": 6961
+  },
+  "split": {
+   "people": [
+    "Arjun",
+    "Bea",
+    "Chen"
+   ],
+   "assign": [
+    [
+     "Arjun"
+    ],
+    [
+     "Arjun",
+     "Bea",
+     "Chen"
+    ],
+    [
+     "Arjun",
+     "Bea"
+    ],
+    [
+     "Chen"
+    ],
+    [
+     "Arjun",
+     "Bea",
+     "Chen"
+    ],
+    [
+     "Arjun",
+     "Bea",
+     "Chen"
+    ],
+    [
+     "Arjun",
+     "Bea",
+     "Chen"
+    ],
+    [
+     "Bea"
+    ],
+    [
+     "Arjun",
+     "Chen"
+    ],
+    [
+     "Arjun",
+     "Bea",
+     "Chen"
+    ],
+    [
+     "Arjun",
+     "Bea",
+     "Chen"
+    ],
+    [
+     "Arjun",
+     "Bea",
+     "Chen"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "02_walmart_ns_deposits-eco-kids.png",
+  "difficulty": "very_hard",
+  "province": "NS",
+  "chain": "Walmart",
+  "traps": [
+   "H = deposit (NOT HST) at Walmart",
+   "J eco fee taxed",
+   "Z kids shirt only 5% (NS rebate)",
+   "two tax lines GST 5% + HST 14%",
+   "repeated identical lines",
+   "6 AT 1 FOR multi-unit",
+   "weighed produce",
+   "UPC between name and price"
+  ],
+  "receipt_is_broken": false,
+  "notes": "NS deposit $0.10 (H, untaxed) folded into 'Pepsi 2L' NS deposit $0.10 (H, untaxed) folded into 'Pepsi 2L' NS eco fee $0.40 (J, taxed) folded into 'AA batteries 8pk' Kids tee (Z) is taxed at GST 5% only; HST 14% applies to J items incl. eco fee. Repeated salami/Pepsi lines are separate units (merging to qty 2 is equally fine).",
+  "expected": {
+   "merchant": "Walmart",
+   "date": "2026-09-14",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "GV 2% MILK 4L 062891510123",
+     "name": "Great Value 2% milk 4L",
+     "quantity": 1,
+     "amount_cents": 627,
+     "taxed": false
+    },
+    {
+     "printed": "GERMN SALAM 069401007020",
+     "name": "German salami",
+     "quantity": 1,
+     "amount_cents": 997,
+     "taxed": false
+    },
+    {
+     "printed": "GERMN SALAM 069401007020",
+     "name": "German salami",
+     "quantity": 1,
+     "amount_cents": 997,
+     "taxed": false
+    },
+    {
+     "printed": "BANANA 000000040110",
+     "name": "Bananas (0.755 kg)",
+     "quantity": 1,
+     "amount_cents": 115,
+     "taxed": false
+    },
+    {
+     "printed": "LIMES 000000040480",
+     "name": "Limes x6",
+     "quantity": 6,
+     "amount_cents": 564,
+     "taxed": false
+    },
+    {
+     "printed": "PEPSI 2L 069000019832",
+     "name": "Pepsi 2L",
+     "quantity": 1,
+     "amount_cents": 257,
+     "taxed": true
+    },
+    {
+     "printed": "PEPSI 2L 069000019832",
+     "name": "Pepsi 2L",
+     "quantity": 1,
+     "amount_cents": 257,
+     "taxed": true
+    },
+    {
+     "printed": "AA BATTERIES 8PK 065030901234",
+     "name": "AA batteries 8pk",
+     "quantity": 1,
+     "amount_cents": 1337,
+     "taxed": true
+    },
+    {
+     "printed": "GEORGE KIDS TEE 062811234567",
+     "name": "George kids t-shirt",
+     "quantity": 1,
+     "amount_cents": 698,
+     "taxed": true
+    },
+    {
+     "printed": "LAYS CLASSIC 235G 060410014587",
+     "name": "Lay's classic chips",
+     "quantity": 1,
+     "amount_cents": 397,
+     "taxed": true
+    },
+    {
+     "printed": "EQ BABY WIPES 062891555432",
+     "name": "Equate baby wipes",
+     "quantity": 1,
+     "amount_cents": 897,
+     "taxed": true
+    },
+    {
+     "printed": "GV EGGS LG 12 062891500987",
+     "name": "Great Value large eggs 12",
+     "quantity": 1,
+     "amount_cents": 389,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 7532,
+   "tax_cents": 473,
+   "tip_cents": null,
+   "total_cents": 8005
+  },
+  "split": {
+   "people": [
+    "Dev",
+    "Emma"
+   ],
+   "assign": [
+    [
+     "Dev",
+     "Emma"
+    ],
+    [
+     "Dev"
+    ],
+    [
+     "Dev"
+    ],
+    [
+     "Dev",
+     "Emma"
+    ],
+    [
+     "Emma"
+    ],
+    [
+     "Dev",
+     "Emma"
+    ],
+    [
+     "Dev",
+     "Emma"
+    ],
+    [
+     "Dev"
+    ],
+    [
+     "Emma"
+    ],
+    [
+     "Dev",
+     "Emma"
+    ],
+    [
+     "Emma"
+    ],
+    [
+     "Dev",
+     "Emma"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "03_costco_bc_tpd-single-tax.png",
+  "difficulty": "hard",
+  "province": "BC",
+  "chain": "Costco",
+  "traps": [
+   "GP flag = GST+PST, blank = zero-rated",
+   "G = GST only (kids clothing in BC)",
+   "TPD/ instant savings with trailing minus",
+   "eco fee line",
+   "single TAX line (GST+PST summed)",
+   "repeated identical lines",
+   "TOTAL DISCOUNT(S) informational"
+  ],
+  "receipt_is_broken": false,
+  "notes": "TPD/597726 -6.00 reduces collagen to 20.99. TPD/SOCKS -3.00 on kids socks. Eco fee $0.40 (taxed GP) folded into 'LED lantern 2pk' Single TAX line = GST 4.57 + PST 5.70. Rotisserie chicken is unflagged here (cold-case pickup). TOTAL DISCOUNT(S) is informational.",
+  "expected": {
+   "merchant": "Costco Wholesale",
+   "date": "2026-08-22",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "15099 PINEAPPLE",
+     "name": "Pineapple",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "88426 CUCUMBERS",
+     "name": "Cucumbers",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "88426 CUCUMBERS",
+     "name": "Cucumbers",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "597726 YT COLLAGEN",
+     "name": "Youtheory collagen",
+     "quantity": 1,
+     "amount_cents": 2099,
+     "taxed": true
+    },
+    {
+     "printed": "1234567 KS PAPER TOWEL",
+     "name": "Kirkland paper towels",
+     "quantity": 1,
+     "amount_cents": 2499,
+     "taxed": true
+    },
+    {
+     "printed": "1622001 KIDS SOCKS 8PK",
+     "name": "Kids socks 8pk",
+     "quantity": 1,
+     "amount_cents": 999,
+     "taxed": true
+    },
+    {
+     "printed": "1755123 LED LANTERN 2PK",
+     "name": "LED lantern 2pk",
+     "quantity": 1,
+     "amount_cents": 3539,
+     "taxed": true
+    },
+    {
+     "printed": "31720 ORG BLUEBERRY",
+     "name": "Organic blueberries",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": false
+    },
+    {
+     "printed": "1188899 KS ROTISSERIE CHKN",
+     "name": "Kirkland rotisserie chicken",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 12831,
+   "tax_cents": 1027,
+   "tip_cents": null,
+   "total_cents": 13858
+  },
+  "split": {
+   "people": [
+    "Farah",
+    "Gus",
+    "Hana"
+   ],
+   "assign": [
+    [
+     "Farah",
+     "Gus",
+     "Hana"
+    ],
+    [
+     "Farah"
+    ],
+    [
+     "Gus"
+    ],
+    [
+     "Hana"
+    ],
+    [
+     "Farah",
+     "Gus",
+     "Hana"
+    ],
+    [
+     "Gus"
+    ],
+    [
+     "Farah"
+    ],
+    [
+     "Farah",
+     "Gus",
+     "Hana"
+    ],
+    [
+     "Farah",
+     "Gus",
+     "Hana"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "04_no-frills_on_multibuy-cash.png",
+  "difficulty": "medium",
+  "province": "ON",
+  "chain": "No Frills",
+  "traps": [
+   "HMRJ vs MRJ",
+   "(2) qty prefix",
+   "multi-buy 2 @ 2/$5.00",
+   "cash rounding line",
+   "department headers"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Cash rounding 0.02: paid 26.05; bill total is pre-rounding 26.03.",
+  "expected": {
+   "merchant": "No Frills",
+   "date": "2026-01-17",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "(2)06038318800 NN TOMATO SOUP 284MLMRJ",
+     "name": "No Name tomato soup x2",
+     "quantity": 2,
+     "amount_cents": 500,
+     "taxed": false
+    },
+    {
+     "printed": "05574200160 OLD DUTCH RIPPLE 235GHMRJ",
+     "name": "Old Dutch ripple chips",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "06038388111 NN WHITE BREAD 675GMRJ",
+     "name": "No Name white bread",
+     "quantity": 1,
+     "amount_cents": 229,
+     "taxed": false
+    },
+    {
+     "printed": "06810000117 KRAFT PB SMOOTH 1KGMRJ",
+     "name": "Kraft peanut butter",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "(3)4048 LIMESMRJ",
+     "name": "Limes x3",
+     "quantity": 3,
+     "amount_cents": 147,
+     "taxed": false
+    },
+    {
+     "printed": "06038321900 NN GARBAGE BAGS 40HMRJ",
+     "name": "No Name garbage bags",
+     "quantity": 1,
+     "amount_cents": 649,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 2473,
+   "tax_cents": 130,
+   "tip_cents": null,
+   "total_cents": 2603
+  },
+  "split": {
+   "people": [
+    "Ali",
+    "Bri"
+   ],
+   "assign": [
+    [
+     "Ali",
+     "Bri"
+    ],
+    [
+     "Ali"
+    ],
+    [
+     "Ali",
+     "Bri"
+    ],
+    [
+     "Ali",
+     "Bri"
+    ],
+    [
+     "Bri"
+    ],
+    [
+     "Ali",
+     "Bri"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "05_costco_on_long-60-lines.png",
+  "difficulty": "very_hard",
+  "province": "ON",
+  "chain": "Costco",
+  "traps": [
+   "long receipt (~60 lines)",
+   "H = HST, blank = zero-rated, G = GST-only kids clothing",
+   "TPD/ lines with trailing minus",
+   "TPD number run together with amount",
+   "eco fee lines (taxed)",
+   "many repeated identical lines",
+   "footer P/G letters don't match item flags",
+   "TOTAL DISCOUNT(S) and items-sold count informational"
+  ],
+  "receipt_is_broken": false,
+  "notes": "TPD/1556005 -2.00 applied to 'Mission tortillas'. TPD/596422 -5.00 applied to 'KIND bars 18 (taxed snack bar)'. TPD/1234567 -4.00 applied to 'Kirkland paper towels'. TPD/TIDE -7.00 applied to 'Tide Pods 112'. Eco fee $0.52 (H, taxed) folded into 'Duracell AA 40' TPD/1660020 -5.00 applied to 'Philips LED bulbs 8 pk'. Eco fee $0.18 (H, taxed) folded into 'Philips LED bulbs 8 pk' TPD/1700990 -6.00 applied to 'Kids rain jacket'. Single TAX line = HST 32.84 + GST 1.70 (kids clothing G at 5%). Repeated lines are separate units. KIND 18-bar box treated as taxable (H) as printed.",
+  "expected": {
+   "merchant": "Costco Wholesale",
+   "date": "2026-10-11",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "15099 PINEAPPLE",
+     "name": "Pineapple",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "88426 ENG CUCUMBERS",
+     "name": "English cucumbers",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": false
+    },
+    {
+     "printed": "88426 ENG CUCUMBERS",
+     "name": "English cucumbers",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": false
+    },
+    {
+     "printed": "3923 BANANAS",
+     "name": "Bananas",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": false
+    },
+    {
+     "printed": "3923 BANANAS",
+     "name": "Bananas",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": false
+    },
+    {
+     "printed": "31720 ORG BLUEBERRY",
+     "name": "Organic blueberries",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": false
+    },
+    {
+     "printed": "27003 ORG SPINACH",
+     "name": "Organic spinach",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "1188899 KS ROTISSERIE CHKN",
+     "name": "Kirkland rotisserie chicken",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": false
+    },
+    {
+     "printed": "1188899 KS ROTISSERIE CHKN",
+     "name": "Kirkland rotisserie chicken",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": false
+    },
+    {
+     "printed": "5524 KS LG EGGS 24",
+     "name": "Kirkland large eggs 24",
+     "quantity": 1,
+     "amount_cents": 899,
+     "taxed": false
+    },
+    {
+     "printed": "1712 2% MILK 3X1.5L",
+     "name": "2% milk 3x1.5L",
+     "quantity": 1,
+     "amount_cents": 829,
+     "taxed": false
+    },
+    {
+     "printed": "1025341 KS GREEK YOG 1.36K",
+     "name": "Kirkland Greek yogurt",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": false
+    },
+    {
+     "printed": "788555 SALMON FILLET",
+     "name": "Atlantic salmon fillet",
+     "quantity": 1,
+     "amount_cents": 2734,
+     "taxed": false
+    },
+    {
+     "printed": "1347221 CHKN BRST BNLS",
+     "name": "Boneless chicken breast",
+     "quantity": 1,
+     "amount_cents": 2989,
+     "taxed": false
+    },
+    {
+     "printed": "1347221 CHKN BRST BNLS",
+     "name": "Boneless chicken breast",
+     "quantity": 1,
+     "amount_cents": 2989,
+     "taxed": false
+    },
+    {
+     "printed": "1000302 KS BASMATI 10KG",
+     "name": "Kirkland basmati rice 10 kg",
+     "quantity": 1,
+     "amount_cents": 2199,
+     "taxed": false
+    },
+    {
+     "printed": "7950 KS OLIVE OIL 3L",
+     "name": "Kirkland olive oil 3 L",
+     "quantity": 1,
+     "amount_cents": 3199,
+     "taxed": false
+    },
+    {
+     "printed": "1556005 MISSION TORTILLA",
+     "name": "Mission tortillas",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": false
+    },
+    {
+     "printed": "596422 KIND BARS 18",
+     "name": "KIND bars 18 (taxed snack bar)",
+     "quantity": 1,
+     "amount_cents": 1999,
+     "taxed": true
+    },
+    {
+     "printed": "1104488 KS SPARKLING 35PK",
+     "name": "Kirkland sparkling water 35 pk",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": false
+    },
+    {
+     "printed": "1104488 KS SPARKLING 35PK",
+     "name": "Kirkland sparkling water 35 pk",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": false
+    },
+    {
+     "printed": "1600422 COKE ZERO 32X355",
+     "name": "Coke Zero 32 pack",
+     "quantity": 1,
+     "amount_cents": 1999,
+     "taxed": true
+    },
+    {
+     "printed": "1350009 LAYS VARIETY 40",
+     "name": "Lay's variety 40",
+     "quantity": 1,
+     "amount_cents": 2199,
+     "taxed": true
+    },
+    {
+     "printed": "1234567 KS PAPER TOWEL",
+     "name": "Kirkland paper towels",
+     "quantity": 1,
+     "amount_cents": 2099,
+     "taxed": true
+    },
+    {
+     "printed": "1180011 KS BATH TISSUE",
+     "name": "Kirkland bath tissue",
+     "quantity": 1,
+     "amount_cents": 2599,
+     "taxed": true
+    },
+    {
+     "printed": "1620255 TIDE PODS 112",
+     "name": "Tide Pods 112",
+     "quantity": 1,
+     "amount_cents": 2599,
+     "taxed": true
+    },
+    {
+     "printed": "1499810 KS DISH TABS 115",
+     "name": "Kirkland dish tabs",
+     "quantity": 1,
+     "amount_cents": 1599,
+     "taxed": true
+    },
+    {
+     "printed": "1755123 DURACELL AA 40",
+     "name": "Duracell AA 40",
+     "quantity": 1,
+     "amount_cents": 2751,
+     "taxed": true
+    },
+    {
+     "printed": "1660020 PHILIPS LED 8PK",
+     "name": "Philips LED bulbs 8 pk",
+     "quantity": 1,
+     "amount_cents": 1517,
+     "taxed": true
+    },
+    {
+     "printed": "1700990 KIDS RAIN JACKET",
+     "name": "Kids rain jacket",
+     "quantity": 1,
+     "amount_cents": 1899,
+     "taxed": true
+    },
+    {
+     "printed": "1622001 KIDS SOCKS 10PK",
+     "name": "Kids socks 10 pk",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": true
+    },
+    {
+     "printed": "1590300 MENS JOGGER",
+     "name": "Men's jogger",
+     "quantity": 1,
+     "amount_cents": 1999,
+     "taxed": true
+    },
+    {
+     "printed": "1590300 MENS JOGGER",
+     "name": "Men's jogger",
+     "quantity": 1,
+     "amount_cents": 1999,
+     "taxed": true
+    },
+    {
+     "printed": "1688432 AERO SHOW 12",
+     "name": "Aero chocolate bars 12",
+     "quantity": 1,
+     "amount_cents": 1899,
+     "taxed": true
+    },
+    {
+     "printed": "1240021 KS ALMONDS 1.13K",
+     "name": "Kirkland almonds (unsalted)",
+     "quantity": 1,
+     "amount_cents": 1699,
+     "taxed": false
+    },
+    {
+     "printed": "1130090 NUTELLA 2X1KG",
+     "name": "Nutella 2x1 kg",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": false
+    },
+    {
+     "printed": "940010 SMKD SALMON 454G",
+     "name": "Smoked salmon",
+     "quantity": 1,
+     "amount_cents": 2199,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 58878,
+   "tax_cents": 3454,
+   "tip_cents": null,
+   "total_cents": 62332
+  },
+  "split": {
+   "people": [
+    "Asha",
+    "Ben",
+    "Cyrus",
+    "Dee"
+   ],
+   "assign": [
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Cyrus"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Ben",
+     "Cyrus"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Cyrus"
+    ],
+    [
+     "Cyrus"
+    ],
+    [
+     "Ben"
+    ],
+    [
+     "Dee"
+    ],
+    [
+     "Asha"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben",
+     "Cyrus",
+     "Dee"
+    ],
+    [
+     "Asha",
+     "Ben"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "06_atlantic-superstore_ns_granola-icecream.png",
+  "difficulty": "very_hard",
+  "province": "NS",
+  "chain": "Atlantic Superstore",
+  "traps": [
+   "granola 5-pack taxed vs 6-pack zero-rated",
+   "ice cream sandwich multipack taxed vs 1.5 L tub not",
+   "DEPOSIT 1 grouped 3@$0.10 (untaxed) under drinks",
+   "HMRJ vs MRJ",
+   "NS HST 14% (not 15%)",
+   "(3) qty prefix"
+  ],
+  "receipt_is_broken": false,
+  "notes": "DEPOSIT 1 3@$0.10 = $0.30 (untaxed) folded into 'Coke 355 mL cans x3' Federal 'six or more' rule: 5-pack granola taxed (HMRJ), 6-pack not; ice cream sandwich multipack taxed, 1.5 L tub not.",
+  "expected": {
+   "merchant": "Atlantic Superstore",
+   "date": "2026-06-27",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "06563300222 NV CHEWY GRNLA 5PKHMRJ",
+     "name": "Nature Valley chewy granola 5-pack",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "06563300230 QKR CHEWY GRNLA 6PKMRJ",
+     "name": "Quaker chewy granola 6-pack",
+     "quantity": 1,
+     "amount_cents": 379,
+     "taxed": false
+    },
+    {
+     "printed": "06038344510 PC ICE CRM SANDWICH 6HMRJ",
+     "name": "PC ice cream sandwiches 6",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": true
+    },
+    {
+     "printed": "06038344111 PC VANILLA ICE CRM 1.5LMRJ",
+     "name": "PC vanilla ice cream 1.5 L",
+     "quantity": 1,
+     "amount_cents": 549,
+     "taxed": false
+    },
+    {
+     "printed": "(3)06700000474 COKE 355ML CANHMRJ",
+     "name": "Coke 355 mL cans x3",
+     "quantity": 3,
+     "amount_cents": 417,
+     "taxed": true
+    },
+    {
+     "printed": "06038388111 NN WHITE BREAD 675GMRJ",
+     "name": "No Name white bread",
+     "quantity": 1,
+     "amount_cents": 279,
+     "taxed": false
+    },
+    {
+     "printed": "06038377601 PC FREE RANGE EGGS 12MRJ",
+     "name": "PC free range eggs",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "4017 GRANNY SMITHMRJ",
+     "name": "Granny Smith apples (1.580 kg)",
+     "quantity": 1,
+     "amount_cents": 313,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 3484,
+   "tax_cents": 187,
+   "tip_cents": null,
+   "total_cents": 3671
+  },
+  "split": {
+   "people": [
+    "Nadia",
+    "Owen",
+    "Priya",
+    "Quinn"
+   ],
+   "assign": [
+    [
+     "Nadia"
+    ],
+    [
+     "Owen"
+    ],
+    [
+     "Nadia",
+     "Owen",
+     "Priya",
+     "Quinn"
+    ],
+    [
+     "Nadia",
+     "Owen",
+     "Priya",
+     "Quinn"
+    ],
+    [
+     "Priya",
+     "Quinn"
+    ],
+    [
+     "Nadia",
+     "Owen",
+     "Priya",
+     "Quinn"
+    ],
+    [
+     "Nadia",
+     "Owen",
+     "Priya",
+     "Quinn"
+    ],
+    [
+     "Nadia",
+     "Owen",
+     "Priya",
+     "Quinn"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "07_walmart_pe_pei-kids-deposit.png",
+  "difficulty": "hard",
+  "province": "PE",
+  "chain": "Walmart",
+  "traps": [
+   "H deposit lines NOT taxed (Walmart H is not HST)",
+   "Y kids clothing at GST 5% only (PEI rebate)",
+   "two tax lines GST 5% + HST 15%",
+   "J eco fee taxed",
+   "repeated lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "PE deposit $0.10 (H, untaxed) folded into 'bubly lime can' PE deposit $0.10 (H, untaxed) folded into 'bubly lime can' PE deposit $2.40 for 24 bottles (H, untaxed) folded into 'Great Value spring water 24' PE eco fee $0.60 (J, taxed) folded into 'Mini Bluetooth speaker'",
+  "expected": {
+   "merchant": "Walmart",
+   "date": "2026-06-06",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "BUBLY LIME 355ML 012000190011",
+     "name": "bubly lime can",
+     "quantity": 1,
+     "amount_cents": 139,
+     "taxed": true
+    },
+    {
+     "printed": "BUBLY LIME 355ML 012000190011",
+     "name": "bubly lime can",
+     "quantity": 1,
+     "amount_cents": 139,
+     "taxed": true
+    },
+    {
+     "printed": "GV SPRING WTR 24 062891530012",
+     "name": "Great Value spring water 24",
+     "quantity": 1,
+     "amount_cents": 637,
+     "taxed": false
+    },
+    {
+     "printed": "GEORGE KIDS SHORTS 062811265431",
+     "name": "George kids shorts",
+     "quantity": 1,
+     "amount_cents": 897,
+     "taxed": true
+    },
+    {
+     "printed": "GEORGE KIDS SHORTS 062811265431",
+     "name": "George kids shorts",
+     "quantity": 1,
+     "amount_cents": 897,
+     "taxed": true
+    },
+    {
+     "printed": "GV PASTA 900G 062891566880",
+     "name": "Great Value pasta",
+     "quantity": 1,
+     "amount_cents": 147,
+     "taxed": false
+    },
+    {
+     "printed": "PRINCE EDW POTATO 000000041110",
+     "name": "PEI potatoes 10 lb",
+     "quantity": 1,
+     "amount_cents": 497,
+     "taxed": false
+    },
+    {
+     "printed": "BT SPEAKER MINI 065030998801",
+     "name": "Mini Bluetooth speaker",
+     "quantity": 1,
+     "amount_cents": 2557,
+     "taxed": true
+    },
+    {
+     "printed": "CRAYOLA MARKERS 063753123456",
+     "name": "Crayola markers",
+     "quantity": 1,
+     "amount_cents": 597,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 6507,
+   "tax_cents": 602,
+   "tip_cents": null,
+   "total_cents": 7109
+  },
+  "split": {
+   "people": [
+    "Ella",
+    "Fred",
+    "Gina"
+   ],
+   "assign": [
+    [
+     "Ella"
+    ],
+    [
+     "Ella"
+    ],
+    [
+     "Ella",
+     "Fred",
+     "Gina"
+    ],
+    [
+     "Fred"
+    ],
+    [
+     "Gina"
+    ],
+    [
+     "Ella",
+     "Fred",
+     "Gina"
+    ],
+    [
+     "Ella",
+     "Fred",
+     "Gina"
+    ],
+    [
+     "Ella"
+    ],
+    [
+     "Fred",
+     "Gina"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "08_walmart_nl_nl-hst15-8c.png",
+  "difficulty": "medium",
+  "province": "NL",
+  "chain": "Walmart",
+  "traps": [
+   "NL HST 15%",
+   "8c NL deposit lines with H (untaxed)",
+   "D zero-rated vs J taxed"
+  ],
+  "receipt_is_broken": false,
+  "notes": "NL deposit $0.08 (H, untaxed) folded into 'Pepsi 591 mL' NL deposit $0.08 (H, untaxed) folded into 'Pepsi 591 mL'",
+  "expected": {
+   "merchant": "Walmart",
+   "date": "2026-03-28",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "GV BREAD WHITE 062891522004",
+     "name": "Great Value white bread",
+     "quantity": 1,
+     "amount_cents": 247,
+     "taxed": false
+    },
+    {
+     "printed": "BOLOGNA 500G 059749871123",
+     "name": "Bologna",
+     "quantity": 1,
+     "amount_cents": 497,
+     "taxed": false
+    },
+    {
+     "printed": "PEPSI 591ML 069000010120",
+     "name": "Pepsi 591 mL",
+     "quantity": 1,
+     "amount_cents": 237,
+     "taxed": true
+    },
+    {
+     "printed": "PEPSI 591ML 069000010120",
+     "name": "Pepsi 591 mL",
+     "quantity": 1,
+     "amount_cents": 237,
+     "taxed": true
+    },
+    {
+     "printed": "MIENS SALT BEEF 062211450002",
+     "name": "Salt beef",
+     "quantity": 1,
+     "amount_cents": 1297,
+     "taxed": false
+    },
+    {
+     "printed": "PURINA CAT 2KG 017800121334",
+     "name": "Purina cat food",
+     "quantity": 1,
+     "amount_cents": 1397,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 3912,
+   "tax_cents": 278,
+   "tip_cents": null,
+   "total_cents": 4190
+  },
+  "split": {
+   "people": [
+    "Hal",
+    "Ivy"
+   ],
+   "assign": [
+    [
+     "Hal",
+     "Ivy"
+    ],
+    [
+     "Hal",
+     "Ivy"
+    ],
+    [
+     "Hal"
+    ],
+    [
+     "Hal"
+    ],
+    [
+     "Hal",
+     "Ivy"
+    ],
+    [
+     "Ivy"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "09_shoppers-drug-mart_nb_nb-gp-n.png",
+  "difficulty": "medium",
+  "province": "NB",
+  "chain": "Shoppers Drug Mart",
+  "traps": [
+   "GP taxed, N not",
+   "trailing S sale flag",
+   "NB HST 15%",
+   "points lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "",
+  "expected": {
+   "merchant": "Shoppers Drug Mart",
+   "date": "2026-09-09",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "LIFE BRAND IBUPROFEN",
+     "name": "Life Brand ibuprofen",
+     "quantity": 1,
+     "amount_cents": 899,
+     "taxed": true
+    },
+    {
+     "printed": "PC CEREAL",
+     "name": "PC cereal",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "COLGATE TOTAL",
+     "name": "Colgate toothpaste",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "DOVE BODY WASH",
+     "name": "Dove body wash",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": true
+    },
+    {
+     "printed": "BOTTLED WATER 24",
+     "name": "Bottled water 24",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 2945,
+   "tax_cents": 307,
+   "tip_cents": null,
+   "total_cents": 3252
+  },
+  "split": {
+   "people": [
+    "Jade",
+    "Ken"
+   ],
+   "assign": [
+    [
+     "Jade"
+    ],
+    [
+     "Jade",
+     "Ken"
+    ],
+    [
+     "Jade",
+     "Ken"
+    ],
+    [
+     "Ken"
+    ],
+    [
+     "Jade",
+     "Ken"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "10_zehrs_on_gross-tare-void-wrap.png",
+  "difficulty": "very_hard",
+  "province": "ON",
+  "chain": "Zehrs",
+  "traps": [
+   "cluster drops to its own row (item spans 3 lines)",
+   "Gross/Tare/Net",
+   "VOID (item + negative line, net 0)",
+   "member pricing",
+   "multi-buy qualifier '$3.49 ea or 2/$6.00'",
+   "points lines",
+   "faded thermal print"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Member pricing -3.00 on Angus burgers (10.99). Sprite 2L voided (net zero, not in key). Prepared pasta salad taxed.",
+  "expected": {
+   "merchant": "Zehrs",
+   "date": "2026-05-02",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "06038305512 PC BLUE MENU LIGHT MAYO STYLE DRESSING 890ML MRJ",
+     "name": "PC Blue Menu light mayo-style dressing",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "(2)05600010022 PRINGLES ORIGINALHMRJ",
+     "name": "Pringles original x2",
+     "quantity": 2,
+     "amount_cents": 600,
+     "taxed": true
+    },
+    {
+     "printed": "06038344777 PC ANGUS BURGERS 8MRJ",
+     "name": "PC Angus burgers 8",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": false
+    },
+    {
+     "printed": "06038300012 PC SESAME BUNS 8MRJ",
+     "name": "PC sesame buns 8",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": false
+    },
+    {
+     "printed": "17220 PC GREEK PASTA SALAD HMRJ",
+     "name": "Greek pasta salad (0.594 kg net)",
+     "quantity": 1,
+     "amount_cents": 772,
+     "taxed": true
+    },
+    {
+     "printed": "4062 WATERMELON SEEDLESSMRJ",
+     "name": "Seedless watermelon (2.318 kg)",
+     "quantity": 1,
+     "amount_cents": 916,
+     "taxed": false
+    },
+    {
+     "printed": "06038311499 PC CHARCOAL BRIQUETTES 7KGHMRJ",
+     "name": "PC charcoal briquettes",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 5634,
+   "tax_cents": 373,
+   "tip_cents": null,
+   "total_cents": 6007
+  },
+  "split": {
+   "people": [
+    "Liam",
+    "Mia",
+    "Nico"
+   ],
+   "assign": [
+    [
+     "Liam",
+     "Mia",
+     "Nico"
+    ],
+    [
+     "Liam"
+    ],
+    [
+     "Liam",
+     "Mia",
+     "Nico"
+    ],
+    [
+     "Liam",
+     "Mia",
+     "Nico"
+    ],
+    [
+     "Mia",
+     "Nico"
+    ],
+    [
+     "Liam",
+     "Mia",
+     "Nico"
+    ],
+    [
+     "Liam",
+     "Mia",
+     "Nico"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "11_walmart_ab_gst-only-bag-deposits.png",
+  "difficulty": "hard",
+  "province": "AB",
+  "chain": "Walmart",
+  "traps": [
+   "Alberta GST only (J and A both 5%)",
+   "H deposit lines 10c/25c NOT taxed",
+   "A = bag fee taxed",
+   "repeated lines",
+   "weighed produce",
+   "mm/dd/yy date"
+  ],
+  "receipt_is_broken": false,
+  "notes": "AB deposit $0.25 (H, untaxed) folded into 'Canada Dry 2L' AB deposit $0.10 (H, untaxed) folded into 'Red Bull 473 mL' AB deposit $0.10 (H, untaxed) folded into 'Red Bull 473 mL' Bag fee $0.25 is an item (shared). Deposits: 2L = 25c, 473 mL = 10c, untaxed.",
+  "expected": {
+   "merchant": "Walmart",
+   "date": "2026-02-07",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "GV WHL WHEAT BRD 062891522011",
+     "name": "Great Value whole wheat bread",
+     "quantity": 1,
+     "amount_cents": 247,
+     "taxed": false
+    },
+    {
+     "printed": "GV LG EGGS 18 062891500995",
+     "name": "Great Value large eggs 18",
+     "quantity": 1,
+     "amount_cents": 549,
+     "taxed": false
+    },
+    {
+     "printed": "CANADA DRY 2L 062100003303",
+     "name": "Canada Dry 2L",
+     "quantity": 1,
+     "amount_cents": 323,
+     "taxed": true
+    },
+    {
+     "printed": "RED BULL 473ML 061126900473",
+     "name": "Red Bull 473 mL",
+     "quantity": 1,
+     "amount_cents": 359,
+     "taxed": true
+    },
+    {
+     "printed": "RED BULL 473ML 061126900473",
+     "name": "Red Bull 473 mL",
+     "quantity": 1,
+     "amount_cents": 359,
+     "taxed": true
+    },
+    {
+     "printed": "YELLOW ONIONS 000000040930",
+     "name": "Yellow onions (1.342 kg)",
+     "quantity": 1,
+     "amount_cents": 295,
+     "taxed": false
+    },
+    {
+     "printed": "PC GRND BEEF LEAN 020601200000",
+     "name": "Lean ground beef",
+     "quantity": 1,
+     "amount_cents": 1184,
+     "taxed": false
+    },
+    {
+     "printed": "HERSHEY BAR 4PK 034000002481",
+     "name": "Hershey bars 4pk",
+     "quantity": 1,
+     "amount_cents": 397,
+     "taxed": true
+    },
+    {
+     "printed": "MAINSTAYS MUG 062811988110",
+     "name": "Mainstays mug",
+     "quantity": 1,
+     "amount_cents": 497,
+     "taxed": true
+    },
+    {
+     "printed": "WM BAG 000000009001",
+     "name": "Reusable bag fee",
+     "quantity": 1,
+     "amount_cents": 25,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 4235,
+   "tax_cents": 96,
+   "tip_cents": null,
+   "total_cents": 4331
+  },
+  "split": {
+   "people": [
+    "Kai",
+    "Lena",
+    "Mo"
+   ],
+   "assign": [
+    [
+     "Kai",
+     "Lena",
+     "Mo"
+    ],
+    [
+     "Kai",
+     "Lena",
+     "Mo"
+    ],
+    [
+     "Kai",
+     "Lena",
+     "Mo"
+    ],
+    [
+     "Mo"
+    ],
+    [
+     "Mo"
+    ],
+    [
+     "Kai",
+     "Lena",
+     "Mo"
+    ],
+    [
+     "Kai",
+     "Lena",
+     "Mo"
+    ],
+    [
+     "Lena"
+    ],
+    [
+     "Kai"
+    ],
+    [
+     "Kai",
+     "Lena",
+     "Mo"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "12_real-canadian-superstore_ab_western-gst-base.png",
+  "difficulty": "hard",
+  "province": "AB",
+  "chain": "Real Canadian Superstore",
+  "traps": [
+   "western G clusters (GMRJ taxed, MRJ not)",
+   "G=GST on $x @ 5% line with base",
+   "DEPOSIT 1 grouped",
+   "multi-buy 2 @ 2/$7.00",
+   "MAN WT keyed weight",
+   "points lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "DEPOSIT 2@$0.25 (untaxed) folded into 'PC cola 2L x2'",
+  "expected": {
+   "merchant": "Real Canadian Superstore",
+   "date": "2026-03-15",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "06038312500 PC BLK TIGER SHRIMPMRJ",
+     "name": "PC black tiger shrimp",
+     "quantity": 1,
+     "amount_cents": 1299,
+     "taxed": false
+    },
+    {
+     "printed": "(2)06038300077 PC COLA 2LGMRJ",
+     "name": "PC cola 2L x2",
+     "quantity": 2,
+     "amount_cents": 750,
+     "taxed": true
+    },
+    {
+     "printed": "06038344099 PC TORTILLA CHIPSGMRJ",
+     "name": "PC tortilla chips",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "06038311210 NN BASMATI RICE 2KGMRJ",
+     "name": "No Name basmati rice",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "06420000117 LIBERTE GREEK YOG 750GMRJ",
+     "name": "Liberte Greek yogurt",
+     "quantity": 1,
+     "amount_cents": 649,
+     "taxed": false
+    },
+    {
+     "printed": "4078 CORN ORGANICMRJ",
+     "name": "Organic corn (0.642 kg, MAN WT)",
+     "quantity": 1,
+     "amount_cents": 707,
+     "taxed": false
+    },
+    {
+     "printed": "(3)4225 AVOCADO HASSMRJ",
+     "name": "Hass avocados x3",
+     "quantity": 3,
+     "amount_cents": 597,
+     "taxed": false
+    },
+    {
+     "printed": "03700087412 CASCADE PLATINUM 36GMRJ",
+     "name": "Cascade Platinum pods",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 6399,
+   "tax_cents": 125,
+   "tip_cents": null,
+   "total_cents": 6524
+  },
+  "split": {
+   "people": [
+    "Noor",
+    "Oli"
+   ],
+   "assign": [
+    [
+     "Noor",
+     "Oli"
+    ],
+    [
+     "Noor",
+     "Oli"
+    ],
+    [
+     "Oli"
+    ],
+    [
+     "Noor",
+     "Oli"
+    ],
+    [
+     "Noor"
+    ],
+    [
+     "Noor",
+     "Oli"
+    ],
+    [
+     "Noor",
+     "Oli"
+    ],
+    [
+     "Noor",
+     "Oli"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "13_real-canadian-superstore_sk_gpst-hot-food.png",
+  "difficulty": "very_hard",
+  "province": "SK",
+  "chain": "Real Canadian Superstore",
+  "traps": [
+   "SK: pop/hot food/snacks GST, pop & hot food also 6% PST",
+   "GPMRJ vs GMRJ vs MRJ clusters",
+   "deposit + EHC lines",
+   "separate GST and PST lines with bases",
+   "member pricing",
+   "faded print",
+   "cluster on its own row (wrapped)"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Deposit 12@$0.10 untaxed folded into 'Coke Zero 12 pack' Enviro handling $0.24 (GST only) folded into 'Coke Zero 12 pack' Member pricing -2.00 on rotisserie chicken (9.99).",
+  "expected": {
+   "merchant": "Real Canadian Superstore",
+   "date": "2026-01-24",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "06700000700 COKE ZERO 12X355MLGPMRJ",
+     "name": "Coke Zero 12 pack",
+     "quantity": 1,
+     "amount_cents": 1043,
+     "taxed": true
+    },
+    {
+     "printed": "06038300412 PC KETTLE CHIPS JALAPENOGMRJ",
+     "name": "PC kettle chips jalapeno",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "06038300777 PC SALTED CASHEWS 300GGMRJ",
+     "name": "PC salted cashews",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": true
+    },
+    {
+     "printed": "06038366500 NN SPAGHETTI 900GMRJ",
+     "name": "No Name spaghetti",
+     "quantity": 1,
+     "amount_cents": 179,
+     "taxed": false
+    },
+    {
+     "printed": "21345 PC ROTISSERIE CHICKEN HOT SEASONEDGPMRJ",
+     "name": "Hot rotisserie chicken",
+     "quantity": 1,
+     "amount_cents": 999,
+     "taxed": true
+    },
+    {
+     "printed": "21877 MAC SALAD 454GGPMRJ",
+     "name": "Macaroni salad",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": true
+    },
+    {
+     "printed": "(2)4062 CUCUMBER ENGLISHMRJ",
+     "name": "English cucumbers x2",
+     "quantity": 2,
+     "amount_cents": 258,
+     "taxed": false
+    },
+    {
+     "printed": "06038377210 PC LAUNDRY PODS 81GPMRJ",
+     "name": "PC laundry pods",
+     "quantity": 1,
+     "amount_cents": 1599,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 5825,
+   "tax_cents": 509,
+   "tip_cents": null,
+   "total_cents": 6334
+  },
+  "split": {
+   "people": [
+    "Pia",
+    "Quin",
+    "Rhys",
+    "Sol"
+   ],
+   "assign": [
+    [
+     "Pia",
+     "Quin",
+     "Rhys",
+     "Sol"
+    ],
+    [
+     "Quin"
+    ],
+    [
+     "Pia",
+     "Quin",
+     "Rhys",
+     "Sol"
+    ],
+    [
+     "Pia",
+     "Quin",
+     "Rhys",
+     "Sol"
+    ],
+    [
+     "Pia",
+     "Quin",
+     "Rhys",
+     "Sol"
+    ],
+    [
+     "Rhys",
+     "Sol"
+    ],
+    [
+     "Pia",
+     "Quin",
+     "Rhys",
+     "Sol"
+    ],
+    [
+     "Pia",
+     "Quin",
+     "Rhys",
+     "Sol"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "14_shoppers-drug-mart_sk_gp-n-sale.png",
+  "difficulty": "hard",
+  "province": "SK",
+  "chain": "Shoppers Drug Mart",
+  "traps": [
+   "GP = taxable (both GST+PST in SK), N = not taxed",
+   "trailing S = sale flag, not tax",
+   "price printed twice (reg then sale)",
+   "Digital offer points lines",
+   "separate 5% GST / 6% PST lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Middle column is regular price; right column is the charged price. Coke mini cans: pop taxed (GP).",
+  "expected": {
+   "merchant": "Shoppers Drug Mart",
+   "date": "2026-05-30",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "PUREX LIQ LAUN",
+     "name": "Purex laundry liquid",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": true
+    },
+    {
+     "printed": "OREO THINS",
+     "name": "Oreo Thins",
+     "quantity": 1,
+     "amount_cents": 250,
+     "taxed": false
+    },
+    {
+     "printed": "ADVIL LIQ GEL 72",
+     "name": "Advil liqui-gels 72",
+     "quantity": 1,
+     "amount_cents": 2299,
+     "taxed": true
+    },
+    {
+     "printed": "LIFE BRAND FLOSS",
+     "name": "Life Brand floss",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "NUTELLA 725G",
+     "name": "Nutella 725 g",
+     "quantity": 1,
+     "amount_cents": 899,
+     "taxed": false
+    },
+    {
+     "printed": "COKE 6X222ML",
+     "name": "Coke mini cans 6",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": true
+    },
+    {
+     "printed": "QUO MASCARA",
+     "name": "Quo mascara",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 6394,
+   "tax_cents": 577,
+   "tip_cents": null,
+   "total_cents": 6971
+  },
+  "split": {
+   "people": [
+    "Tara",
+    "Uri"
+   ],
+   "assign": [
+    [
+     "Tara",
+     "Uri"
+    ],
+    [
+     "Tara",
+     "Uri"
+    ],
+    [
+     "Tara"
+    ],
+    [
+     "Uri"
+    ],
+    [
+     "Tara",
+     "Uri"
+    ],
+    [
+     "Uri"
+    ],
+    [
+     "Tara"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "15_shoppers-drug-mart_on_redeem-regular-price.png",
+  "difficulty": "hard",
+  "province": "ON",
+  "chain": "Shoppers Drug Mart",
+  "traps": [
+   "GP vs N",
+   "Regular price lines (ignore)",
+   "PC Optimum $15 redemption after TOTAL",
+   "N X prescription line zero-rated",
+   "one tax line HST 13%"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Redemption -15.00 is a payment after TOTAL; bill total 77.64. 'N X' style Rx line untaxed. Regular price lines are informational.",
+  "expected": {
+   "merchant": "Shoppers Drug Mart",
+   "date": "2026-06-12",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "RX 4402187 AMOXICILLIN",
+     "name": "Prescription (amoxicillin)",
+     "quantity": 1,
+     "amount_cents": 1450,
+     "taxed": false
+    },
+    {
+     "printed": "CLARITIN 24H 30",
+     "name": "Claritin 30",
+     "quantity": 1,
+     "amount_cents": 2799,
+     "taxed": true
+    },
+    {
+     "printed": "LIFE BRAND SHAMPOO",
+     "name": "Life Brand shampoo",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": true
+    },
+    {
+     "printed": "KETTLE CHIPS 220G",
+     "name": "Kettle chips",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "PC MILK 2% 2L",
+     "name": "PC 2% milk 2L",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": false
+    },
+    {
+     "printed": "DURACELL AA 10",
+     "name": "Duracell AA 10 (eco incl.)",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 7095,
+   "tax_cents": 669,
+   "tip_cents": null,
+   "total_cents": 7764
+  },
+  "split": {
+   "people": [
+    "Vic",
+    "Wren"
+   ],
+   "assign": [
+    [
+     "Vic"
+    ],
+    [
+     "Wren"
+    ],
+    [
+     "Vic",
+     "Wren"
+    ],
+    [
+     "Vic",
+     "Wren"
+    ],
+    [
+     "Vic",
+     "Wren"
+    ],
+    [
+     "Wren"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "16_giant-tiger_mb_mb-food-pst-cut.png",
+  "difficulty": "hard",
+  "province": "MB",
+  "chain": "Giant Tiger",
+  "traps": [
+   "Manitoba: PST removed from grocery food/pop after 2026-07-01 (pop/candy GST only)",
+   "GP taxed (non-food), G GST only, N not",
+   "department digit before the flag",
+   "separate GST/PST lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "",
+  "expected": {
+   "merchant": "Giant Tiger",
+   "date": "2026-08-19",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "PEPSI 12PK 355ML",
+     "name": "Pepsi 12 pack",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": true
+    },
+    {
+     "printed": "HALLS MENTHOL",
+     "name": "Halls menthol",
+     "quantity": 1,
+     "amount_cents": 179,
+     "taxed": true
+    },
+    {
+     "printed": "CHEERIOS 435G",
+     "name": "Cheerios",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "BANANAS 1.2KG",
+     "name": "Bananas",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": false
+    },
+    {
+     "printed": "2% MILK 4L",
+     "name": "2% milk 4L",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "MENS SOCKS 6PR",
+     "name": "Men's socks 6 pairs",
+     "quantity": 1,
+     "amount_cents": 1200,
+     "taxed": true
+    },
+    {
+     "printed": "DISH SOAP 950ML",
+     "name": "Dish soap",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "PHONE CHARGER",
+     "name": "Phone charger",
+     "quantity": 1,
+     "amount_cents": 1500,
+     "taxed": true
+    },
+    {
+     "printed": "POPCORN MICRO 6",
+     "name": "Microwave popcorn 6",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 5473,
+   "tax_cents": 421,
+   "tip_cents": null,
+   "total_cents": 5894
+  },
+  "split": {
+   "people": [
+    "Xia",
+    "Yusuf",
+    "Zoe"
+   ],
+   "assign": [
+    [
+     "Xia",
+     "Yusuf",
+     "Zoe"
+    ],
+    [
+     "Yusuf"
+    ],
+    [
+     "Xia",
+     "Yusuf",
+     "Zoe"
+    ],
+    [
+     "Xia",
+     "Yusuf",
+     "Zoe"
+    ],
+    [
+     "Xia",
+     "Yusuf",
+     "Zoe"
+    ],
+    [
+     "Yusuf"
+    ],
+    [
+     "Xia",
+     "Yusuf",
+     "Zoe"
+    ],
+    [
+     "Xia"
+    ],
+    [
+     "Zoe"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "17_giant-tiger_ns_dept-digit.png",
+  "difficulty": "medium",
+  "province": "NS",
+  "chain": "Giant Tiger",
+  "traps": [
+   "GP taxed vs N",
+   "department digit before flag is not a quantity",
+   "NS HST 14%"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Root beer 2L carries no NS deposit line here (deposit included / not printed).",
+  "expected": {
+   "merchant": "Giant Tiger",
+   "date": "2026-04-04",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "GT EGGS LG 12",
+     "name": "Large eggs 12",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "A&W ROOT BEER 2L",
+     "name": "A&W root beer 2L",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": true
+    },
+    {
+     "printed": "KRAFT DINNER 12PK",
+     "name": "Kraft Dinner 12 pk",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": false
+    },
+    {
+     "printed": "WOMENS TEE",
+     "name": "Women's tee",
+     "quantity": 1,
+     "amount_cents": 800,
+     "taxed": true
+    },
+    {
+     "printed": "BLEACH 3.6L",
+     "name": "Bleach",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": true
+    },
+    {
+     "printed": "FROZEN PIZZA",
+     "name": "Frozen pizza",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 3445,
+   "tax_cents": 203,
+   "tip_cents": null,
+   "total_cents": 3648
+  },
+  "split": {
+   "people": [
+    "Omar",
+    "Pam"
+   ],
+   "assign": [
+    [
+     "Omar",
+     "Pam"
+    ],
+    [
+     "Omar"
+    ],
+    [
+     "Omar",
+     "Pam"
+    ],
+    [
+     "Pam"
+    ],
+    [
+     "Omar",
+     "Pam"
+    ],
+    [
+     "Omar",
+     "Pam"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "18_costco_ab_gst-tpd-repeat.png",
+  "difficulty": "hard",
+  "province": "AB",
+  "chain": "Costco",
+  "traps": [
+   "Alberta G flag = GST 5%, blank = zero-rated",
+   "TPD/ trailing minus",
+   "deposit lines (untaxed)",
+   "eco fee taxed",
+   "repeated identical lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Deposit $3.20 (32x10c, untaxed) folded into 'Pepsi 32 pack' Eco fee $0.36 (G, taxed) folded into 'Samsung SSD 1 TB' TPD/1755010 -20.00 on the SSD.",
+  "expected": {
+   "merchant": "Costco Wholesale",
+   "date": "2026-07-18",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1600422 PEPSI 32X355",
+     "name": "Pepsi 32 pack",
+     "quantity": 1,
+     "amount_cents": 2119,
+     "taxed": true
+    },
+    {
+     "printed": "1350009 KETTLE CHIPS 30",
+     "name": "Kettle chips 30",
+     "quantity": 1,
+     "amount_cents": 2199,
+     "taxed": true
+    },
+    {
+     "printed": "1188899 KS ROTISSERIE CHKN",
+     "name": "Rotisserie chicken",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": false
+    },
+    {
+     "printed": "1347221 STRIPLOIN STEAK",
+     "name": "Striploin steak",
+     "quantity": 1,
+     "amount_cents": 4512,
+     "taxed": false
+    },
+    {
+     "printed": "3923 BANANAS",
+     "name": "Bananas",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": false
+    },
+    {
+     "printed": "3923 BANANAS",
+     "name": "Bananas",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": false
+    },
+    {
+     "printed": "1755010 SAMSUNG SSD 1TB",
+     "name": "Samsung SSD 1 TB",
+     "quantity": 1,
+     "amount_cents": 10035,
+     "taxed": true
+    },
+    {
+     "printed": "5524 KS LG EGGS 24",
+     "name": "Kirkland eggs 24",
+     "quantity": 1,
+     "amount_cents": 849,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 20911,
+   "tax_cents": 702,
+   "tip_cents": null,
+   "total_cents": 21613
+  },
+  "split": {
+   "people": [
+    "Quinn",
+    "Rosa",
+    "Sam"
+   ],
+   "assign": [
+    [
+     "Quinn",
+     "Rosa",
+     "Sam"
+    ],
+    [
+     "Quinn"
+    ],
+    [
+     "Quinn",
+     "Rosa",
+     "Sam"
+    ],
+    [
+     "Quinn",
+     "Rosa",
+     "Sam"
+    ],
+    [
+     "Quinn",
+     "Rosa",
+     "Sam"
+    ],
+    [
+     "Quinn",
+     "Rosa",
+     "Sam"
+    ],
+    [
+     "Sam"
+    ],
+    [
+     "Rosa"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "19_real-canadian-superstore_bc_pop-crf-gst-pst.png",
+  "difficulty": "very_hard",
+  "province": "BC",
+  "chain": "Real Canadian Superstore",
+  "traps": [
+   "BC: pop GST+PST (GPMRJ), chips/candy GST only (GMRJ), groceries MRJ",
+   "DEPOSIT and CONTAINER RECYCLING FEE lines",
+   "G=GST and P=PST lines with bases",
+   "(4) qty prefix",
+   "member pricing on taxed item reduces both bases",
+   "points lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Deposit 4@$0.10 untaxed folded into 'Coke 355 mL cans x4' Container recycling fee 4@$0.02 (GST only) folded into 'Coke 355 mL cans x4' Deposit $0.20 untaxed folded into 'PC ginger beer 2L' CRF $0.02 (GST only) folded into 'PC ginger beer 2L' Member pricing -1.00 on chips. Ginger beer (sweetened carbonated) pays PST in BC. Container recycling fee treated as GST-taxable, not PST.",
+  "expected": {
+   "merchant": "Real Canadian Superstore",
+   "date": "2026-05-23",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "(4)06700000474 COKE 355ML CANGPMRJ",
+     "name": "Coke 355 mL cans x4",
+     "quantity": 4,
+     "amount_cents": 564,
+     "taxed": true
+    },
+    {
+     "printed": "06038300099 PC GINGER BEER 2LGPMRJ",
+     "name": "PC ginger beer 2L",
+     "quantity": 1,
+     "amount_cents": 321,
+     "taxed": true
+    },
+    {
+     "printed": "06038300412 PC KETTLE CHIPS SEA SALTGMRJ",
+     "name": "PC kettle chips",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "06280002222 HARIBO GOLDBEARSGMRJ",
+     "name": "Haribo Goldbears",
+     "quantity": 1,
+     "amount_cents": 249,
+     "taxed": true
+    },
+    {
+     "printed": "06038366500 NN SPAGHETTI 900GMRJ",
+     "name": "No Name spaghetti",
+     "quantity": 1,
+     "amount_cents": 179,
+     "taxed": false
+    },
+    {
+     "printed": "06038377601 PC FREE RANGE EGGS 12MRJ",
+     "name": "PC free range eggs",
+     "quantity": 1,
+     "amount_cents": 649,
+     "taxed": false
+    },
+    {
+     "printed": "4022 GRAPES GREENMRJ",
+     "name": "Green grapes (0.980 kg)",
+     "quantity": 1,
+     "amount_cents": 648,
+     "taxed": false
+    },
+    {
+     "printed": "06038321234 PC GREEN DISH SOAP 740MLGPMRJ",
+     "name": "PC Green dish soap",
+     "quantity": 1,
+     "amount_cents": 379,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 3288,
+   "tax_cents": 172,
+   "tip_cents": null,
+   "total_cents": 3460
+  },
+  "split": {
+   "people": [
+    "Tess",
+    "Umar",
+    "Vera",
+    "Will"
+   ],
+   "assign": [
+    [
+     "Tess",
+     "Umar",
+     "Vera",
+     "Will"
+    ],
+    [
+     "Umar"
+    ],
+    [
+     "Tess",
+     "Umar",
+     "Vera",
+     "Will"
+    ],
+    [
+     "Vera"
+    ],
+    [
+     "Tess",
+     "Umar",
+     "Vera",
+     "Will"
+    ],
+    [
+     "Tess",
+     "Umar",
+     "Vera",
+     "Will"
+    ],
+    [
+     "Tess",
+     "Will"
+    ],
+    [
+     "Tess",
+     "Umar",
+     "Vera",
+     "Will"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "20_walmart_on_second-total-block.png",
+  "difficulty": "very_hard",
+  "province": "ON",
+  "chain": "Walmart",
+  "traps": [
+   "second SUBTOTAL/TAX/TOTAL block after an item added post-total (use the last)",
+   "Z kids clothing 5% only (ON rebate)",
+   "GST 5% + HST 13% lines",
+   "6 AT 1 FOR multi-unit",
+   "weighed produce",
+   "J eco fee taxed",
+   "duplicate lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "ON eco fee $0.15 (J, taxed) folded into 'onn earbuds' First block (TOTAL 91.72) is superseded; towel added after totalling; final TOTAL 99.59. Kids tee/jeans (Z) GST 5% only.",
+  "expected": {
+   "merchant": "Walmart",
+   "date": "2026-08-29",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "GV ATTA FLOUR 10K 062891599001",
+     "name": "Great Value atta flour 10 kg",
+     "quantity": 1,
+     "amount_cents": 1497,
+     "taxed": false
+    },
+    {
+     "printed": "AMUL GHEE 1L 890126200001",
+     "name": "Amul ghee 1 L",
+     "quantity": 1,
+     "amount_cents": 1597,
+     "taxed": false
+    },
+    {
+     "printed": "AVOCADO 000000042250",
+     "name": "Avocados x6",
+     "quantity": 6,
+     "amount_cents": 594,
+     "taxed": false
+    },
+    {
+     "printed": "TOMATO ROMA 000000040870",
+     "name": "Roma tomatoes (1.104 kg)",
+     "quantity": 1,
+     "amount_cents": 316,
+     "taxed": false
+    },
+    {
+     "printed": "HALDIRAMS BHUJIA 890406301234",
+     "name": "Haldiram's bhujia",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "HALDIRAMS BHUJIA 890406301234",
+     "name": "Haldiram's bhujia",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "GARANIMALS TEE 062811244410",
+     "name": "Garanimals kids tee",
+     "quantity": 1,
+     "amount_cents": 498,
+     "taxed": true
+    },
+    {
+     "printed": "GARANIMALS JEANS 062811244477",
+     "name": "Garanimals kids jeans",
+     "quantity": 1,
+     "amount_cents": 1197,
+     "taxed": true
+    },
+    {
+     "printed": "ONN EARBUDS 068113100912",
+     "name": "onn earbuds",
+     "quantity": 1,
+     "amount_cents": 2003,
+     "taxed": true
+    },
+    {
+     "printed": "GV FOIL PANS 3 062891577002",
+     "name": "Foil pans 3",
+     "quantity": 1,
+     "amount_cents": 297,
+     "taxed": true
+    },
+    {
+     "printed": "MAINSTAYS TOWEL 062811933110",
+     "name": "Mainstays bath towel",
+     "quantity": 1,
+     "amount_cents": 697,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 9394,
+   "tax_cents": 565,
+   "tip_cents": null,
+   "total_cents": 9959
+  },
+  "split": {
+   "people": [
+    "Xena",
+    "Yan",
+    "Zak"
+   ],
+   "assign": [
+    [
+     "Xena",
+     "Yan",
+     "Zak"
+    ],
+    [
+     "Xena",
+     "Yan",
+     "Zak"
+    ],
+    [
+     "Xena",
+     "Yan",
+     "Zak"
+    ],
+    [
+     "Xena",
+     "Yan",
+     "Zak"
+    ],
+    [
+     "Yan"
+    ],
+    [
+     "Yan"
+    ],
+    [
+     "Xena"
+    ],
+    [
+     "Xena"
+    ],
+    [
+     "Zak"
+    ],
+    [
+     "Xena",
+     "Yan",
+     "Zak"
+    ],
+    [
+     "Yan"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "21_sobeys_ns_your-discount-you-saved.png",
+  "difficulty": "hard",
+  "province": "NS",
+  "chain": "Sobeys",
+  "traps": [
+   "YOUR DISCOUNT (subtract) next to YOU SAVED (ignore)",
+   "YOUR SAVINGS block informational",
+   "1C taxed vs C untaxed",
+   "Scene+ points lines",
+   "weighed bananas",
+   "duplicate identical penne lines",
+   "deposit folded into juice",
+   "NS HST 14%"
+  ],
+  "receipt_is_broken": false,
+  "notes": "YOUR DISCOUNT -$1.00 reduces the chips (taxed) and -$5.00 the chicken (untaxed). The three YOU SAVED lines and the YOUR SAVINGS block are informational only. Juice deposit 0.10 folded into the juice. The two penne lines are listed as two separate items.",
+  "expected": {
+   "merchant": "Sobeys",
+   "date": "2026-08-14",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Compl Tortilla Chips",
+     "name": "Tortilla chips",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": true
+    },
+    {
+     "printed": "Lays Kettle SaltVin 220G",
+     "name": "Lay's kettle chips salt & vinegar",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "Barilla Penne 900G",
+     "name": "Penne pasta",
+     "quantity": 1,
+     "amount_cents": 329,
+     "taxed": false
+    },
+    {
+     "printed": "Barilla Penne 900G",
+     "name": "Penne pasta",
+     "quantity": 1,
+     "amount_cents": 329,
+     "taxed": false
+    },
+    {
+     "printed": "Oasis OJ 1.75L",
+     "name": "Orange juice 1.75 L (+deposit)",
+     "quantity": 1,
+     "amount_cents": 489,
+     "taxed": false
+    },
+    {
+     "printed": "Bananas",
+     "name": "Bananas 1.140 kg",
+     "quantity": 1,
+     "amount_cents": 196,
+     "taxed": false
+    },
+    {
+     "printed": "Strawberries 1lb",
+     "name": "Strawberries",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "FS ChickBreast B/S",
+     "name": "Chicken breasts",
+     "quantity": 1,
+     "amount_cents": 1284,
+     "taxed": false
+    },
+    {
+     "printed": "Natrel 2% Milk 4L",
+     "name": "2% milk 4 L",
+     "quantity": 1,
+     "amount_cents": 689,
+     "taxed": false
+    },
+    {
+     "printed": "Coffee Mate Fr Van 946ML",
+     "name": "Coffee creamer",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": false
+    },
+    {
+     "printed": "Bounty Paper Towel 6=12",
+     "name": "Paper towels",
+     "quantity": 1,
+     "amount_cents": 1299,
+     "taxed": true
+    },
+    {
+     "printed": "Colgate Total 120ML",
+     "name": "Toothpaste",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 6610,
+   "tax_cents": 335,
+   "tip_cents": null,
+   "total_cents": 6945
+  },
+  "split": {
+   "people": [
+    "Maya",
+    "Owen",
+    "Priya"
+   ],
+   "assign": [
+    [
+     "Maya",
+     "Owen",
+     "Priya"
+    ],
+    [
+     "Owen"
+    ],
+    [
+     "Maya",
+     "Owen",
+     "Priya"
+    ],
+    [
+     "Maya",
+     "Owen",
+     "Priya"
+    ],
+    [
+     "Maya",
+     "Priya"
+    ],
+    [
+     "Maya",
+     "Owen",
+     "Priya"
+    ],
+    [
+     "Maya"
+    ],
+    [
+     "Maya",
+     "Owen",
+     "Priya"
+    ],
+    [
+     "Maya",
+     "Owen",
+     "Priya"
+    ],
+    [
+     "Priya"
+    ],
+    [
+     "Maya",
+     "Owen",
+     "Priya"
+    ],
+    [
+     "Priya"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "22_freshco_ab_granola-5v6-duplicates.png",
+  "difficulty": "hard",
+  "province": "AB",
+  "chain": "FreshCo",
+  "traps": [
+   "5-pack granola taxed (1C) vs 6-pack untaxed (C)",
+   "three identical Kraft Dinner lines",
+   "duplicate yogurt and 6-pack lines",
+   "AB deposits 25c (2 L) and 8x10c folded",
+   "GST only 5%"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Pepsi 2 L deposit 0.25 folded into Pepsi; 8 x 0.10 deposit folded into Bubly. Duplicate lines are separate items. Alberta has GST only.",
+  "expected": {
+   "merchant": "FreshCo",
+   "date": "2026-03-07",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Nature Valley Crunchy 5PK",
+     "name": "Granola bars 5-pack",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "Quaker Chewy Bars 6PK",
+     "name": "Granola bars 6-pack",
+     "quantity": 1,
+     "amount_cents": 329,
+     "taxed": false
+    },
+    {
+     "printed": "Quaker Chewy Bars 6PK",
+     "name": "Granola bars 6-pack",
+     "quantity": 1,
+     "amount_cents": 329,
+     "taxed": false
+    },
+    {
+     "printed": "Kraft Dinner 200G",
+     "name": "Kraft Dinner",
+     "quantity": 1,
+     "amount_cents": 149,
+     "taxed": false
+    },
+    {
+     "printed": "Kraft Dinner 200G",
+     "name": "Kraft Dinner",
+     "quantity": 1,
+     "amount_cents": 149,
+     "taxed": false
+    },
+    {
+     "printed": "Kraft Dinner 200G",
+     "name": "Kraft Dinner",
+     "quantity": 1,
+     "amount_cents": 149,
+     "taxed": false
+    },
+    {
+     "printed": "Pepsi 2L",
+     "name": "Pepsi 2 L (+deposit)",
+     "quantity": 1,
+     "amount_cents": 304,
+     "taxed": true
+    },
+    {
+     "printed": "Bubly Lime 8X355ML",
+     "name": "Bubly sparkling water 8-pack (+deposit)",
+     "quantity": 1,
+     "amount_cents": 579,
+     "taxed": true
+    },
+    {
+     "printed": "Doritos Nacho 255G",
+     "name": "Doritos",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": true
+    },
+    {
+     "printed": "Gala Apples",
+     "name": "Gala apples 1.560 kg",
+     "quantity": 1,
+     "amount_cents": 688,
+     "taxed": false
+    },
+    {
+     "printed": "Romaine Hearts 3PK",
+     "name": "Romaine hearts",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "Danone Oikos 4X100G",
+     "name": "Greek yogurt",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "Danone Oikos 4X100G",
+     "name": "Greek yogurt",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "Large Eggs 12",
+     "name": "Eggs dozen",
+     "quantity": 1,
+     "amount_cents": 429,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 5100,
+   "tax_cents": 79,
+   "tip_cents": null,
+   "total_cents": 5179
+  },
+  "split": {
+   "people": [
+    "Liam",
+    "Noor"
+   ],
+   "assign": [
+    [
+     "Liam"
+    ],
+    [
+     "Noor"
+    ],
+    [
+     "Noor"
+    ],
+    [
+     "Liam",
+     "Noor"
+    ],
+    [
+     "Liam",
+     "Noor"
+    ],
+    [
+     "Liam",
+     "Noor"
+    ],
+    [
+     "Liam",
+     "Noor"
+    ],
+    [
+     "Noor"
+    ],
+    [
+     "Liam"
+    ],
+    [
+     "Liam",
+     "Noor"
+    ],
+    [
+     "Liam",
+     "Noor"
+    ],
+    [
+     "Noor"
+    ],
+    [
+     "Noor"
+    ],
+    [
+     "Liam",
+     "Noor"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "23_safeway_bc_bc-gr-r-deposit-ehc.png",
+  "difficulty": "very_hard",
+  "province": "BC",
+  "chain": "Safeway",
+  "traps": [
+   "BC = GST+PST, GR = GST only, R = untaxed deposit",
+   "+Deposit and +EHC lines folded into drinks",
+   "pop/kombucha pay PST, sparkling water and chips GST only",
+   "multi-buy 10 @ 1/ $1.49",
+   "weighed grapes",
+   "YOUR DISCOUNT on taxable item reduces both tax bases",
+   "YOU SAVED / YOUR SAVINGS TODAY informational",
+   "total labelled BALANCE",
+   "duplicate chip lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Coke 799+60 deposit+18 EHC=877; Bubly 549+80+16=645; kombucha 429+10+2=441; milk 519+10=529. EHC (GR) is GST-taxed, deposits (R) not taxed. Cascade 1799-400=1399 (discount reduces GST and PST bases). Mangoes: one item, quantity 10. Paper bag is a separate item.",
+  "expected": {
+   "merchant": "Safeway",
+   "date": "2026-07-03",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "COKE 6X710ML",
+     "name": "Coca-Cola 6x710 mL (+deposit +EHC)",
+     "quantity": 1,
+     "amount_cents": 877,
+     "taxed": true
+    },
+    {
+     "printed": "BUBLY GRPFRT 8X355ML",
+     "name": "Bubly sparkling water 8-pack (+deposit +EHC)",
+     "quantity": 1,
+     "amount_cents": 645,
+     "taxed": true
+    },
+    {
+     "printed": "GTS KOMBUCHA 473ML",
+     "name": "Kombucha single (+deposit +EHC)",
+     "quantity": 1,
+     "amount_cents": 441,
+     "taxed": true
+    },
+    {
+     "printed": "RUFFLES ALL DRESSED",
+     "name": "Ruffles chips",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": true
+    },
+    {
+     "printed": "RUFFLES ALL DRESSED",
+     "name": "Ruffles chips",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": true
+    },
+    {
+     "printed": "MAYNARDS SWDISH BRY",
+     "name": "Maynards candy",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "MANGO ATAULFO",
+     "name": "Ataulfo mangoes x10",
+     "quantity": 10,
+     "amount_cents": 1490,
+     "taxed": false
+    },
+    {
+     "printed": "RED SEEDLESS GRAPES",
+     "name": "Red grapes 1.235 kg",
+     "quantity": 1,
+     "amount_cents": 814,
+     "taxed": false
+    },
+    {
+     "printed": "SAFEWAY 2% MILK 2L",
+     "name": "2% milk 2 L (+deposit)",
+     "quantity": 1,
+     "amount_cents": 529,
+     "taxed": false
+    },
+    {
+     "printed": "DEMPSTER 12 GRAIN",
+     "name": "Bread",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "CASCADE PLATINUM 35S",
+     "name": "Dishwasher pods",
+     "quantity": 1,
+     "amount_cents": 1399,
+     "taxed": true
+    },
+    {
+     "printed": "PAPER BAG",
+     "name": "Paper bag",
+     "quantity": 1,
+     "amount_cents": 25,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 7816,
+   "tax_cents": 408,
+   "tip_cents": null,
+   "total_cents": 8224
+  },
+  "split": {
+   "people": [
+    "Ava",
+    "Ben",
+    "Chen",
+    "Dev"
+   ],
+   "assign": [
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Chen"
+    ],
+    [
+     "Dev"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Ava"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Ava",
+     "Ben"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Chen",
+     "Dev"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "24_safeway_ab_deposits-gst.png",
+  "difficulty": "medium",
+  "province": "AB",
+  "chain": "Safeway",
+  "traps": [
+   "+Deposit R lines folded (25c over 1 L)",
+   "GR taxed vs C untaxed",
+   "total labelled BALANCE"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Deposit 0.25 folded into Canada Dry and into orange juice. GST only.",
+  "expected": {
+   "merchant": "Safeway",
+   "date": "2026-05-22",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "CANADA DRY 2L",
+     "name": "Canada Dry 2 L (+deposit)",
+     "quantity": 1,
+     "amount_cents": 274,
+     "taxed": true
+    },
+    {
+     "printed": "SAFEWAY OJ 1.54L",
+     "name": "Orange juice (+deposit)",
+     "quantity": 1,
+     "amount_cents": 454,
+     "taxed": false
+    },
+    {
+     "printed": "CHICKEN THIGH B/S",
+     "name": "Chicken thighs",
+     "quantity": 1,
+     "amount_cents": 1312,
+     "taxed": false
+    },
+    {
+     "printed": "JASMINE RICE 3.6KG",
+     "name": "Jasmine rice",
+     "quantity": 1,
+     "amount_cents": 1199,
+     "taxed": false
+    },
+    {
+     "printed": "CHEETOS CRUNCHY",
+     "name": "Cheetos",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": true
+    },
+    {
+     "printed": "DOVE BODY WASH",
+     "name": "Body wash",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": true
+    },
+    {
+     "printed": "BROCCOLI CROWNS",
+     "name": "Broccoli",
+     "quantity": 1,
+     "amount_cents": 288,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 4725,
+   "tax_cents": 72,
+   "tip_cents": null,
+   "total_cents": 4797
+  },
+  "split": {
+   "people": [
+    "Sara",
+    "Tom"
+   ],
+   "assign": [
+    [
+     "Sara",
+     "Tom"
+    ],
+    [
+     "Sara"
+    ],
+    [
+     "Sara",
+     "Tom"
+    ],
+    [
+     "Sara",
+     "Tom"
+    ],
+    [
+     "Tom"
+    ],
+    [
+     "Sara"
+    ],
+    [
+     "Sara",
+     "Tom"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "25_metro_on_rf-split-tax-multibuy.png",
+  "difficulty": "hard",
+  "province": "ON",
+  "chain": "Metro",
+  "traps": [
+   "RF prepared food taxed on two lines (5% + 8%)",
+   "H vs no letter",
+   "multi-buy 2/7.00 with quantity line",
+   "2 @ 6.99 quantity line",
+   "weighed onions",
+   "moi points lines"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Rotisserie chicken (RF) is taxed at 13% printed as two lines; tax_cents adds HST + RF GST + RF PVT. Naan and Coke Zero are one item each with quantity 2.",
+  "expected": {
+   "merchant": "Metro",
+   "date": "2026-02-11",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "ROTISSERIE CHICKEN",
+     "name": "Hot rotisserie chicken",
+     "quantity": 1,
+     "amount_cents": 1299,
+     "taxed": true
+    },
+    {
+     "printed": "CAESAR SALAD KIT",
+     "name": "Caesar salad kit",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": true
+    },
+    {
+     "printed": "SELECTION GARLIC NAAN",
+     "name": "Garlic naan x2",
+     "quantity": 2,
+     "amount_cents": 700,
+     "taxed": false
+    },
+    {
+     "printed": "IRRESIST. HUMMUS 454G",
+     "name": "Hummus",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "COKE ZERO 12X355ML",
+     "name": "Coke Zero 12-pack x2",
+     "quantity": 2,
+     "amount_cents": 1398,
+     "taxed": true
+    },
+    {
+     "printed": "LACTANTIA 2% 4L",
+     "name": "2% milk 4 L",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": false
+    },
+    {
+     "printed": "OLD DUTCH RIPPLE 255G",
+     "name": "Old Dutch chips",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": true
+    },
+    {
+     "printed": "ONIONS YELLOW",
+     "name": "Yellow onions 0.845 kg",
+     "quantity": 1,
+     "amount_cents": 372,
+     "taxed": false
+    },
+    {
+     "printed": "TIDE PODS 42",
+     "name": "Tide pods",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 7314,
+   "tax_cents": 662,
+   "tip_cents": null,
+   "total_cents": 7976
+  },
+  "split": {
+   "people": [
+    "Hana",
+    "Ivan",
+    "Jas"
+   ],
+   "assign": [
+    [
+     "Hana",
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Hana",
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Hana",
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Hana"
+    ],
+    [
+     "Ivan"
+    ],
+    [
+     "Hana",
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Jas"
+    ],
+    [
+     "Hana",
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Hana",
+     "Ivan",
+     "Jas"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "26_food-basics_on_cash-rounding.png",
+  "difficulty": "medium",
+  "province": "ON",
+  "chain": "Food Basics",
+  "traps": [
+   "cash penny rounding line: CASH DUE differs from TOTAL",
+   "CHANGE not a discount",
+   "duplicate Pepsi lines",
+   "weighed bananas"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Paid cash. TOTAL 35.44 is the bill total; ROUNDING 0.01 makes CASH DUE 35.45. total_cents uses the unrounded TOTAL, so subtotal+tax == total exactly.",
+  "expected": {
+   "merchant": "Food Basics",
+   "date": "2026-09-28",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "DEMPSTERS WHITE 675G",
+     "name": "White bread",
+     "quantity": 1,
+     "amount_cents": 329,
+     "taxed": false
+    },
+    {
+     "printed": "LARGE EGGS 18",
+     "name": "Eggs 18",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "PEPSI 2L",
+     "name": "Pepsi 2 L",
+     "quantity": 1,
+     "amount_cents": 229,
+     "taxed": true
+    },
+    {
+     "printed": "PEPSI 2L",
+     "name": "Pepsi 2 L",
+     "quantity": 1,
+     "amount_cents": 229,
+     "taxed": true
+    },
+    {
+     "printed": "BANANAS",
+     "name": "Bananas 1.320 kg",
+     "quantity": 1,
+     "amount_cents": 201,
+     "taxed": false
+    },
+    {
+     "printed": "CHEERIOS 430G",
+     "name": "Cheerios",
+     "quantity": 1,
+     "amount_cents": 549,
+     "taxed": false
+    },
+    {
+     "printed": "KIT KAT 4 PACK",
+     "name": "Kit Kat 4-pack",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": true
+    },
+    {
+     "printed": "GROUND CHICKEN 450G",
+     "name": "Ground chicken",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": false
+    },
+    {
+     "printed": "HEAD LETTUCE",
+     "name": "Lettuce",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 3433,
+   "tax_cents": 111,
+   "tip_cents": null,
+   "total_cents": 3544
+  },
+  "split": {
+   "people": [
+    "Kofi",
+    "Lena"
+   ],
+   "assign": [
+    [
+     "Kofi",
+     "Lena"
+    ],
+    [
+     "Kofi",
+     "Lena"
+    ],
+    [
+     "Kofi"
+    ],
+    [
+     "Kofi"
+    ],
+    [
+     "Kofi",
+     "Lena"
+    ],
+    [
+     "Lena"
+    ],
+    [
+     "Lena"
+    ],
+    [
+     "Kofi",
+     "Lena"
+    ],
+    [
+     "Kofi",
+     "Lena"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "27_dollarama_on_wrapped-incl-eco.png",
+  "difficulty": "medium",
+  "province": "ON",
+  "chain": "Dollarama",
+  "traps": [
+   "wrapped long names with barcode alone on next line (one item each)",
+   "INCL. ECO already in price",
+   "H vs no letter",
+   "duplicate tortilla chip lines",
+   "barcode digits are not prices"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Four names wrap; the barcode + price row below belongs to the same item. No separate eco fee line.",
+  "expected": {
+   "merchant": "Dollarama",
+   "date": "2026-04-18",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "DISH SPONGE 3PK",
+     "name": "Dish sponges",
+     "quantity": 1,
+     "amount_cents": 150,
+     "taxed": true
+    },
+    {
+     "printed": "DIGITAL TIMER INCL. ECO",
+     "name": "Digital kitchen timer (eco fee incl.)",
+     "quantity": 1,
+     "amount_cents": 435,
+     "taxed": true
+    },
+    {
+     "printed": "ALKALINE BATTERIES AA 8PK INCL. ECO",
+     "name": "AA batteries (eco fee incl.)",
+     "quantity": 1,
+     "amount_cents": 400,
+     "taxed": true
+    },
+    {
+     "printed": "MEDIUM SALSA",
+     "name": "Salsa",
+     "quantity": 1,
+     "amount_cents": 250,
+     "taxed": false
+    },
+    {
+     "printed": "TORTILLA CHIPS",
+     "name": "Tortilla chips",
+     "quantity": 1,
+     "amount_cents": 200,
+     "taxed": true
+    },
+    {
+     "printed": "TORTILLA CHIPS",
+     "name": "Tortilla chips",
+     "quantity": 1,
+     "amount_cents": 200,
+     "taxed": true
+    },
+    {
+     "printed": "GIFT BAG LARGE BIRTHDAY ASSORTED",
+     "name": "Gift bag",
+     "quantity": 1,
+     "amount_cents": 125,
+     "taxed": true
+    },
+    {
+     "printed": "GREETING CARD",
+     "name": "Greeting card",
+     "quantity": 1,
+     "amount_cents": 125,
+     "taxed": true
+    },
+    {
+     "printed": "PASTA SPAGHETTI 900G",
+     "name": "Spaghetti",
+     "quantity": 1,
+     "amount_cents": 175,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 2060,
+   "tax_cents": 213,
+   "tip_cents": null,
+   "total_cents": 2273
+  },
+  "split": {
+   "people": [
+    "Mia",
+    "Raj"
+   ],
+   "assign": [
+    [
+     "Mia",
+     "Raj"
+    ],
+    [
+     "Mia",
+     "Raj"
+    ],
+    [
+     "Raj"
+    ],
+    [
+     "Mia",
+     "Raj"
+    ],
+    [
+     "Mia",
+     "Raj"
+    ],
+    [
+     "Mia",
+     "Raj"
+    ],
+    [
+     "Mia"
+    ],
+    [
+     "Mia"
+    ],
+    [
+     "Mia",
+     "Raj"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "28_dollarama_bc_fp-gst-pst.png",
+  "difficulty": "hard",
+  "province": "BC",
+  "chain": "Dollarama",
+  "traps": [
+   "FP = GST+PST, F = GST only (candy/chips), blank = untaxed",
+   "wrapped names, barcode on its own row",
+   "INCL. ECO already in price",
+   "two identical storage bin lines",
+   "BC pop pays PST, deposit untaxed"
+  ],
+  "receipt_is_broken": false,
+  "notes": "The F code for GST-only snacks is an assumption based on the FP pattern. Cola deposit 0.10 folded into cola.",
+  "expected": {
+   "merchant": "Dollarama",
+   "date": "2026-01-24",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "STORAGE BIN WITH LID CLEAR 12L",
+     "name": "Storage bin",
+     "quantity": 1,
+     "amount_cents": 400,
+     "taxed": true
+    },
+    {
+     "printed": "STORAGE BIN WITH LID CLEAR 12L",
+     "name": "Storage bin",
+     "quantity": 1,
+     "amount_cents": 400,
+     "taxed": true
+    },
+    {
+     "printed": "USB-C CABLE 1M INCL. ECO",
+     "name": "USB-C cable (eco fee incl.)",
+     "quantity": 1,
+     "amount_cents": 450,
+     "taxed": true
+    },
+    {
+     "printed": "GUMMY BEARS",
+     "name": "Gummy candy",
+     "quantity": 1,
+     "amount_cents": 125,
+     "taxed": true
+    },
+    {
+     "printed": "POTATO CHIPS BBQ",
+     "name": "BBQ chips",
+     "quantity": 1,
+     "amount_cents": 150,
+     "taxed": true
+    },
+    {
+     "printed": "COLA 2L",
+     "name": "Cola 2 L (+deposit)",
+     "quantity": 1,
+     "amount_cents": 210,
+     "taxed": true
+    },
+    {
+     "printed": "PEANUT BUTTER 500G",
+     "name": "Peanut butter",
+     "quantity": 1,
+     "amount_cents": 300,
+     "taxed": false
+    },
+    {
+     "printed": "PAPER PLATES 9IN 40PK",
+     "name": "Paper plates",
+     "quantity": 1,
+     "amount_cents": 250,
+     "taxed": true
+    },
+    {
+     "printed": "LED STRING LIGHTS WARM WHITE 50CT INCL. ECO",
+     "name": "LED string lights (eco fee incl.)",
+     "quantity": 1,
+     "amount_cents": 500,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 2785,
+   "tax_cents": 278,
+   "tip_cents": null,
+   "total_cents": 3063
+  },
+  "split": {
+   "people": [
+    "Zoe",
+    "Arjun",
+    "Kim"
+   ],
+   "assign": [
+    [
+     "Zoe"
+    ],
+    [
+     "Zoe"
+    ],
+    [
+     "Arjun"
+    ],
+    [
+     "Zoe",
+     "Arjun",
+     "Kim"
+    ],
+    [
+     "Zoe",
+     "Arjun",
+     "Kim"
+    ],
+    [
+     "Zoe",
+     "Arjun",
+     "Kim"
+    ],
+    [
+     "Kim"
+    ],
+    [
+     "Zoe",
+     "Arjun",
+     "Kim"
+    ],
+    [
+     "Kim"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "29_iga_qc_french-consigne-remise.png",
+  "difficulty": "hard",
+  "province": "QC",
+  "chain": "IGA",
+  "traps": [
+   "French labels, decimal commas",
+   "FP = TPS+TVQ, blank = untaxed",
+   "TPS 5% + TVQ 9,975%",
+   "consigne 6 @ 0,10 folded into Pepsi",
+   "Remise = change given back, NOT a discount",
+   "Comptant = cash",
+   "hot chicken taxable",
+   "weighed tomatoes"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Paid cash (Comptant 60,00); the total already ends in 0 or 5 so no rounding. Remise is change, do not subtract. Consigne 0,60 folded into Pepsi.",
+  "expected": {
+   "merchant": "IGA",
+   "date": "2026-06-06",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Brocoli unité",
+     "name": "Broccoli",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": false
+    },
+    {
+     "printed": "Tomates sur vigne",
+     "name": "Vine tomatoes 0.915 kg",
+     "quantity": 1,
+     "amount_cents": 504,
+     "taxed": false
+    },
+    {
+     "printed": "Boisson soya 946 ml",
+     "name": "Soy beverage",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": false
+    },
+    {
+     "printed": "Fromage Perron 300 g",
+     "name": "Cheddar",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": false
+    },
+    {
+     "printed": "Poulet entier cuit chaud",
+     "name": "Hot whole roast chicken",
+     "quantity": 1,
+     "amount_cents": 1299,
+     "taxed": true
+    },
+    {
+     "printed": "Pepsi 6 x 710 ml",
+     "name": "Pepsi 6x710 mL (+consigne)",
+     "quantity": 1,
+     "amount_cents": 759,
+     "taxed": true
+    },
+    {
+     "printed": "Croustilles Yum Yum",
+     "name": "Chips",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": true
+    },
+    {
+     "printed": "Spaghetti Catelli 900 g",
+     "name": "Spaghetti",
+     "quantity": 1,
+     "amount_cents": 279,
+     "taxed": false
+    },
+    {
+     "printed": "Sac réutilisable",
+     "name": "Reusable bag",
+     "quantity": 1,
+     "amount_cents": 99,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 4786,
+   "tax_cents": 374,
+   "tip_cents": null,
+   "total_cents": 5160
+  },
+  "split": {
+   "people": [
+    "Élodie",
+    "Marc"
+   ],
+   "assign": [
+    [
+     "Élodie",
+     "Marc"
+    ],
+    [
+     "Élodie",
+     "Marc"
+    ],
+    [
+     "Élodie"
+    ],
+    [
+     "Élodie",
+     "Marc"
+    ],
+    [
+     "Élodie",
+     "Marc"
+    ],
+    [
+     "Marc"
+    ],
+    [
+     "Marc"
+    ],
+    [
+     "Élodie",
+     "Marc"
+    ],
+    [
+     "Élodie",
+     "Marc"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "30_maxi_qc_member-price-points-redeem.png",
+  "difficulty": "very_hard",
+  "province": "QC",
+  "chain": "Maxi",
+  "traps": [
+   "5-unit granola taxed vs 6-unit untaxed",
+   "PRIX MEMBRE negative lines reduce the item and tax base",
+   "CONSIGNE 12@0,10 folded into Diet Coke",
+   "(2) quantity prefix",
+   "gross/tare/net ham weight",
+   "PC Optimum points lines",
+   "points redemption -10,00 is payment, total stays full",
+   "tax lines print base amounts (not taxes)",
+   "department headers with numbers",
+   "decimal commas"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Diet Coke 899-150+120 = 869. Shampoo 499-100 = 399. Bread is one item qty 2. TOTAL is the bill; points redemption reduces only what the card paid (MONTANT). Tax lines show the taxable base before the tax amount.",
+  "expected": {
+   "merchant": "Maxi",
+   "date": "2026-10-02",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "06038302830 SC BARRES GRANOLA 5UN",
+     "name": "Granola bars 5-pack",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "06038318874 SC BARRES GRANOLA 6UN",
+     "name": "Granola bars 6-pack",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": false
+    },
+    {
+     "printed": "(2)06038388111 SANS NOM PAIN BLANC",
+     "name": "White bread x2",
+     "quantity": 2,
+     "amount_cents": 558,
+     "taxed": false
+    },
+    {
+     "printed": "05501000080 DIET COKE 12X355",
+     "name": "Diet Coke 12-pack (+consigne)",
+     "quantity": 1,
+     "amount_cents": 869,
+     "taxed": true
+    },
+    {
+     "printed": "06038301234 PC CAFÉ MOULU 930G",
+     "name": "Ground coffee",
+     "quantity": 1,
+     "amount_cents": 1299,
+     "taxed": false
+    },
+    {
+     "printed": "4131 POMMES FUJI",
+     "name": "Fuji apples 1.214 kg",
+     "quantity": 1,
+     "amount_cents": 535,
+     "taxed": false
+    },
+    {
+     "printed": "26112 JAMBON FORÊT NOIRE",
+     "name": "Black Forest ham 0.400 kg",
+     "quantity": 1,
+     "amount_cents": 794,
+     "taxed": false
+    },
+    {
+     "printed": "06038355510 PC SHAMPOOING",
+     "name": "Shampoo",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 5102,
+   "tax_cents": 216,
+   "tip_cents": null,
+   "total_cents": 5318
+  },
+  "split": {
+   "people": [
+    "Simon",
+    "Inès",
+    "Karim"
+   ],
+   "assign": [
+    [
+     "Inès"
+    ],
+    [
+     "Karim"
+    ],
+    [
+     "Simon",
+     "Inès",
+     "Karim"
+    ],
+    [
+     "Simon"
+    ],
+    [
+     "Simon",
+     "Inès",
+     "Karim"
+    ],
+    [
+     "Simon",
+     "Inès",
+     "Karim"
+    ],
+    [
+     "Simon",
+     "Inès"
+    ],
+    [
+     "Inès"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "31_super-c_qc_bilingual.png",
+  "difficulty": "hard",
+  "province": "QC",
+  "chain": "Super C",
+  "traps": [
+   "bilingual names and totals",
+   "decimal commas",
+   "FP vs blank",
+   "two identical sparkling water lines each with consigne",
+   "Rabais real discount vs Économies/You saved informational",
+   "Remise/Change 0,00 not a discount",
+   "ice cream 1.5 L tub untaxed vs 6 sandwiches taxed",
+   "4 @ 0,99 quantity line",
+   "weighed chicken"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Each sparkling water 599+120 consigne = 719 (two separate items). Ice cream tub 549-150 = 399 (untaxed). Économies line is informational.",
+  "expected": {
+   "merchant": "Super C",
+   "date": "2026-09-19",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Lait 2% / 2% Milk 4L",
+     "name": "2% milk 4 L",
+     "quantity": 1,
+     "amount_cents": 659,
+     "taxed": false
+    },
+    {
+     "printed": "Oeufs gros / Large eggs 30",
+     "name": "Eggs 30",
+     "quantity": 1,
+     "amount_cents": 1149,
+     "taxed": false
+    },
+    {
+     "printed": "Avocats / Avocados",
+     "name": "Avocados x4",
+     "quantity": 4,
+     "amount_cents": 396,
+     "taxed": false
+    },
+    {
+     "printed": "Eau pét. / Sparkling water 12x355",
+     "name": "Sparkling water 12-pack (+consigne)",
+     "quantity": 1,
+     "amount_cents": 719,
+     "taxed": true
+    },
+    {
+     "printed": "Eau pét. / Sparkling water 12x355",
+     "name": "Sparkling water 12-pack (+consigne)",
+     "quantity": 1,
+     "amount_cents": 719,
+     "taxed": true
+    },
+    {
+     "printed": "Pizza surg. / Frozen pizza",
+     "name": "Frozen pizza",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": false
+    },
+    {
+     "printed": "Crème glacée / Ice cream 1,5L",
+     "name": "Ice cream tub 1.5 L",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "Sandw. glacés / Ice cr. sandw. 6",
+     "name": "Ice cream sandwiches 6-pack",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": true
+    },
+    {
+     "printed": "Papier hyg. / Toilet paper 12",
+     "name": "Toilet paper",
+     "quantity": 1,
+     "amount_cents": 899,
+     "taxed": true
+    },
+    {
+     "printed": "Poitr. poulet / Chicken breast",
+     "name": "Chicken breast 0.705 kg",
+     "quantity": 1,
+     "amount_cents": 933,
+     "taxed": false
+    }
+   ],
+   "subtotal_cents": 7171,
+   "tax_cents": 404,
+   "tip_cents": null,
+   "total_cents": 7575
+  },
+  "split": {
+   "people": [
+    "Nadia",
+    "Olivier",
+    "Paul",
+    "Rosa"
+   ],
+   "assign": [
+    [
+     "Nadia",
+     "Olivier",
+     "Paul",
+     "Rosa"
+    ],
+    [
+     "Nadia",
+     "Olivier",
+     "Paul",
+     "Rosa"
+    ],
+    [
+     "Nadia",
+     "Rosa"
+    ],
+    [
+     "Olivier"
+    ],
+    [
+     "Olivier"
+    ],
+    [
+     "Paul"
+    ],
+    [
+     "Nadia",
+     "Olivier",
+     "Paul",
+     "Rosa"
+    ],
+    [
+     "Paul",
+     "Rosa"
+    ],
+    [
+     "Nadia",
+     "Olivier",
+     "Paul",
+     "Rosa"
+    ],
+    [
+     "Nadia",
+     "Olivier",
+     "Paul",
+     "Rosa"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "32_metro_qc_void-book-rabais.png",
+  "difficulty": "very_hard",
+  "province": "QC",
+  "chain": "Metro",
+  "traps": [
+   "ANNUL void line cancels Lay's (drop both)",
+   "F only (book: TPS, no TVQ) vs FP vs blank",
+   "Rabais real discounts (one on taxed item)",
+   "Économies totales informational",
+   "consigne on juice and kombucha folded",
+   "5-bar granola taxed vs 8-bar untaxed",
+   "weighed salmon",
+   "moi points lines",
+   "date printed dd/mm/yyyy"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Lay's line and its ANNUL line cancel and are not items. Colouring book is TPS only (F). Salmon after -4,00 Rabais; Tide after -3,00 Rabais (reduces TPS and TVQ base). Consigne 0,10 folded into juice and into kombucha.",
+  "expected": {
+   "merchant": "Metro",
+   "date": "2026-08-30",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Bagels St-Viateur 6",
+     "name": "Bagels 6",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "Fromage à la crème 250g",
+     "name": "Cream cheese",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "Chips Ruffles 235g",
+     "name": "Ruffles chips",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": true
+    },
+    {
+     "printed": "Livre à colorier",
+     "name": "Colouring book",
+     "quantity": 1,
+     "amount_cents": 500,
+     "taxed": true
+    },
+    {
+     "printed": "Jus Oasis 1,75L",
+     "name": "Oasis juice (+consigne)",
+     "quantity": 1,
+     "amount_cents": 509,
+     "taxed": false
+    },
+    {
+     "printed": "Kombucha RISE 414ml",
+     "name": "Kombucha (+consigne)",
+     "quantity": 1,
+     "amount_cents": 409,
+     "taxed": true
+    },
+    {
+     "printed": "Saumon Atlantique",
+     "name": "Atlantic salmon 0.640 kg",
+     "quantity": 1,
+     "amount_cents": 1293,
+     "taxed": false
+    },
+    {
+     "printed": "Lessive Tide 2,03L",
+     "name": "Laundry detergent",
+     "quantity": 1,
+     "amount_cents": 1199,
+     "taxed": true
+    },
+    {
+     "printed": "Barres tendres Quaker 5",
+     "name": "Granola bars 5",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "Barres tendres Quaker 8",
+     "name": "Granola bars 8",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "Sac de papier",
+     "name": "Paper bag",
+     "quantity": 1,
+     "amount_cents": 10,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 6215,
+   "tax_cents": 385,
+   "tip_cents": null,
+   "total_cents": 6600
+  },
+  "split": {
+   "people": [
+    "Gabriel",
+    "Léa",
+    "Yusuf"
+   ],
+   "assign": [
+    [
+     "Gabriel",
+     "Léa",
+     "Yusuf"
+    ],
+    [
+     "Gabriel",
+     "Léa",
+     "Yusuf"
+    ],
+    [
+     "Yusuf"
+    ],
+    [
+     "Léa"
+    ],
+    [
+     "Gabriel",
+     "Léa"
+    ],
+    [
+     "Yusuf"
+    ],
+    [
+     "Gabriel",
+     "Léa",
+     "Yusuf"
+    ],
+    [
+     "Gabriel",
+     "Léa",
+     "Yusuf"
+    ],
+    [
+     "Gabriel"
+    ],
+    [
+     "Léa"
+    ],
+    [
+     "Gabriel",
+     "Léa",
+     "Yusuf"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "33_sobeys_nb_sceneplus-redeem-icecream.png",
+  "difficulty": "very_hard",
+  "province": "NB",
+  "chain": "Sobeys",
+  "traps": [
+   "Scene+ redemption is a tender, TOTAL stays full",
+   "YOUR DISCOUNT and INSTANT SAVINGS subtract; YOU SAVED and YOUR SAVINGS ignored",
+   "ice cream multipack taxed vs 1.5 L tub untaxed",
+   "granola 5PK taxed vs 6PK untaxed",
+   "duplicate Canada Dry lines each with discount and deposit",
+   "multi-buy 6 @ 2/ $1.00",
+   "weighed chicken",
+   "NB HST 15%"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Each Canada Dry = 799-200+120 = 719. Chicken thighs after -3.00 instant savings. Corn: one item qty 6. total_cents is TOTAL before the -20.00 Scene+ redemption; the card paid AMOUNT DUE.",
+  "expected": {
+   "merchant": "Sobeys",
+   "date": "2026-07-25",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Drumstick Vanilla 8PK",
+     "name": "Drumstick ice cream cones 8-pack",
+     "quantity": 1,
+     "amount_cents": 799,
+     "taxed": true
+    },
+    {
+     "printed": "Chapmans Vanilla 1.5L",
+     "name": "Ice cream tub 1.5 L",
+     "quantity": 1,
+     "amount_cents": 549,
+     "taxed": false
+    },
+    {
+     "printed": "Compl Frozen Peas 750G",
+     "name": "Frozen peas",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": false
+    },
+    {
+     "printed": "Nature Valley Oats 5PK",
+     "name": "Granola bars 5-pack",
+     "quantity": 1,
+     "amount_cents": 379,
+     "taxed": true
+    },
+    {
+     "printed": "Nature Valley Oats 6PK",
+     "name": "Granola bars 6-pack",
+     "quantity": 1,
+     "amount_cents": 429,
+     "taxed": false
+    },
+    {
+     "printed": "Canada Dry 12X355ML",
+     "name": "Canada Dry 12-pack (+deposit)",
+     "quantity": 1,
+     "amount_cents": 719,
+     "taxed": true
+    },
+    {
+     "printed": "Canada Dry 12X355ML",
+     "name": "Canada Dry 12-pack (+deposit)",
+     "quantity": 1,
+     "amount_cents": 719,
+     "taxed": true
+    },
+    {
+     "printed": "Compl Cheddar Popcorn",
+     "name": "Popcorn",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "Chicken Thighs B/S",
+     "name": "Chicken thighs 1.660 kg",
+     "quantity": 1,
+     "amount_cents": 1529,
+     "taxed": false
+    },
+    {
+     "printed": "Corn on the Cob",
+     "name": "Corn x6",
+     "quantity": 6,
+     "amount_cents": 300,
+     "taxed": false
+    },
+    {
+     "printed": "Watermelon Seedless",
+     "name": "Watermelon",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "Charcoal Kingsford 7KG",
+     "name": "Charcoal",
+     "quantity": 1,
+     "amount_cents": 1799,
+     "taxed": true
+    },
+    {
+     "printed": "Solo Cups 50CT",
+     "name": "Plastic cups",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 8918,
+   "tax_cents": 746,
+   "tip_cents": null,
+   "total_cents": 9664
+  },
+  "split": {
+   "people": [
+    "Ella",
+    "Finn",
+    "Grace",
+    "Hugo"
+   ],
+   "assign": [
+    [
+     "Finn",
+     "Grace"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Ella"
+    ],
+    [
+     "Hugo"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Finn"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ],
+    [
+     "Ella",
+     "Finn",
+     "Grace",
+     "Hugo"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "34_metro_on_deli-weights-multibuy.png",
+  "difficulty": "hard",
+  "province": "ON",
+  "chain": "Metro",
+  "traps": [
+   "deli weights on separate lines",
+   "3 @ 3/3.00 multi-buy taxed",
+   "granola 6 untaxed vs 5 taxed",
+   "duplicate pesto lines",
+   "4 @ 0.79 quantity line",
+   "reusable bag taxable"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Sparkling water is one item qty 3 (carbonated, taxable). Lemons one item qty 4.",
+  "expected": {
+   "merchant": "Metro",
+   "date": "2026-10-10",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "TURKEY BREAST SMKD",
+     "name": "Smoked turkey 0.300 kg",
+     "quantity": 1,
+     "amount_cents": 660,
+     "taxed": false
+    },
+    {
+     "printed": "SWISS EMMENTAL",
+     "name": "Swiss cheese 0.225 kg",
+     "quantity": 1,
+     "amount_cents": 742,
+     "taxed": false
+    },
+    {
+     "printed": "SELECTION SPARK WATER 1L",
+     "name": "Sparkling water 1 L x3",
+     "quantity": 3,
+     "amount_cents": 300,
+     "taxed": true
+    },
+    {
+     "printed": "NATURE VALLEY CRUNCHY 6",
+     "name": "Granola bars 6",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "QUAKER DIPPS 5",
+     "name": "Granola bars 5",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "BARILLA PESTO 190G",
+     "name": "Pesto",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "BARILLA PESTO 190G",
+     "name": "Pesto",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "SELECTION ROTINI 900G",
+     "name": "Rotini",
+     "quantity": 1,
+     "amount_cents": 199,
+     "taxed": false
+    },
+    {
+     "printed": "ASPARAGUS",
+     "name": "Asparagus 0.512 kg",
+     "quantity": 1,
+     "amount_cents": 563,
+     "taxed": false
+    },
+    {
+     "printed": "LEMONS",
+     "name": "Lemons x4",
+     "quantity": 4,
+     "amount_cents": 316,
+     "taxed": false
+    },
+    {
+     "printed": "REUSABLE BAG",
+     "name": "Reusable bag",
+     "quantity": 1,
+     "amount_cents": 99,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 4475,
+   "tax_cents": 91,
+   "tip_cents": null,
+   "total_cents": 4566
+  },
+  "split": {
+   "people": [
+    "Iris",
+    "Jon"
+   ],
+   "assign": [
+    [
+     "Iris",
+     "Jon"
+    ],
+    [
+     "Iris"
+    ],
+    [
+     "Jon"
+    ],
+    [
+     "Iris"
+    ],
+    [
+     "Jon"
+    ],
+    [
+     "Iris",
+     "Jon"
+    ],
+    [
+     "Iris",
+     "Jon"
+    ],
+    [
+     "Iris",
+     "Jon"
+    ],
+    [
+     "Iris",
+     "Jon"
+    ],
+    [
+     "Iris",
+     "Jon"
+    ],
+    [
+     "Iris",
+     "Jon"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "35_freshco_on_duplicates-discount-photo.png",
+  "difficulty": "hard",
+  "province": "ON",
+  "chain": "FreshCo",
+  "traps": [
+   "many duplicate lines (bhujia, yogurt, cilantro)",
+   "YOUR DISCOUNT subtract vs YOU SAVED ignore",
+   "Parle-G 5PK biscuits taxable",
+   "multi-buy 10 @ 2/ $1.00",
+   "weighed onions",
+   "1C vs C"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Duplicate lines are separate items. Thums Up 299-50; Vim 449-100. YOU SAVED is informational.",
+  "expected": {
+   "merchant": "FreshCo",
+   "date": "2026-10-15",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Basmati Rice 8KG",
+     "name": "Basmati rice 8 kg",
+     "quantity": 1,
+     "amount_cents": 1699,
+     "taxed": false
+    },
+    {
+     "printed": "Toor Dal 2LB",
+     "name": "Toor dal",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "Haldiram Aloo Bhujia",
+     "name": "Aloo bhujia snack",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "Haldiram Aloo Bhujia",
+     "name": "Aloo bhujia snack",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    },
+    {
+     "printed": "Parle-G Biscuits 5PK",
+     "name": "Parle-G 5-pack",
+     "quantity": 1,
+     "amount_cents": 299,
+     "taxed": true
+    },
+    {
+     "printed": "Thums Up 2L",
+     "name": "Thums Up 2 L",
+     "quantity": 1,
+     "amount_cents": 249,
+     "taxed": true
+    },
+    {
+     "printed": "Paneer 350G",
+     "name": "Paneer",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "Plain Yogurt 3% 750G",
+     "name": "Yogurt",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": false
+    },
+    {
+     "printed": "Plain Yogurt 3% 750G",
+     "name": "Yogurt",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": false
+    },
+    {
+     "printed": "Limes",
+     "name": "Limes x10",
+     "quantity": 10,
+     "amount_cents": 500,
+     "taxed": false
+    },
+    {
+     "printed": "Onions Red",
+     "name": "Red onions 2.270 kg",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "Cilantro",
+     "name": "Cilantro",
+     "quantity": 1,
+     "amount_cents": 99,
+     "taxed": false
+    },
+    {
+     "printed": "Cilantro",
+     "name": "Cilantro",
+     "quantity": 1,
+     "amount_cents": 99,
+     "taxed": false
+    },
+    {
+     "printed": "Vim Cream Cleaner",
+     "name": "Cleaner",
+     "quantity": 1,
+     "amount_cents": 349,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 6187,
+   "tax_cents": 207,
+   "tip_cents": null,
+   "total_cents": 6394
+  },
+  "split": {
+   "people": [
+    "Kai",
+    "Luna",
+    "Milo"
+   ],
+   "assign": [
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Milo"
+    ],
+    [
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Milo"
+    ],
+    [
+     "Luna"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ],
+    [
+     "Kai",
+     "Luna",
+     "Milo"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "36_tim-hortons_on_modifiers-combo.png",
+  "difficulty": "medium",
+  "province": "ON",
+  "chain": "Tim Hortons",
+  "traps": [
+   "priced modifier lines belong to the item above",
+   "combo sub-lines at 0.00 are not items",
+   "upsize charge folds into combo",
+   "unpriced modifier text lines",
+   "2 @ 1.79 quantity line"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Modifier/upsize charges are folded into their parent item. Combined order > $4 so no Ontario prepared-food rebate; full 13% HST.",
+  "expected": {
+   "merchant": "Tim Hortons",
+   "date": "2026-03-12",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 Med Original Blend 2.08",
+     "name": "Medium Original Blend",
+     "quantity": 1,
+     "amount_cents": 208,
+     "taxed": null
+    },
+    {
+     "printed": "1 Lg Iced Capp 4.29 / Add Flavour Shot 0.50",
+     "name": "Large Iced Capp + flavour shot",
+     "quantity": 1,
+     "amount_cents": 479,
+     "taxed": null
+    },
+    {
+     "printed": "1 Farmer's Wrap 5.49",
+     "name": "Farmer's Wrap",
+     "quantity": 1,
+     "amount_cents": 549,
+     "taxed": null
+    },
+    {
+     "printed": "1 BELT Combo 9.79 / Upsize to Large 0.40",
+     "name": "BELT Combo (upsized)",
+     "quantity": 1,
+     "amount_cents": 1019,
+     "taxed": null
+    },
+    {
+     "printed": "2 Glazed Donut 3.58",
+     "name": "Glazed Donut",
+     "quantity": 2,
+     "amount_cents": 358,
+     "taxed": null
+    },
+    {
+     "printed": "1 Timbits 20 Pack 6.99",
+     "name": "Timbits 20 Pack",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 3312,
+   "tax_cents": 431,
+   "tip_cents": null,
+   "total_cents": 3743
+  },
+  "split": {
+   "people": [
+    "Priya",
+    "Marc",
+    "Lena"
+   ],
+   "assign": [
+    [
+     "Priya"
+    ],
+    [
+     "Marc"
+    ],
+    [
+     "Lena"
+    ],
+    [
+     "Priya"
+    ],
+    [
+     "Marc",
+     "Lena"
+    ],
+    [
+     "Priya",
+     "Marc",
+     "Lena"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "37_harbourview-tap_nl_terminal-tip-slip.png",
+  "difficulty": "hard",
+  "province": "NL",
+  "chain": "Harbourview Tap & Grill (pub)",
+  "traps": [
+   "separate terminal slip in same photo",
+   "tip chosen on terminal (18% on after-tax total)",
+   "final total is on the slip, not the bill",
+   "HST 15% NL",
+   "'Gratuity not included' text"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Bill TOTAL equals slip AMOUNT; tip 18% was chosen on the terminal and computed on the after-tax amount. Owed total = slip TOTAL.",
+  "expected": {
+   "merchant": "Harbourview Tap & Grill",
+   "date": "2026-02-21",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "2 Pint Iceberg Lager 16.50",
+     "name": "Pint Iceberg Lager",
+     "quantity": 2,
+     "amount_cents": 1650,
+     "taxed": null
+    },
+    {
+     "printed": "1 Fish & Chips 2pc 21.95",
+     "name": "Fish & Chips (2 pc)",
+     "quantity": 1,
+     "amount_cents": 2195,
+     "taxed": null
+    },
+    {
+     "printed": "1 Jiggs Dinner 24.95",
+     "name": "Jiggs Dinner",
+     "quantity": 1,
+     "amount_cents": 2495,
+     "taxed": null
+    },
+    {
+     "printed": "1 Toutons w/ Molasses 9.50",
+     "name": "Toutons with molasses",
+     "quantity": 1,
+     "amount_cents": 950,
+     "taxed": null
+    },
+    {
+     "printed": "1 Caesar 9.75",
+     "name": "Caesar (cocktail)",
+     "quantity": 1,
+     "amount_cents": 975,
+     "taxed": null
+    },
+    {
+     "printed": "1 Cod Tongues 16.95",
+     "name": "Cod tongues",
+     "quantity": 1,
+     "amount_cents": 1695,
+     "taxed": null
+    },
+    {
+     "printed": "1 Screech & Coke 8.50",
+     "name": "Screech & Coke",
+     "quantity": 1,
+     "amount_cents": 850,
+     "taxed": null
+    },
+    {
+     "printed": "1 Moose Burger 19.95",
+     "name": "Moose burger",
+     "quantity": 1,
+     "amount_cents": 1995,
+     "taxed": null
+    },
+    {
+     "printed": "1 Partridgeberry Crumble 8.95",
+     "name": "Partridgeberry crumble",
+     "quantity": 1,
+     "amount_cents": 895,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 13700,
+   "tax_cents": 2055,
+   "tip_cents": 2836,
+   "total_cents": 18591
+  },
+  "split": {
+   "people": [
+    "Sean",
+    "Kayla",
+    "Omar",
+    "Tess"
+   ],
+   "assign": [
+    [
+     "Sean",
+     "Kayla"
+    ],
+    [
+     "Sean"
+    ],
+    [
+     "Kayla"
+    ],
+    [
+     "Sean",
+     "Kayla",
+     "Omar",
+     "Tess"
+    ],
+    [
+     "Omar"
+    ],
+    [
+     "Omar"
+    ],
+    [
+     "Tess"
+    ],
+    [
+     "Tess"
+    ],
+    [
+     "Omar",
+     "Tess"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "38_sakura-sushi_sk_duplicate-lines.png",
+  "difficulty": "hard",
+  "province": "SK",
+  "chain": "Sakura Sushi House",
+  "traps": [
+   "three identical 'Salmon Nigiri' lines eaten by different people (must not be merged)",
+   "two identical 'Spicy Tuna Roll' lines",
+   "0.00 green tea line",
+   "GST 5% + PST 6% (SK restaurant)",
+   "Tip 0.00 printed"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Duplicate lines must stay separate so each can go to a different person. Green Tea 0.00 may be dropped by a scanner; that is acceptable only if the split stays the same. Tip line 0.00 = no tip (tip_cents null).",
+  "expected": {
+   "merchant": "Sakura Sushi House",
+   "date": "2026-05-09",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "Edamame 6.50",
+     "name": "Edamame",
+     "quantity": 1,
+     "amount_cents": 650,
+     "taxed": null
+    },
+    {
+     "printed": "4 Miso Soup 11.80",
+     "name": "Miso soup",
+     "quantity": 4,
+     "amount_cents": 1180,
+     "taxed": null
+    },
+    {
+     "printed": "Salmon Nigiri (2pc) 6.50",
+     "name": "Salmon nigiri (2 pc)",
+     "quantity": 1,
+     "amount_cents": 650,
+     "taxed": null
+    },
+    {
+     "printed": "Spicy Tuna Roll 9.95",
+     "name": "Spicy tuna roll",
+     "quantity": 1,
+     "amount_cents": 995,
+     "taxed": null
+    },
+    {
+     "printed": "Salmon Nigiri (2pc) 6.50",
+     "name": "Salmon nigiri (2 pc)",
+     "quantity": 1,
+     "amount_cents": 650,
+     "taxed": null
+    },
+    {
+     "printed": "Dragon Roll 17.95",
+     "name": "Dragon roll",
+     "quantity": 1,
+     "amount_cents": 1795,
+     "taxed": null
+    },
+    {
+     "printed": "Salmon Nigiri (2pc) 6.50",
+     "name": "Salmon nigiri (2 pc)",
+     "quantity": 1,
+     "amount_cents": 650,
+     "taxed": null
+    },
+    {
+     "printed": "Spicy Tuna Roll 9.95",
+     "name": "Spicy tuna roll",
+     "quantity": 1,
+     "amount_cents": 995,
+     "taxed": null
+    },
+    {
+     "printed": "Chicken Teriyaki Bento 18.95",
+     "name": "Chicken teriyaki bento",
+     "quantity": 1,
+     "amount_cents": 1895,
+     "taxed": null
+    },
+    {
+     "printed": "Ramune Soda 4.25",
+     "name": "Ramune soda",
+     "quantity": 1,
+     "amount_cents": 425,
+     "taxed": null
+    },
+    {
+     "printed": "Green Tea 0.00",
+     "name": "Green tea (free)",
+     "quantity": 1,
+     "amount_cents": 0,
+     "taxed": null
+    },
+    {
+     "printed": "Mango Mochi (3pc) 7.50",
+     "name": "Mango mochi (3 pc)",
+     "quantity": 1,
+     "amount_cents": 750,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 10635,
+   "tax_cents": 1170,
+   "tip_cents": null,
+   "total_cents": 11805
+  },
+  "split": {
+   "people": [
+    "Ava",
+    "Ben",
+    "Cal",
+    "Dee"
+   ],
+   "assign": [
+    [
+     "Ava",
+     "Ben",
+     "Cal",
+     "Dee"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Cal",
+     "Dee"
+    ],
+    [
+     "Ava"
+    ],
+    [
+     "Ava"
+    ],
+    [
+     "Ben"
+    ],
+    [
+     "Ben",
+     "Cal"
+    ],
+    [
+     "Cal"
+    ],
+    [
+     "Dee"
+    ],
+    [
+     "Dee"
+    ],
+    [
+     "Dee"
+    ],
+    [
+     "Ava",
+     "Ben",
+     "Cal",
+     "Dee"
+    ],
+    [
+     "Ben",
+     "Cal"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "39_corydon-slice_mb_suggested-tip.png",
+  "difficulty": "medium",
+  "province": "MB",
+  "chain": "Corydon Slice Co. (pizza)",
+  "traps": [
+   "SUGGESTED GRATUITY block is informational, not paid",
+   "suggested totals look like totals",
+   "GST 5% + PST 7% (MB restaurant)"
+  ],
+  "receipt_is_broken": false,
+  "notes": "No tip was paid; the 15/18/20% block must be ignored. Card charged = TOTAL.",
+  "expected": {
+   "merchant": "Corydon Slice Co.",
+   "date": "2026-04-03",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 LG Margherita 19.99",
+     "name": "Large Margherita pizza",
+     "quantity": 1,
+     "amount_cents": 1999,
+     "taxed": null
+    },
+    {
+     "printed": "1 LG BBQ Chicken 22.99",
+     "name": "Large BBQ Chicken pizza",
+     "quantity": 1,
+     "amount_cents": 2299,
+     "taxed": null
+    },
+    {
+     "printed": "1 Garlic Bread w/ Cheese 7.49",
+     "name": "Garlic bread with cheese",
+     "quantity": 1,
+     "amount_cents": 749,
+     "taxed": null
+    },
+    {
+     "printed": "1 Caesar Salad 8.99",
+     "name": "Caesar salad",
+     "quantity": 1,
+     "amount_cents": 899,
+     "taxed": null
+    },
+    {
+     "printed": "1 Wings 1lb Honey Garlic 15.99",
+     "name": "Wings 1 lb honey garlic",
+     "quantity": 1,
+     "amount_cents": 1599,
+     "taxed": null
+    },
+    {
+     "printed": "1 2L Pepsi 4.29",
+     "name": "2 L Pepsi",
+     "quantity": 1,
+     "amount_cents": 429,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 7974,
+   "tax_cents": 957,
+   "tip_cents": null,
+   "total_cents": 8931
+  },
+  "split": {
+   "people": [
+    "Nia",
+    "Raj",
+    "Sol",
+    "Tom"
+   ],
+   "assign": [
+    [
+     "Nia",
+     "Raj"
+    ],
+    [
+     "Sol",
+     "Tom"
+    ],
+    [
+     "Nia",
+     "Raj",
+     "Sol",
+     "Tom"
+    ],
+    [
+     "Nia"
+    ],
+    [
+     "Raj",
+     "Sol",
+     "Tom"
+    ],
+    [
+     "Nia",
+     "Raj",
+     "Sol",
+     "Tom"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "40_osteria-del-lago_on_autograt-party10.png",
+  "difficulty": "very_hard",
+  "province": "ON",
+  "chain": "Osteria del Lago",
+  "traps": [
+   "party of 10",
+   "18% AUTOMATIC gratuity counted as tip",
+   "HST charged on subtotal + gratuity",
+   "'Taxable Amount' line is not the subtotal",
+   "COMP line reduces the Tiramisu item",
+   "ADDITIONAL TIP 0.00",
+   "quantity @ lines",
+   "per-person cake cutting fee"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Gratuity = 18% of Food & Bev Subtotal; HST 13% is on subtotal+gratuity (mandatory gratuity is taxable). Tiramisu item = 23.00 - 11.50 comp = 11.50. No additional tip.",
+  "expected": {
+   "merchant": "Osteria del Lago",
+   "date": "2026-10-10",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "2 Calamari Fritti /     @ 16.95 33.90",
+     "name": "Calamari fritti",
+     "quantity": 2,
+     "amount_cents": 3390,
+     "taxed": null
+    },
+    {
+     "printed": "1 Bruschetta Platter 18.50",
+     "name": "Bruschetta platter",
+     "quantity": 1,
+     "amount_cents": 1850,
+     "taxed": null
+    },
+    {
+     "printed": "3 Focaccia Basket /     @ 7.00 21.00",
+     "name": "Focaccia basket",
+     "quantity": 3,
+     "amount_cents": 2100,
+     "taxed": null
+    },
+    {
+     "printed": "1 Pizza Margherita 19.95",
+     "name": "Pizza Margherita",
+     "quantity": 1,
+     "amount_cents": 1995,
+     "taxed": null
+    },
+    {
+     "printed": "1 Spaghetti Carbonara 23.95",
+     "name": "Spaghetti carbonara",
+     "quantity": 1,
+     "amount_cents": 2395,
+     "taxed": null
+    },
+    {
+     "printed": "1 Penne Arrabbiata 19.50",
+     "name": "Penne arrabbiata",
+     "quantity": 1,
+     "amount_cents": 1950,
+     "taxed": null
+    },
+    {
+     "printed": "1 Chicken Parmigiana 27.95",
+     "name": "Chicken parmigiana",
+     "quantity": 1,
+     "amount_cents": 2795,
+     "taxed": null
+    },
+    {
+     "printed": "1 Risotto ai Funghi 24.50",
+     "name": "Mushroom risotto",
+     "quantity": 1,
+     "amount_cents": 2450,
+     "taxed": null
+    },
+    {
+     "printed": "1 Gnocchi Sorrentina 22.95",
+     "name": "Gnocchi sorrentina",
+     "quantity": 1,
+     "amount_cents": 2295,
+     "taxed": null
+    },
+    {
+     "printed": "1 Linguine Vongole 28.50",
+     "name": "Linguine vongole",
+     "quantity": 1,
+     "amount_cents": 2850,
+     "taxed": null
+    },
+    {
+     "printed": "1 Veal Marsala 32.95",
+     "name": "Veal marsala",
+     "quantity": 1,
+     "amount_cents": 3295,
+     "taxed": null
+    },
+    {
+     "printed": "1 Lasagna Classica 24.95",
+     "name": "Lasagna",
+     "quantity": 1,
+     "amount_cents": 2495,
+     "taxed": null
+    },
+    {
+     "printed": "1 Grilled Salmon 31.50",
+     "name": "Grilled salmon",
+     "quantity": 1,
+     "amount_cents": 3150,
+     "taxed": null
+    },
+    {
+     "printed": "1 BTL Chianti Classico 58.00",
+     "name": "Bottle of Chianti Classico",
+     "quantity": 1,
+     "amount_cents": 5800,
+     "taxed": null
+    },
+    {
+     "printed": "4 Peroni 330ml /     @ 8.75 35.00",
+     "name": "Peroni 330 ml",
+     "quantity": 4,
+     "amount_cents": 3500,
+     "taxed": null
+    },
+    {
+     "printed": "2 San Pellegrino 750ml /     @ 6.95 13.90",
+     "name": "San Pellegrino 750 ml",
+     "quantity": 2,
+     "amount_cents": 1390,
+     "taxed": null
+    },
+    {
+     "printed": "1 Aperol Spritz 14.00",
+     "name": "Aperol Spritz",
+     "quantity": 1,
+     "amount_cents": 1400,
+     "taxed": null
+    },
+    {
+     "printed": "3 Espresso /     @ 3.50 10.50",
+     "name": "Espresso",
+     "quantity": 3,
+     "amount_cents": 1050,
+     "taxed": null
+    },
+    {
+     "printed": "2 Tiramisu 23.00 / @ 11.50 / COMP Birthday Dessert -11.50",
+     "name": "Tiramisu (1 of 2 comped)",
+     "quantity": 2,
+     "amount_cents": 1150,
+     "taxed": null
+    },
+    {
+     "printed": "10 Cake Cutting Fee /     @ 2.50 25.00",
+     "name": "Cake cutting fee",
+     "quantity": 10,
+     "amount_cents": 2500,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 49800,
+   "tax_cents": 7639,
+   "tip_cents": 8964,
+   "total_cents": 66403
+  },
+  "split": {
+   "people": [
+    "Aarav",
+    "Bea",
+    "Chen",
+    "Dev",
+    "Ela",
+    "Farah",
+    "Gus",
+    "Hana",
+    "Ivan",
+    "Jas"
+   ],
+   "assign": [
+    [
+     "Aarav",
+     "Bea",
+     "Chen",
+     "Dev",
+     "Ela"
+    ],
+    [
+     "Farah",
+     "Gus",
+     "Hana",
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Aarav",
+     "Bea",
+     "Chen",
+     "Dev",
+     "Ela",
+     "Farah",
+     "Gus",
+     "Hana",
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Aarav"
+    ],
+    [
+     "Bea"
+    ],
+    [
+     "Chen"
+    ],
+    [
+     "Dev"
+    ],
+    [
+     "Ela"
+    ],
+    [
+     "Farah"
+    ],
+    [
+     "Gus"
+    ],
+    [
+     "Hana"
+    ],
+    [
+     "Ivan"
+    ],
+    [
+     "Jas"
+    ],
+    [
+     "Aarav",
+     "Bea",
+     "Chen",
+     "Dev"
+    ],
+    [
+     "Ela",
+     "Farah",
+     "Gus",
+     "Hana"
+    ],
+    [
+     "Ivan",
+     "Jas"
+    ],
+    [
+     "Ivan"
+    ],
+    [
+     "Aarav",
+     "Farah",
+     "Jas"
+    ],
+    [
+     "Bea",
+     "Chen"
+    ],
+    [
+     "Aarav",
+     "Bea",
+     "Chen",
+     "Dev",
+     "Ela",
+     "Farah",
+     "Gus",
+     "Hana",
+     "Ivan",
+     "Jas"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "41_false-creek-kitchen_bc_gst-pst-liqpst.png",
+  "difficulty": "very_hard",
+  "province": "BC",
+  "chain": "False Creek Kitchen + Bar",
+  "traps": [
+   "three tax lines: GST 5% on all, PST 7% on pop only, LIQ PST 10% on liquor only",
+   "food is PST-exempt",
+   "brewed iced tea is not pop (no PST)",
+   "date printed mm/dd/yy",
+   "custom $ tip on integrated card section",
+   "Total Charged includes tip"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Tax bases: GST on 152.65; PST 7% on pop 7.50 (Coke + Root Beer); LIQ PST 10% on liquor 39.50 (lagers, Pinot Gris, Caesar). The receipt does not mark items, so taxed is null and the app shares all tax in proportion (drinkers' true tax burden is slightly higher; acceptable). Tip $30.00 typed as an amount.",
+  "expected": {
+   "merchant": "False Creek Kitchen + Bar",
+   "date": "2026-07-18",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "2 Granville Lager 16oz 17.00",
+     "name": "Granville lager 16 oz",
+     "quantity": 2,
+     "amount_cents": 1700,
+     "taxed": null
+    },
+    {
+     "printed": "1 Pinot Gris 6oz 12.00",
+     "name": "Pinot Gris 6 oz glass",
+     "quantity": 1,
+     "amount_cents": 1200,
+     "taxed": null
+    },
+    {
+     "printed": "1 Coke 3.75",
+     "name": "Coke",
+     "quantity": 1,
+     "amount_cents": 375,
+     "taxed": null
+    },
+    {
+     "printed": "1 Root Beer 3.75",
+     "name": "Root beer",
+     "quantity": 1,
+     "amount_cents": 375,
+     "taxed": null
+    },
+    {
+     "printed": "1 Iced Tea (brewed) 3.95",
+     "name": "Brewed iced tea",
+     "quantity": 1,
+     "amount_cents": 395,
+     "taxed": null
+    },
+    {
+     "printed": "1 Nachos Grande 18.95",
+     "name": "Nachos grande",
+     "quantity": 1,
+     "amount_cents": 1895,
+     "taxed": null
+    },
+    {
+     "printed": "1 Salmon Burger 22.50",
+     "name": "Salmon burger",
+     "quantity": 1,
+     "amount_cents": 2250,
+     "taxed": null
+    },
+    {
+     "printed": "1 Fish Tacos (3) 19.75",
+     "name": "Fish tacos (3)",
+     "quantity": 1,
+     "amount_cents": 1975,
+     "taxed": null
+    },
+    {
+     "printed": "1 Ahi Poke Bowl 21.00",
+     "name": "Ahi poke bowl",
+     "quantity": 1,
+     "amount_cents": 2100,
+     "taxed": null
+    },
+    {
+     "printed": "1 Chicken Club 19.50",
+     "name": "Chicken club",
+     "quantity": 1,
+     "amount_cents": 1950,
+     "taxed": null
+    },
+    {
+     "printed": "1 Caesar (1oz) 10.50",
+     "name": "Caesar cocktail",
+     "quantity": 1,
+     "amount_cents": 1050,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 15265,
+   "tax_cents": 1211,
+   "tip_cents": 3000,
+   "total_cents": 19476
+  },
+  "split": {
+   "people": [
+    "Mo",
+    "Lia",
+    "Kat",
+    "Dan"
+   ],
+   "assign": [
+    [
+     "Mo",
+     "Lia"
+    ],
+    [
+     "Kat"
+    ],
+    [
+     "Dan"
+    ],
+    [
+     "Mo"
+    ],
+    [
+     "Lia"
+    ],
+    [
+     "Mo",
+     "Lia",
+     "Kat",
+     "Dan"
+    ],
+    [
+     "Mo"
+    ],
+    [
+     "Lia"
+    ],
+    [
+     "Kat"
+    ],
+    [
+     "Dan"
+    ],
+    [
+     "Dan"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "42_fourchette-dor_qc_french-tip-pretax.png",
+  "difficulty": "hard",
+  "province": "QC",
+  "chain": "Bistro La Fourchette d'Or",
+  "traps": [
+   "French labels (Sous-total, TPS, TVQ, Pourboire, Montant payé)",
+   "decimal commas and trailing $",
+   "tip 15% computed on pre-tax subtotal (Quebec rule)",
+   "TPS/TVQ registration numbers are not amounts",
+   "date printed yy-mm-dd (26-08-29)"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Pourboire = 15% of the Sous-total (before taxes). Owed total = Montant payé.",
+  "expected": {
+   "merchant": "Bistro La Fourchette d'Or",
+   "date": "2026-08-29",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 Soupe à l'oignon 9,50 $",
+     "name": "Soupe à l'oignon gratinée",
+     "quantity": 1,
+     "amount_cents": 950,
+     "taxed": null
+    },
+    {
+     "printed": "1 Tartare de saumon 24,00 $",
+     "name": "Tartare de saumon",
+     "quantity": 1,
+     "amount_cents": 2400,
+     "taxed": null
+    },
+    {
+     "printed": "1 Poutine classique 14,50 $",
+     "name": "Poutine classique",
+     "quantity": 1,
+     "amount_cents": 1450,
+     "taxed": null
+    },
+    {
+     "printed": "1 Confit de canard 29,00 $",
+     "name": "Confit de canard",
+     "quantity": 1,
+     "amount_cents": 2900,
+     "taxed": null
+    },
+    {
+     "printed": "1 Steak frites 32,00 $",
+     "name": "Steak frites",
+     "quantity": 1,
+     "amount_cents": 3200,
+     "taxed": null
+    },
+    {
+     "printed": "2 Verre vin rouge 22,00 $",
+     "name": "Verre de vin rouge",
+     "quantity": 2,
+     "amount_cents": 2200,
+     "taxed": null
+    },
+    {
+     "printed": "1 Bière microbrasserie 8,50 $",
+     "name": "Bière de microbrasserie",
+     "quantity": 1,
+     "amount_cents": 850,
+     "taxed": null
+    },
+    {
+     "printed": "1 Crème brûlée 9,00 $",
+     "name": "Crème brûlée",
+     "quantity": 1,
+     "amount_cents": 900,
+     "taxed": null
+    },
+    {
+     "printed": "1 Café allongé 3,25 $",
+     "name": "Café allongé",
+     "quantity": 1,
+     "amount_cents": 325,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 15175,
+   "tax_cents": 2273,
+   "tip_cents": 2276,
+   "total_cents": 19724
+  },
+  "split": {
+   "people": [
+    "Élise",
+    "Mathieu",
+    "Karim"
+   ],
+   "assign": [
+    [
+     "Élise"
+    ],
+    [
+     "Mathieu"
+    ],
+    [
+     "Élise",
+     "Mathieu",
+     "Karim"
+    ],
+    [
+     "Karim"
+    ],
+    [
+     "Élise"
+    ],
+    [
+     "Mathieu",
+     "Karim"
+    ],
+    [
+     "Élise"
+    ],
+    [
+     "Mathieu"
+    ],
+    [
+     "Karim"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "43_red-sands-oyster_pei_bill-plus-handwritten-slip.png",
+  "difficulty": "very_hard",
+  "province": "PEI",
+  "chain": "The Red Sands Oyster Bar",
+  "traps": [
+   "bill and merchant card slip in one photo",
+   "tip and total HANDWRITTEN in pen on the slip",
+   "slip AMOUNT equals bill 'Balance Due'",
+   "handwritten signature is not a number",
+   "HST 15% PEI",
+   "two date formats (06/27/2026 and 06/27/26)"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Handwritten TIP 18.00 and TOTAL 151.75; the written total equals AMOUNT + TIP.",
+  "expected": {
+   "merchant": "The Red Sands Oyster Bar",
+   "date": "2026-06-27",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 PEI Mussels 1lb 17.95",
+     "name": "PEI mussels 1 lb",
+     "quantity": 1,
+     "amount_cents": 1795,
+     "taxed": null
+    },
+    {
+     "printed": "1 Lobster Roll 28.95",
+     "name": "Lobster roll",
+     "quantity": 1,
+     "amount_cents": 2895,
+     "taxed": null
+    },
+    {
+     "printed": "1 Fish Cakes 18.50",
+     "name": "Fish cakes",
+     "quantity": 1,
+     "amount_cents": 1850,
+     "taxed": null
+    },
+    {
+     "printed": "1 Seafood Chowder 14.95",
+     "name": "Seafood chowder",
+     "quantity": 1,
+     "amount_cents": 1495,
+     "taxed": null
+    },
+    {
+     "printed": "2 Island Red Ale 16.50",
+     "name": "Island Red Ale",
+     "quantity": 2,
+     "amount_cents": 1650,
+     "taxed": null
+    },
+    {
+     "printed": "1 Glass Riesling 10.50",
+     "name": "Glass of Riesling",
+     "quantity": 1,
+     "amount_cents": 1050,
+     "taxed": null
+    },
+    {
+     "printed": "1 Strawberry Shortcake 8.95",
+     "name": "Strawberry shortcake",
+     "quantity": 1,
+     "amount_cents": 895,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 11630,
+   "tax_cents": 1745,
+   "tip_cents": 1800,
+   "total_cents": 15175
+  },
+  "split": {
+   "people": [
+    "Noor",
+    "Liam",
+    "Ines"
+   ],
+   "assign": [
+    [
+     "Noor",
+     "Liam",
+     "Ines"
+    ],
+    [
+     "Noor"
+    ],
+    [
+     "Liam"
+    ],
+    [
+     "Ines"
+    ],
+    [
+     "Noor",
+     "Ines"
+    ],
+    [
+     "Liam"
+    ],
+    [
+     "Noor",
+     "Liam",
+     "Ines"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "44_elmwood-wing-house_us-ny_usd-cross-border.png",
+  "difficulty": "hard",
+  "province": "US-NY",
+  "chain": "Elmwood Wing House",
+  "traps": [
+   "currency USD (cross-border trip)",
+   "US 'Sales Tax 8.75%' instead of GST/HST",
+   "date mm/dd/yyyy",
+   "add-on line folds into wings",
+   "tip 20% on terminal (post-tax)"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Expense must be saved as a USD foreign expense (app converts to CAD with a Bank of Canada rate). Extra Blue Cheese add-on is folded into the 20 wings item.",
+  "expected": {
+   "merchant": "Elmwood Wing House",
+   "date": "2026-09-19",
+   "currency": "USD",
+   "items": [
+    {
+     "printed": "20 Wings - Medium $27.99 / + Extra Blue Cheese $1.25",
+     "name": "20 wings (medium) + extra blue cheese",
+     "quantity": 1,
+     "amount_cents": 2924,
+     "taxed": null
+    },
+    {
+     "printed": "10 Wings - Hot $15.49",
+     "name": "10 wings (hot)",
+     "quantity": 1,
+     "amount_cents": 1549,
+     "taxed": null
+    },
+    {
+     "printed": "Beef on Weck $14.99",
+     "name": "Beef on weck",
+     "quantity": 1,
+     "amount_cents": 1499,
+     "taxed": null
+    },
+    {
+     "printed": "Loaded Fries $10.99",
+     "name": "Loaded fries",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": null
+    },
+    {
+     "printed": "4 Labatt Blue Draft $26.00",
+     "name": "Labatt Blue draft",
+     "quantity": 4,
+     "amount_cents": 2600,
+     "taxed": null
+    },
+    {
+     "printed": "Fountain Soda $3.29",
+     "name": "Fountain soda",
+     "quantity": 1,
+     "amount_cents": 329,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 10000,
+   "tax_cents": 875,
+   "tip_cents": 2175,
+   "total_cents": 13050
+  },
+  "split": {
+   "people": [
+    "Jay",
+    "Rob",
+    "Una",
+    "Vik"
+   ],
+   "assign": [
+    [
+     "Jay",
+     "Rob"
+    ],
+    [
+     "Una"
+    ],
+    [
+     "Vik"
+    ],
+    [
+     "Jay",
+     "Rob",
+     "Una",
+     "Vik"
+    ],
+    [
+     "Jay",
+     "Rob",
+     "Una",
+     "Vik"
+    ],
+    [
+     "Vik"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "45_prairie-grind_sk_broken-item-price.png",
+  "difficulty": "hard",
+  "province": "SK",
+  "chain": "Prairie Grind Cafe",
+  "traps": [
+   "BROKEN: items add to 53.00 but SUBTOTAL is 52.00",
+   "one item price misprinted (Quiche 14.95 vs charged 13.95)",
+   "GST 5% + PST 6%",
+   "quantity @ line with note text"
+  ],
+  "receipt_is_broken": true,
+  "notes": "Deliberately broken: printed item lines sum to $1.00 more than the printed SUBTOTAL (the quiche line shows 14.95 but the till charged 13.95). Taxes and TOTAL are correct for the printed SUBTOTAL. The app should flag the mismatch / ask the user rather than silently invent a fix; the expected total is the printed TOTAL.",
+  "expected": {
+   "merchant": "Prairie Grind Cafe",
+   "date": "2026-01-24",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 Breakfast Sandwich 8.95",
+     "name": "Breakfast sandwich",
+     "quantity": 1,
+     "amount_cents": 895,
+     "taxed": null
+    },
+    {
+     "printed": "1 Avocado Toast 12.95",
+     "name": "Avocado toast",
+     "quantity": 1,
+     "amount_cents": 1295,
+     "taxed": null
+    },
+    {
+     "printed": "1 Quiche of the Day 14.95",
+     "name": "Quiche of the day",
+     "quantity": 1,
+     "amount_cents": 1495,
+     "taxed": null
+    },
+    {
+     "printed": "2 Oat Latte 16oz 11.90",
+     "name": "Oat latte 16 oz",
+     "quantity": 2,
+     "amount_cents": 1190,
+     "taxed": null
+    },
+    {
+     "printed": "1 Saskatoon Berry Scone 4.25",
+     "name": "Saskatoon berry scone",
+     "quantity": 1,
+     "amount_cents": 425,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 5200,
+   "tax_cents": 572,
+   "tip_cents": null,
+   "total_cents": 5772
+  },
+  "split": {
+   "people": [
+    "Ruth",
+    "Ola"
+   ],
+   "assign": [
+    [
+     "Ruth"
+    ],
+    [
+     "Ola"
+    ],
+    [
+     "Ruth"
+    ],
+    [
+     "Ruth",
+     "Ola"
+    ],
+    [
+     "Ola"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "46_forks-taproom_mb_broken-missing-item.png",
+  "difficulty": "hard",
+  "province": "MB",
+  "chain": "The Forks Taproom",
+  "traps": [
+   "BROKEN: one item missing from the list (printed items 7.25 short of Subtotal)",
+   "MB labels 'GST' and 'RST' without rates",
+   "tip on card section",
+   "strong rotation, faded"
+  ],
+  "receipt_is_broken": true,
+  "notes": "Deliberately broken: printed items sum to 102.85 but Subtotal is 110.10; a $7.25 item (story: a side Caesar salad) never printed. Taxes (GST 5%, RST 7%) and totals are correct for the printed Subtotal. App should flag the $7.25 gap (e.g. offer a leftover/unassigned line) rather than inflate an item.",
+  "expected": {
+   "merchant": "The Forks Taproom",
+   "date": "2026-03-27",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 Perogies (12) 14.95",
+     "name": "Perogies (12)",
+     "quantity": 1,
+     "amount_cents": 1495,
+     "taxed": null
+    },
+    {
+     "printed": "1 Pickerel Cheeks 18.95",
+     "name": "Pickerel cheeks",
+     "quantity": 1,
+     "amount_cents": 1895,
+     "taxed": null
+    },
+    {
+     "printed": "1 Bison Burger 21.50",
+     "name": "Bison burger",
+     "quantity": 1,
+     "amount_cents": 2150,
+     "taxed": null
+    },
+    {
+     "printed": "1 Club Wrap 16.75",
+     "name": "Club wrap",
+     "quantity": 1,
+     "amount_cents": 1675,
+     "taxed": null
+    },
+    {
+     "printed": "3 Fort Garry Dark 21.75",
+     "name": "Fort Garry Dark (pint)",
+     "quantity": 3,
+     "amount_cents": 2175,
+     "taxed": null
+    },
+    {
+     "printed": "1 Onion Rings 8.95",
+     "name": "Onion rings",
+     "quantity": 1,
+     "amount_cents": 895,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 11010,
+   "tax_cents": 1322,
+   "tip_cents": 1500,
+   "total_cents": 13832
+  },
+  "split": {
+   "people": [
+    "Hal",
+    "Ivy",
+    "Joe"
+   ],
+   "assign": [
+    [
+     "Hal",
+     "Ivy",
+     "Joe"
+    ],
+    [
+     "Hal"
+    ],
+    [
+     "Ivy"
+    ],
+    [
+     "Joe"
+    ],
+    [
+     "Hal",
+     "Ivy",
+     "Joe"
+    ],
+    [
+     "Hal",
+     "Ivy",
+     "Joe"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "47_rock-harbour-diner_nl_broken-subtotal-typo.png",
+  "difficulty": "hard",
+  "province": "NL",
+  "chain": "Rock Harbour Diner",
+  "traps": [
+   "BROKEN: SUBTOTAL typo",
+   "items, HST and TOTAL agree with each other but not with SUBTOTAL",
+   "date dd-Mon-yyyy"
+  ],
+  "receipt_is_broken": true,
+  "notes": "Deliberately broken: items sum to 54.75 but SUBTOTAL prints 47.85 (digit typo). HST 15% (8.21) and TOTAL (62.96) are correct for 54.75, so subtotal + tax != total. Trust items + TOTAL; flag the subtotal.",
+  "expected": {
+   "merchant": "Rock Harbour Diner",
+   "date": "2026-04-05",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 Big Breakfast 15.95",
+     "name": "Big breakfast",
+     "quantity": 1,
+     "amount_cents": 1595,
+     "taxed": null
+    },
+    {
+     "printed": "1 Eggs Benny 16.50",
+     "name": "Eggs Benedict",
+     "quantity": 1,
+     "amount_cents": 1650,
+     "taxed": null
+    },
+    {
+     "printed": "1 Bakeapple Pancakes 13.95",
+     "name": "Bakeapple pancakes",
+     "quantity": 1,
+     "amount_cents": 1395,
+     "taxed": null
+    },
+    {
+     "printed": "2 Coffee 4.70",
+     "name": "Coffee",
+     "quantity": 2,
+     "amount_cents": 470,
+     "taxed": null
+    },
+    {
+     "printed": "1 Fresh OJ 3.65",
+     "name": "Fresh orange juice",
+     "quantity": 1,
+     "amount_cents": 365,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 4785,
+   "tax_cents": 821,
+   "tip_cents": null,
+   "total_cents": 6296
+  },
+  "split": {
+   "people": [
+    "Ann",
+    "Bo"
+   ],
+   "assign": [
+    [
+     "Ann",
+     "Bo"
+    ],
+    [
+     "Ann"
+    ],
+    [
+     "Bo"
+    ],
+    [
+     "Ann",
+     "Bo"
+    ],
+    [
+     "Bo"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "48_island-fresh-market_pei_long-cottage-run.png",
+  "difficulty": "very_hard",
+  "province": "PEI",
+  "chain": "Island Fresh Market (grocery)",
+  "traps": [
+   "very long receipt (~70 printed lines, 44 items)",
+   "department headers are not items",
+   "H flag = HST 15%; tax shared only over taxed items",
+   "tax line prints the taxable base",
+   "weighed items (kg @ $/kg)",
+   "quantity qualifier lines",
+   "deposits (not taxed) as items",
+   "2/$1.00 multi-buy",
+   "# ITEMS SOLD count is not money"
+  ],
+  "receipt_is_broken": false,
+  "notes": "HST 15% applies only to H items (taxable base 115.06). Deposits are untaxed items assigned to whoever got the drinks. Cottage weekend for 5 friends.",
+  "expected": {
+   "merchant": "Island Fresh Market",
+   "date": "2026-07-31",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "BANANAS / 1.405 kg @ $1.52/kg 2.14",
+     "name": "Bananas",
+     "quantity": 1,
+     "amount_cents": 214,
+     "taxed": false
+    },
+    {
+     "printed": "GALA APPLES 3LB 5.49",
+     "name": "Gala apples 3 lb",
+     "quantity": 1,
+     "amount_cents": 549,
+     "taxed": false
+    },
+    {
+     "printed": "PEI POTATOES 10LB 6.99",
+     "name": "PEI potatoes 10 lb",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": false
+    },
+    {
+     "printed": "CORN ON COB / 12 @ 2/$1.00 6.00",
+     "name": "Corn on the cob",
+     "quantity": 12,
+     "amount_cents": 600,
+     "taxed": false
+    },
+    {
+     "printed": "ROMAINE HEARTS 3PK 4.49",
+     "name": "Romaine hearts 3 pk",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "LIMES / 6 @ $0.49 2.94",
+     "name": "Limes",
+     "quantity": 6,
+     "amount_cents": 294,
+     "taxed": false
+    },
+    {
+     "printed": "AVOCADO BAG 5CT 5.99",
+     "name": "Avocados 5 ct",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "CHKN THIGHS BNLS FP / 1.215 kg @ $13.89/kg 16.87",
+     "name": "Boneless chicken thighs family pack",
+     "quantity": 1,
+     "amount_cents": 1687,
+     "taxed": false
+    },
+    {
+     "printed": "LEAN GRND TURKEY 1KG 12.99",
+     "name": "Lean ground turkey 1 kg",
+     "quantity": 1,
+     "amount_cents": 1299,
+     "taxed": false
+    },
+    {
+     "printed": "SALMON FILLET ATL / 0.742 kg @ $27.41/kg 20.34",
+     "name": "Atlantic salmon fillet",
+     "quantity": 1,
+     "amount_cents": 2034,
+     "taxed": false
+    },
+    {
+     "printed": "2% MILK 4L 6.49",
+     "name": "2% milk 4 L",
+     "quantity": 1,
+     "amount_cents": 649,
+     "taxed": false
+    },
+    {
+     "printed": "LARGE EGGS 18 / 2 @ $5.49 10.98",
+     "name": "Large eggs 18",
+     "quantity": 2,
+     "amount_cents": 1098,
+     "taxed": false
+    },
+    {
+     "printed": "CHEDDAR OLD 400G 7.49",
+     "name": "Old cheddar 400 g",
+     "quantity": 1,
+     "amount_cents": 749,
+     "taxed": false
+    },
+    {
+     "printed": "GREEK YOGURT 750G 5.99",
+     "name": "Greek yogurt 750 g",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": false
+    },
+    {
+     "printed": "BUTTER SALTED 454G 6.79",
+     "name": "Salted butter 454 g",
+     "quantity": 1,
+     "amount_cents": 679,
+     "taxed": false
+    },
+    {
+     "printed": "HOTDOG BUNS 12PK 4.29",
+     "name": "Hot dog buns 12 pk",
+     "quantity": 1,
+     "amount_cents": 429,
+     "taxed": false
+    },
+    {
+     "printed": "HAMBURGER BUNS 12PK 4.29",
+     "name": "Hamburger buns 12 pk",
+     "quantity": 1,
+     "amount_cents": 429,
+     "taxed": false
+    },
+    {
+     "printed": "SOURDOUGH LOAF 4.99",
+     "name": "Sourdough loaf",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": false
+    },
+    {
+     "printed": "BLUEBERRY MUFFIN 4PK 5.99 H",
+     "name": "Blueberry muffins 4 pk",
+     "quantity": 1,
+     "amount_cents": 599,
+     "taxed": true
+    },
+    {
+     "printed": "SPAGHETTI 900G 2.49",
+     "name": "Spaghetti 900 g",
+     "quantity": 1,
+     "amount_cents": 249,
+     "taxed": false
+    },
+    {
+     "printed": "PASTA SAUCE 650ML / 2 @ $2.99 5.98",
+     "name": "Pasta sauce 650 mL",
+     "quantity": 2,
+     "amount_cents": 598,
+     "taxed": false
+    },
+    {
+     "printed": "PEANUT BUTTER 1KG 7.49",
+     "name": "Peanut butter 1 kg",
+     "quantity": 1,
+     "amount_cents": 749,
+     "taxed": false
+    },
+    {
+     "printed": "MAPLE SYRUP 540ML 11.99",
+     "name": "Maple syrup 540 mL",
+     "quantity": 1,
+     "amount_cents": 1199,
+     "taxed": false
+    },
+    {
+     "printed": "PANCAKE MIX 905G 4.49",
+     "name": "Pancake mix 905 g",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "COFFEE DARK 930G 15.99",
+     "name": "Dark roast coffee 930 g",
+     "quantity": 1,
+     "amount_cents": 1599,
+     "taxed": false
+    },
+    {
+     "printed": "KETCHUP 1L 4.49",
+     "name": "Ketchup 1 L",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "TORTILLA CHIPS 300G / 2 @ $3.99 7.98 H",
+     "name": "Tortilla chips 300 g",
+     "quantity": 2,
+     "amount_cents": 798,
+     "taxed": true
+    },
+    {
+     "printed": "SALSA MED 650ML 4.49",
+     "name": "Medium salsa 650 mL",
+     "quantity": 1,
+     "amount_cents": 449,
+     "taxed": false
+    },
+    {
+     "printed": "POTATO CHIPS SALT 235G / 3 @ $3.49 10.47 H",
+     "name": "Salted potato chips 235 g",
+     "quantity": 3,
+     "amount_cents": 1047,
+     "taxed": true
+    },
+    {
+     "printed": "MARSHMALLOWS 400G 3.29 H",
+     "name": "Marshmallows 400 g",
+     "quantity": 1,
+     "amount_cents": 329,
+     "taxed": true
+    },
+    {
+     "printed": "GRAHAM CRACKERS 400G 3.99",
+     "name": "Graham crackers 400 g",
+     "quantity": 1,
+     "amount_cents": 399,
+     "taxed": false
+    },
+    {
+     "printed": "CHOC BAR MILK 100G / 4 @ $1.99 7.96 H",
+     "name": "Milk chocolate bar 100 g",
+     "quantity": 4,
+     "amount_cents": 796,
+     "taxed": true
+    },
+    {
+     "printed": "COLA 12X355ML / 2 @ $7.99 15.98 H",
+     "name": "Cola 12 x 355 mL",
+     "quantity": 2,
+     "amount_cents": 1598,
+     "taxed": true
+    },
+    {
+     "printed": "DEPOSIT / 24 @ $0.10 2.40",
+     "name": "Container deposit",
+     "quantity": 24,
+     "amount_cents": 240,
+     "taxed": false
+    },
+    {
+     "printed": "SPARKLING WATER 12PK 6.99 H",
+     "name": "Sparkling water 12 pk",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": true
+    },
+    {
+     "printed": "DEPOSIT / 12 @ $0.10 1.20",
+     "name": "Container deposit",
+     "quantity": 12,
+     "amount_cents": 120,
+     "taxed": false
+    },
+    {
+     "printed": "ORANGE JUICE 2.63L 6.99",
+     "name": "Orange juice 2.63 L",
+     "quantity": 1,
+     "amount_cents": 699,
+     "taxed": false
+    },
+    {
+     "printed": "PAPER TOWEL 6 ROLL 9.99 H",
+     "name": "Paper towel 6 roll",
+     "quantity": 1,
+     "amount_cents": 999,
+     "taxed": true
+    },
+    {
+     "printed": "PAPER PLATES 100CT 6.49 H",
+     "name": "Paper plates 100 ct",
+     "quantity": 1,
+     "amount_cents": 649,
+     "taxed": true
+    },
+    {
+     "printed": "BBQ LIGHTER 4.99 H",
+     "name": "BBQ lighter",
+     "quantity": 1,
+     "amount_cents": 499,
+     "taxed": true
+    },
+    {
+     "printed": "SUNSCREEN SPF50 12.99 H",
+     "name": "Sunscreen SPF 50",
+     "quantity": 1,
+     "amount_cents": 1299,
+     "taxed": true
+    },
+    {
+     "printed": "BUG SPRAY 230G 10.99 H",
+     "name": "Bug spray 230 g",
+     "quantity": 1,
+     "amount_cents": 1099,
+     "taxed": true
+    },
+    {
+     "printed": "ICE 4KG / 2 @ $3.99 7.98 H",
+     "name": "Bag of ice 4 kg",
+     "quantity": 2,
+     "amount_cents": 798,
+     "taxed": true
+    },
+    {
+     "printed": "REUSABLE BAG / 3 @ $0.99 2.97 H",
+     "name": "Reusable bag",
+     "quantity": 3,
+     "amount_cents": 297,
+     "taxed": true
+    }
+   ],
+   "subtotal_cents": 32260,
+   "tax_cents": 1726,
+   "tip_cents": null,
+   "total_cents": 33986
+  },
+  "split": {
+   "people": [
+    "Kim",
+    "Leo",
+    "Max",
+    "Nat",
+    "Oli"
+   ],
+   "assign": [
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Max",
+     "Nat"
+    ],
+    [
+     "Kim",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Nat"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Leo",
+     "Max"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Leo",
+     "Max",
+     "Oli"
+    ],
+    [
+     "Leo",
+     "Max",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Nat"
+    ],
+    [
+     "Kim",
+     "Nat"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ],
+    [
+     "Kim",
+     "Leo",
+     "Max",
+     "Nat",
+     "Oli"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "49_tidewater-brewing_bc_void-override.png",
+  "difficulty": "very_hard",
+  "province": "BC",
+  "chain": "Tidewater Brewing Co. (brewpub)",
+  "traps": [
+   "two VOID lines: voided item + negative line must both be dropped",
+   "price override: charged 18.00 not 21.00",
+   "'Voids (2)' / 'Overrides (1)' summary lines are informational (Subtotal already net)",
+   "GST + PST 7% on house soda + Liquor PST 10%",
+   "tip 18% on terminal"
+  ],
+  "receipt_is_broken": false,
+  "notes": "Subtotal 120.50 already excludes the voids and the override; the indented Voids/Overrides lines under it are informational and must not be subtracted again. PST 7% on the house ginger beer (soda), Liquor PST 10% on beer.",
+  "expected": {
+   "merchant": "Tidewater Brewing Co.",
+   "date": "2026-10-02",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 Nachos Supreme 19.00",
+     "name": "Nachos supreme",
+     "quantity": 1,
+     "amount_cents": 1900,
+     "taxed": null
+    },
+    {
+     "printed": "1 Fish & Chips / PRICE OVERRIDE was 21.00 18.00",
+     "name": "Fish & chips (price override)",
+     "quantity": 1,
+     "amount_cents": 1800,
+     "taxed": null
+    },
+    {
+     "printed": "1 Mushroom Flatbread 17.50",
+     "name": "Mushroom flatbread",
+     "quantity": 1,
+     "amount_cents": 1750,
+     "taxed": null
+    },
+    {
+     "printed": "1 Steak Sandwich 24.00",
+     "name": "Steak sandwich",
+     "quantity": 1,
+     "amount_cents": 2400,
+     "taxed": null
+    },
+    {
+     "printed": "2 Tidewater IPA 20oz 18.50",
+     "name": "Tidewater IPA 20 oz",
+     "quantity": 2,
+     "amount_cents": 1850,
+     "taxed": null
+    },
+    {
+     "printed": "1 Hazy Pale 14oz 7.75",
+     "name": "Hazy pale 14 oz",
+     "quantity": 1,
+     "amount_cents": 775,
+     "taxed": null
+    },
+    {
+     "printed": "1 Ginger Beer (house soda) 5.25",
+     "name": "House ginger beer (soda)",
+     "quantity": 1,
+     "amount_cents": 525,
+     "taxed": null
+    },
+    {
+     "printed": "1 Sticky Toffee Pudding 10.50",
+     "name": "Sticky toffee pudding",
+     "quantity": 1,
+     "amount_cents": 1050,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 12050,
+   "tax_cents": 903,
+   "tip_cents": 2332,
+   "total_cents": 15285
+  },
+  "split": {
+   "people": [
+    "Gia",
+    "Hugo",
+    "Iris"
+   ],
+   "assign": [
+    [
+     "Gia",
+     "Hugo",
+     "Iris"
+    ],
+    [
+     "Gia"
+    ],
+    [
+     "Hugo"
+    ],
+    [
+     "Iris"
+    ],
+    [
+     "Gia",
+     "Iris"
+    ],
+    [
+     "Hugo"
+    ],
+    [
+     "Hugo"
+    ],
+    [
+     "Gia",
+     "Hugo",
+     "Iris"
+    ]
+   ]
+  }
+ },
+ {
+  "file": "50_babas-kitchen_mb_cash-rounding.png",
+  "difficulty": "medium",
+  "province": "MB",
+  "chain": "Baba's Kitchen (diner)",
+  "traps": [
+   "cash rounding line (paid != TOTAL)",
+   "CASH tendered and CHANGE are not totals",
+   "date 'Oct 06/26'"
+  ],
+  "receipt_is_broken": false,
+  "notes": "TOTAL 48.21; Cash Rounding -0.01 -> Amount Due 48.20; cash 50.00, change 1.80. Expected total_cents is the pre-rounding TOTAL (a tester may accept the rounded amount as the money that actually changed hands).",
+  "expected": {
+   "merchant": "Baba's Kitchen",
+   "date": "2026-10-06",
+   "currency": "CAD",
+   "items": [
+    {
+     "printed": "1 Cabbage Roll Plate 16.95",
+     "name": "Cabbage roll plate",
+     "quantity": 1,
+     "amount_cents": 1695,
+     "taxed": null
+    },
+    {
+     "printed": "1 Perogy Platter 15.95",
+     "name": "Perogy platter",
+     "quantity": 1,
+     "amount_cents": 1595,
+     "taxed": null
+    },
+    {
+     "printed": "1 Side Kielbasa 4.95",
+     "name": "Side of kielbasa",
+     "quantity": 1,
+     "amount_cents": 495,
+     "taxed": null
+    },
+    {
+     "printed": "2 Coffee 5.20",
+     "name": "Coffee",
+     "quantity": 2,
+     "amount_cents": 520,
+     "taxed": null
+    }
+   ],
+   "subtotal_cents": 4305,
+   "tax_cents": 516,
+   "tip_cents": null,
+   "total_cents": 4821
+  },
+  "split": {
+   "people": [
+    "Sam",
+    "Kai"
+   ],
+   "assign": [
+    [
+     "Sam"
+    ],
+    [
+     "Kai"
+    ],
+    [
+     "Sam",
+     "Kai"
+    ],
+    [
+     "Sam",
+     "Kai"
+    ]
+   ]
+  }
+ }
+]
