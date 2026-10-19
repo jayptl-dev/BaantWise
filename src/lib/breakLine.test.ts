@@ -49,6 +49,9 @@ describe("which lines can be broken", () => {
     expect(canBreak(line(0, "Butter", "34.74"))).toBe(true);
     expect(canBreak(line(0, "Instant savings", "-3.00"))).toBe(false);
     expect(canBreak(line(0, "Free", "0.00"))).toBe(false);
+    expect(canBreak(line(0, "Roma tomatoes", "2.07", 0.95))).toBe(false);
+    expect(canBreak(line(0, "Bananas", "2.47", 1.42))).toBe(false);
+    expect(canBreak(line(0, "Avocados, bag of 5", "4.99", 1))).toBe(true);
     expect(canBreak(breakLine(receipt(), 1, 6)[1])).toBe(false);
   });
 });

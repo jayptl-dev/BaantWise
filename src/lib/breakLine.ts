@@ -22,10 +22,12 @@ export function isBreakableCount(quantity: number | null | undefined): quantity 
   return typeof quantity === "number" && Number.isInteger(quantity) && quantity >= 2 && quantity <= MAX_COUNT;
 }
 
-// Whether "Break this line" can be offered for a line: not already broken, and a price
-// above $0 (a discount line has nothing to share out).
+// Whether "Break this line" can be offered for a line: not already broken, a price above
+// $0 (a discount line has nothing to share out), and not sold by weight (0.95 kg of
+// tomatoes can't be counted out into parts).
 export function canBreak(line: ItemLine): boolean {
-  return !line.part && cents(line) > 0;
+  const weighed = typeof line.quantity === "number" && !Number.isInteger(line.quantity);
+  return !line.part && !weighed && cents(line) > 0;
 }
 
 // The line's price shared out by count, whole cents, first part first on a tie.
