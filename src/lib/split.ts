@@ -65,25 +65,29 @@ export function splitByItems(
   order: readonly string[],
   payerId?: string,
 ): Map<string, number> {
+  const weights = itemWeights(items, order);
+  const people = [...weights.keys()];
+  const allZero = [...weights.values()].every((w) => w === 0n);
+  if (allZero) return splitEvenly(totalCents, people, payerId);
+  return splitByWeights(totalCents, people.map((id) => ({ id, weight: weights.get(id) ?? 0n })), payerId);
+}
+
+// Each person's exact share of the items, as whole numbers: an item shared by n people
+// counts amount/n for each, and everything is scaled by the lowest common multiple of the
+// n's so the shares stay exact. Only people on an item (with someone on it), in `order`.
+export function itemWeights(items: readonly SplitItem[], order: readonly string[]): Map<string, bigint> {
   const used = items.filter((item) => item.memberIds.length > 0);
   const onItems = new Set(used.flatMap((item) => item.memberIds));
   const people = order.filter((id) => onItems.has(id));
-
-  // Every item's amount/n becomes a whole number when everything is scaled by the
-  // lowest common multiple of the n's.
   const scale = used.reduce((l, item) => {
     const n = BigInt(new Set(item.memberIds).size);
     return (l * n) / gcd(l, n);
   }, 1n);
-
   const weights = new Map<string, bigint>(people.map((id) => [id, 0n]));
   for (const item of used) {
     const unique = [...new Set(item.memberIds)];
     const each = (BigInt(Math.max(0, item.amountCents)) * scale) / BigInt(unique.length);
     for (const id of unique) weights.set(id, (weights.get(id) ?? 0n) + each);
   }
-
-  const allZero = [...weights.values()].every((w) => w === 0n);
-  if (allZero) return splitEvenly(totalCents, people, payerId);
-  return splitByWeights(totalCents, people.map((id) => ({ id, weight: weights.get(id) ?? 0n })), payerId);
+  return weights;
 }
