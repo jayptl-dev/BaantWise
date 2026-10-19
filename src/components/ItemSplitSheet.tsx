@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { centsToDecimal, formatCents, MAX_CENTS, readMoney } from "../lib/money";
 import type { ScannedItem } from "../lib/receiptScan";
-import { carryForward, firstUnticked, itemsSoFar } from "../lib/itemSplit";
+import { carryForward, checkItems, firstUnticked, itemsSoFar, type ReceiptTotals } from "../lib/itemSplit";
 import {
   addPart,
   breakLine,
@@ -60,6 +60,9 @@ type ItemSplitSheetProps = {
   format?: (cents: number) => string; // how to write amounts (default CA$); a US$ receipt passes its own
   maxCents?: number; // the largest Amount allowed in that currency
   payerId: string;
+  // What the scanned receipt says (subtotal, tax, tip), to check the items against; null
+  // when there's no fresh scan (typed in, or editing a saved expense).
+  receipt?: ReceiptTotals | null;
   nameFor: (member: Member) => string;
   onUse: (shares: Map<string, number>) => void; // only people above $0
   onClose: () => void;
@@ -78,6 +81,7 @@ export function ItemSplitSheet({
   format = formatCents,
   maxCents = MAX_CENTS,
   payerId,
+  receipt = null,
   nameFor,
   onUse,
   onClose,
@@ -98,6 +102,11 @@ export function ItemSplitSheet({
   const amountOk = totalCents !== null && totalCents > 0 && totalCents <= maxCents;
   const order = people.map((p) => p.id);
   const soFar = itemsSoFar(steps, order, payerId);
+  const check = checkItems(itemsTotal, totalCents, receipt);
+  const printedExtras = [
+    receipt?.taxCents ? `tax ${format(receipt.taxCents)}` : null,
+    receipt?.tipCents ? `tip ${format(receipt.tipCents)}` : null,
+  ].filter((part): part is string => part !== null);
 
   const at = Math.min(index, Math.max(lines.length - 1, 0));
   const line: Line | undefined = lines[at];
@@ -404,9 +413,30 @@ export function ItemSplitSheet({
       <div className="item-footer" aria-live="polite">
         {rest === null ? (
           <p className="field-error">Enter the expense's Amount first.</p>
+        ) : check.overAmount !== null ? (
+          <p className="item-check" role="alert">
+            The items add up to <strong>{format(itemsTotal)}</strong>, which is {format(check.overAmount)} more than
+            the Amount. Check the items' prices, or the Amount.
+          </p>
         ) : (
-          <p>
-            Tax, tip and other: <strong>{format(rest)}</strong>, shared in proportion
+          <>
+            <p>
+              Tax, tip and other: <strong>{format(rest)}</strong>, shared in proportion
+            </p>
+            {printedExtras.length > 0 && check.subtotalGap === null && (
+              <p className="hint">On the receipt: {printedExtras.join(" + ")}</p>
+            )}
+          </>
+        )}
+        {check.subtotalGap !== null && check.overAmount === null && (
+          <p className="item-check" role="alert">
+            The items add up to <strong>{format(itemsTotal)}</strong>, but the receipt's subtotal is{" "}
+            <strong>{format(receipt!.subtotalCents!)}</strong> ({format(Math.abs(check.subtotalGap))}{" "}
+            {check.subtotalGap > 0 ? "more" : "less"}).{" "}
+            {check.subtotalGap > 0
+              ? "An item may be listed twice or a price read wrong, or the receipt itself may be wrong."
+              : "An item may be missing or a price read wrong."}{" "}
+            Check the items against the paper receipt.
           </p>
         )}
         {lines.length > 0 && !everyItemHasSomeone && (

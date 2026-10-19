@@ -20,6 +20,10 @@ export type ScannedReceipt = {
   date: string | null; // "2026-09-25"
   currency: string | null; // "CAD", "USD", ...
   totalCents: number | null;
+  // As printed on the receipt (null when not printed), for checking the items in Split by item.
+  subtotalCents: number | null;
+  taxCents: number | null;
+  tipCents: number | null;
   items: ScannedItem[];
   category: CategoryKey;
   hasWarnings: boolean; // some numbers on the receipt didn't add up
@@ -58,6 +62,9 @@ export function readScan(raw: unknown): ScannedReceipt {
     date: typeof r.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : null,
     currency: typeof r.currency === "string" && /^[A-Z]{3}$/.test(r.currency) ? r.currency : null,
     totalCents: number(r.total_cents),
+    subtotalCents: number(r.subtotal_cents),
+    taxCents: number(r.tax_cents),
+    tipCents: number(r.tip_cents),
     items: items.flatMap((item) => {
       const i = (item ?? {}) as Record<string, unknown>;
       const name = text(i.name);
