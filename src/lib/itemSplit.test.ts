@@ -138,3 +138,34 @@ describe("tax only on taxed items (Costco and Walmart test receipts)", () => {
     expect(taxOnMarkedItems(marked, 0)).toBe(false);
   });
 });
+
+describe("tax split fairness on many random bills", () => {
+  it("everyone is within a cent of their exact share, and the shares add up", () => {
+    let seed = 7;
+    const rand = (n: number) => {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      return seed % n;
+    };
+    const ids = ["a", "b", "c", "d", "e"];
+    for (let round = 0; round < 500; round++) {
+      const items = Array.from({ length: 1 + rand(12) }, () => {
+        const people = ids.filter(() => rand(2) === 1);
+        return { amountCents: 50 + rand(5000), memberIds: people.length ? people : ["a"], taxed: rand(3) === 0 };
+      });
+      if (!items.some((i) => i.taxed)) items[0].taxed = true;
+      const itemsTotal = items.reduce((s, i) => s + i.amountCents, 0);
+      const taxedTotal = items.filter((i) => i.taxed).reduce((s, i) => s + i.amountCents, 0);
+      const tax = Math.round(taxedTotal * 0.13);
+      const total = itemsTotal + tax + rand(2000); // plus a tip
+      const shares = splitItemsWithTax(total, items, tax, ids, "a");
+      expect([...shares.values()].reduce((s, v) => s + v, 0)).toBe(total);
+      const rest = total - tax;
+      for (const id of ids) {
+        const mine = (list: typeof items) =>
+          list.reduce((s, i) => s + (i.memberIds.includes(id) ? i.amountCents / i.memberIds.length : 0), 0);
+        const exact = (rest * mine(items)) / itemsTotal + (tax * mine(items.filter((i) => i.taxed))) / taxedTotal;
+        expect(Math.abs((shares.get(id) ?? 0) - exact)).toBeLessThan(1);
+      }
+    }
+  });
+});

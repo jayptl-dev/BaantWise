@@ -1,4 +1,4 @@
-import { splitByItems, type SplitItem } from "./split";
+import { itemWeights, splitByItems, splitByWeights, type SplitItem } from "./split";
 
 // Helpers for "Split by item", one item at a time.
 
@@ -93,13 +93,22 @@ export function splitItemsWithTax(
   if (!taxOnMarkedItems(items, taxCents) || (taxCents as number) > totalCents) {
     return splitByItems(totalCents, items, order, payerId);
   }
-  const tax = taxCents as number;
-  const taxShares = splitByItems(tax, items.filter((item) => item.taxed === true), order, payerId);
-  const restShares = splitByItems(totalCents - tax, items, order, payerId);
-  const shares = new Map<string, number>();
-  for (const id of order) {
-    const sum = (taxShares.get(id) ?? 0) + (restShares.get(id) ?? 0);
-    if (taxShares.has(id) || restShares.has(id)) shares.set(id, sum);
-  }
-  return shares;
+  // Each person's exact share is rest * a/A + tax * t/T, where a and t are their shares of
+  // all items and of the taxed items (A and T the totals). Multiplied by A * T it becomes a
+  // whole number, so the total is split once, in proportion to those numbers, and every
+  // person ends up within a cent of their exact share (rounding the tax and the rest
+  // separately could put someone 2 cents out).
+  const tax = BigInt(taxCents as number);
+  const rest = BigInt(totalCents) - tax;
+  const all = itemWeights(items, order);
+  const taxed = itemWeights(items.filter((item) => item.taxed === true), order);
+  const A = [...all.values()].reduce((s, w) => s + w, 0n);
+  const T = [...taxed.values()].reduce((s, w) => s + w, 0n);
+  if (A === 0n || T === 0n) return splitByItems(totalCents, items, order, payerId);
+  const people = order.filter((id) => all.has(id) || taxed.has(id));
+  return splitByWeights(
+    totalCents,
+    people.map((id) => ({ id, weight: rest * (all.get(id) ?? 0n) * T + tax * (taxed.get(id) ?? 0n) * A })),
+    payerId,
+  );
 }
