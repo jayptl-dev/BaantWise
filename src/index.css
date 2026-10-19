@@ -2011,6 +2011,20 @@ p.scan-box {
   margin: 0;
 }
 
+.item-footer p + p {
+  margin-top: 0.25rem;
+}
+
+/* The items don't add up to the receipt's subtotal, or to more than the Amount. */
+.item-footer .item-check {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--danger);
+  border-radius: 0.25rem;
+  background: var(--surface);
+  color: var(--text);
+}
+
 /* ---------- By % and By shares ---------- */
 
 /* The number box, with "%" or "×" after the number instead of "$" before it. */

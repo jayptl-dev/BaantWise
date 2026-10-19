@@ -33,3 +33,30 @@ export function itemsSoFar(items: readonly StepItem[], order: readonly string[],
 export function firstUnticked(items: readonly StepItem[]): number {
   return items.findIndex((item) => item.people.size === 0);
 }
+
+// What the receipt says, from the scan, to check the items against.
+export type ReceiptTotals = { subtotalCents: number | null; taxCents: number | null; tipCents: number | null };
+
+// A couple of cents either way is rounding on the receipt, not a mistake.
+const TOLERANCE_CENTS = 2;
+
+export type ItemsCheck = {
+  // The items add up to this much more (above 0) or less (below 0) than the receipt's
+  // printed subtotal; null when they match, or the subtotal isn't known.
+  subtotalGap: number | null;
+  // The items add up to more than the expense's Amount, by this much; null otherwise.
+  overAmount: number | null;
+};
+
+// Checks the items against the receipt and the Amount, so the sheet can say clearly when
+// something doesn't add up (a missed or extra line, a wrong price, or a receipt that's
+// wrong itself) instead of quietly sharing the difference as "tax, tip and other".
+export function checkItems(itemsTotal: number, amountCents: number | null, receipt?: ReceiptTotals | null): ItemsCheck {
+  const subtotal = receipt?.subtotalCents ?? null;
+  const gap = subtotal === null ? 0 : itemsTotal - subtotal;
+  const over = amountCents === null ? 0 : itemsTotal - amountCents;
+  return {
+    subtotalGap: subtotal !== null && Math.abs(gap) > TOLERANCE_CENTS ? gap : null,
+    overAmount: amountCents !== null && over > TOLERANCE_CENTS ? over : null,
+  };
+}

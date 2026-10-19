@@ -58,6 +58,7 @@ import {
 } from "../lib/recurring";
 import { CategoryButton } from "./CategoryPicker";
 import { ItemSplitSheet, linesFromScan, type ItemLine } from "./ItemSplitSheet";
+import type { ReceiptTotals } from "../lib/itemSplit";
 import { ScanReceipt } from "./ScanReceipt";
 import { FeedbackLine } from "./Status";
 import { LockIcon } from "./LockIcon";
@@ -197,6 +198,8 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   // failed load never wipes the saved ones.
   const [scanNotes, setScanNotes] = useState<string[]>(givenTemplate?.notes ?? []);
   const [itemLines, setItemLines] = useState<ItemLine[] | null>(null);
+  // The fresh scan's subtotal, tax and tip, for checking the items (not saved).
+  const [receiptTotals, setReceiptTotals] = useState<ReceiptTotals | null>(null);
   const [itemSheetOpen, setItemSheetOpen] = useState(false);
   const [savingItems, setSavingItems] = useState(false);
   const working = busy || savingPhoto || savingItems;
@@ -400,6 +403,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
     if (receipt.hasWarnings) notes.push("Some numbers on this receipt don't add up. Please check them.");
     setScanNotes(notes);
     setItemLines(receipt.items.length > 0 ? linesFromScan(receipt.items) : null);
+    setReceiptTotals({ subtotalCents: receipt.subtotalCents, taxCents: receipt.taxCents, tipCents: receipt.tipCents });
   }
 
   // "Use this split" from Split by item: switch to Exact amounts, filled in.
@@ -1127,6 +1131,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
           format={fmtEntry}
           maxCents={fx.isForeign ? MAX_FOREIGN_CENTS : MAX_CENTS}
           payerId={paidBy}
+          receipt={receiptTotals}
           nameFor={nameFor}
           onUse={applyItemSplit}
           onClose={() => setItemSheetOpen(false)}
