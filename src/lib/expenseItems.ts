@@ -1,4 +1,5 @@
 import type { ItemLine } from "../components/ItemSplitSheet";
+import { tidyParts } from "./breakLine";
 import { centsToDecimal, readMoney } from "./money";
 import { supabase } from "./supabase";
 
@@ -13,8 +14,20 @@ const NAME_MAX = 60;
 export const ITEMS_SAVE_FAILED =
   "Your expense was saved, but its receipt items weren't, so Split by item won't be there when you edit it.";
 
-// How one item is stored.
-export type SavedItem = { name: string; printed: string | null; amount_cents: number; member_ids: string[] };
+// How one item is stored. quantity: how many are on the receipt line, when known.
+// part: set on each part of a line that was broken into parts ("Break this line"); the
+// parts of one line share `line` and sit next to each other, `count` is how many that
+// part has (lib/breakLine.ts).
+export type SavedItem = {
+  name: string;
+  printed: string | null;
+  amount_cents: number;
+  member_ids: string[];
+  quantity?: number;
+  part?: { line: number; count: number };
+};
+
+const MAX_QUANTITY = 9999;
 
 function clip(text: string): string {
   return Array.from(text.trim()).slice(0, NAME_MAX).join("").trim();
@@ -25,13 +38,27 @@ function clip(text: string): string {
 export function itemsToSave(lines: readonly ItemLine[]): SavedItem[] {
   return lines.slice(0, MAX_SAVED_ITEMS).map((line, index) => {
     const printed = line.printed ? clip(line.printed) || null : null;
-    return {
+    const saved: SavedItem = {
       name: clip(line.name) || printed || `Item ${index + 1}`,
       printed,
       amount_cents: readMoney(line.amountText)?.cents ?? 0,
       member_ids: [...line.people],
     };
+    if (isQuantity(line.quantity)) saved.quantity = line.quantity;
+    if (line.part) saved.part = { line: line.part.line, count: line.part.count };
+    return saved;
   });
+}
+
+function isQuantity(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 && value <= MAX_QUANTITY;
+}
+
+function readPart(value: unknown): { line: number; count: number } | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const part = value as Record<string, unknown>;
+  if (!Number.isInteger(part.line) || !Number.isInteger(part.count)) return undefined;
+  return { line: part.line as number, count: part.count as number };
 }
 
 // Stored items back as the sheet's lines. Anything malformed is skipped, and ticks for
@@ -48,15 +75,20 @@ export function linesFromSaved(raw: unknown, memberIds: readonly string[]): Item
     const people = Array.isArray(item.member_ids)
       ? item.member_ids.filter((id): id is string => typeof id === "string" && allowed.has(id))
       : [];
-    lines.push({
+    const line: ItemLine = {
       key: lines.length,
       name: item.name,
       printed: typeof item.printed === "string" && item.printed !== "" ? item.printed : null,
       amountText: centsToDecimal(item.amount_cents as number),
       people: new Set(people),
-    });
+      quantity: isQuantity(item.quantity) ? item.quantity : null,
+    };
+    const part = readPart(item.part);
+    if (part) line.part = part;
+    lines.push(line);
   }
-  return lines.length > 0 ? lines : null;
+  // Parts that don't fit together any more become plain lines.
+  return lines.length > 0 ? tidyParts(lines) : null;
 }
 
 // The saved items of an expense as sheet lines: null when it has none. "failed" when

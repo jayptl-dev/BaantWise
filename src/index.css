@@ -1918,6 +1918,87 @@ p.scan-box {
   margin-top: 0;
 }
 
+/* "How many on this line", on its own row under the name and price. */
+.item-fields .field:nth-child(3) {
+  grid-column: 1 / -1;
+  max-width: 12rem;
+}
+
+/* ---------- Break this line ---------- */
+
+.item-break {
+  margin-top: 0.5rem;
+}
+
+.item-break .text-button {
+  text-align: left;
+}
+
+.item-break-ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dialog-body .item-break-ask label {
+  flex-basis: 100%;
+  font-weight: 600;
+}
+
+.item-break-ask input {
+  width: 4.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  text-align: center;
+}
+
+/* One part of a broken line: which part, − count +, and Add a part / Join back. */
+.item-part {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.item-part-title {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-part-count {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.item-part-step {
+  min-width: 2.75rem;
+  padding: 0;
+  font-size: 1.25rem;
+}
+
+.item-part-number {
+  min-width: 2ch;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-part-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.5rem;
+}
+
 .danger-text {
   color: var(--danger);
 }

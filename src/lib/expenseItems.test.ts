@@ -75,3 +75,33 @@ describe("linesFromSaved", () => {
     expect(lines!.map((l) => l.key)).toEqual([0, 1]);
   });
 });
+
+describe("broken lines and counts", () => {
+  it("saves how many are on a line, and each part's count", () => {
+    const parts: ItemLine[] = [
+      { ...line(0, "Butter", "23.16", ["a"]), quantity: 6, part: { line: 0, count: 4 } },
+      { ...line(1, "Butter", "11.58", ["b"]), quantity: 6, part: { line: 0, count: 2 } },
+      { ...line(2, "Chicken", "9.10"), quantity: 0.535 },
+    ];
+    const saved = itemsToSave(parts);
+    expect(saved[0]).toMatchObject({ quantity: 6, part: { line: 0, count: 4 } });
+    expect(saved[2]).toMatchObject({ quantity: 0.535 });
+    expect(saved[2].part).toBeUndefined();
+    const back = linesFromSaved(saved, ["a", "b"])!;
+    expect(back.map((l) => l.part?.count ?? null)).toEqual([4, 2, null]);
+    expect(back.map((l) => l.quantity)).toEqual([6, 6, 0.535]);
+    expect([...back[1].people]).toEqual(["b"]);
+  });
+
+  it("leaves out a count it doesn't know", () => {
+    expect(itemsToSave([line(0, "Bread", "3.00")])[0]).not.toHaveProperty("quantity");
+  });
+
+  it("turns a lone saved part back into a plain line", () => {
+    const back = linesFromSaved(
+      [{ name: "Butter", printed: null, amount_cents: 500, member_ids: [], quantity: 6, part: { line: 0, count: 3 } }],
+      [],
+    )!;
+    expect(back[0].part).toBeUndefined();
+  });
+});
