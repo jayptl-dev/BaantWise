@@ -48,9 +48,26 @@ const SUMMARY_WORDS = new Set([
   'tip', 'tips', 'gratuity', 'service', 'charge', 'delivery', 'fee', 'fees',
   'change', 'cash', 'visa', 'mastercard', 'master', 'card', 'amex', 'debit', 'credit',
   'interac', 'payment', 'paid', 'tender', 'tendered', 'rounding', 'discount', 'discounts',
-  'coupon', 'savings', 'you', 'saved', 'sous', 'pourboire', 'monnaie', 'comptant',
-  'rabais', 'frais', 'de', 'livraison',
+  'coupon', 'coupons', 'savings', 'you', 'your', 'saved', 'sous', 'pourboire', 'monnaie', 'comptant',
+  'rabais', 'frais', 'de', 'livraison', 'remise', 'economies', 'économies',
+  // loyalty points and payment lines
+  'points', 'point', 'pts', 'earned', 'bonus', 'redeemed', 'redemption', 'scene', 'optimum', 'pc',
+  'rewards', 'moi', 'mcard', 'tend', 'approved', 'auth', 'regular', 'price', 'reg', 'was',
+  // tips that are tips, not items: an automatic gratuity, suggested amounts
+  'auto', 'grat', 'suggested', 'guide', 'guidelines',
+  // the letters of T.P.S., T.V.Q. and DISCOUNT(S), read one by one
+  't', 'p', 's', 'v', 'q',
 ]);
+
+// A minus line that is a real discount on the item above (YOUR DISCOUNT, Rabais, COUPON),
+// as opposed to an information line (YOU SAVED, YOUR SAVINGS, TOTAL DISCOUNT(S)).
+const REAL_DISCOUNT_WORDS = new Set(['discount', 'discounts', 'coupon', 'coupons', 'rabais', 'your', 'de', 's']);
+const REAL_DISCOUNT_CORE = new Set(['discount', 'discounts', 'coupon', 'coupons', 'rabais']);
+
+export function isRealDiscountLine(name: string): boolean {
+  const words = name.toLowerCase().match(/\p{L}+/gu);
+  return !!words && words.some((word) => REAL_DISCOUNT_CORE.has(word)) && words.every((word) => REAL_DISCOUNT_WORDS.has(word));
+}
 
 // Words of a deposit or environmental fee line (with province codes, as in "NS DEPOSIT").
 // Such a line belongs to the item above it.
@@ -207,7 +224,8 @@ export function cleanReceipt(raw: unknown, today: string): ScanResult | null {
         continue;
       }
     }
-    if (isSummaryLine(name) || (printedText && isSummaryLine(printedText))) continue;
+    const realDiscount = amount < 0 && (isRealDiscountLine(name) || (printedText !== null && isRealDiscountLine(printedText)));
+    if (!realDiscount && (isSummaryLine(name) || (printedText && isSummaryLine(printedText)))) continue;
     const printed = printedText && printedText.toLowerCase() !== name.toLowerCase() ? printedText : null;
     if (amount < 0) {
       if (applyMinusLine(items, -amount, name, printed)) minusLines.applied += 1;

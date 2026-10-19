@@ -262,7 +262,7 @@ async function askGemini(photo: Uint8Array, mimeType: string): Promise<Outcome> 
     generationConfig: {
       responseMimeType: 'application/json',
       ...(withSchema ? { responseJsonSchema: RECEIPT_SCHEMA } : {}),
-      maxOutputTokens: 4096,
+      maxOutputTokens: 8192, // room for a 60-line receipt; only what's used is paid for
     },
     ...(withStore ? { store: false } : {}), // never keep this request in Google AI Studio logs
   });

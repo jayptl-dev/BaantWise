@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cleanReceipt,
   isItemFeeLine,
+  isRealDiscountLine,
   isSummaryLine,
   settleTaxMarks,
   type ScanItem,
@@ -112,5 +113,63 @@ describe("summary lines", () => {
       expect(isSummaryLine(text), text).toBe(true);
     }
     expect(isSummaryLine("Garlic fries")).toBe(false);
+  });
+});
+
+describe("likely misreads (from real Canadian receipt formats)", () => {
+  // One chicken breast at $16.49, then a line the reader might list by mistake.
+  const after = (printed: string, amount_cents: number) =>
+    read([line("CHICKEN BREAST", 1649), line(printed, amount_cents)], {
+      subtotal_cents: null, tax_cents: 0, tip_cents: null, total_cents: 5000,
+    }).items.map((i) => [i.name, i.amount_cents]);
+
+  it("takes real discounts off the item above (English and French)", () => {
+    expect(after("YOUR DISCOUNT", -500)).toEqual([["CHICKEN BREAST", 1149]]);
+    expect(after("INSTANT SAVINGS", -400)).toEqual([["CHICKEN BREAST", 1249]]);
+    expect(after("MEMBER PRICING", -149)).toEqual([["CHICKEN BREAST", 1500]]);
+    expect(after("Rabais", -200)).toEqual([["CHICKEN BREAST", 1449]]);
+    expect(after("DISCOUNT", -200)).toEqual([["CHICKEN BREAST", 1449]]);
+    expect(after("COUPON", -100)).toEqual([["CHICKEN BREAST", 1549]]);
+  });
+
+  it("ignores lines that only inform", () => {
+    for (const [text, cents] of [
+      ["YOU SAVED", -80],
+      ["YOUR SAVINGS", -80],
+      ["TOTAL DISCOUNT(S)", -900],
+      ["POINTS EARNED", 100],
+      ["Scene+ Balance", 3450],
+      ["PC Optimum Points Redeemed", -1000],
+      ["Regular price", 599],
+    ] as const) {
+      expect(after(text, cents), text).toEqual([["CHICKEN BREAST", 1649]]);
+    }
+  });
+
+  it("ignores payment, change, tax and tip lines", () => {
+    for (const [text, cents] of [
+      ["MCARD TEND", 5000],
+      ["Remise", 1106],
+      ["CHANGE DUE", 282],
+      ["ROUNDING", -2],
+      ["T.P.S.", 187],
+      ["T.V.Q.", 372],
+      ["AUTO GRAT 18%", 2400],
+      ["Suggested tip 15%", 1125],
+    ] as const) {
+      expect(after(text, cents), text).toEqual([["CHICKEN BREAST", 1649]]);
+    }
+  });
+
+  it("tells real discounts from information lines", () => {
+    expect(isRealDiscountLine("YOUR DISCOUNT")).toBe(true);
+    expect(isRealDiscountLine("Rabais")).toBe(true);
+    expect(isRealDiscountLine("TOTAL DISCOUNT(S)")).toBe(false);
+    expect(isRealDiscountLine("YOUR SAVINGS")).toBe(false);
+  });
+
+  it("keeps ordinary items that share a word with those lines", () => {
+    expect(after("PC ORGANIC MILK", 599)).toEqual([["CHICKEN BREAST", 1649], ["PC ORGANIC MILK", 599]]);
+    expect(after("Auto air freshener", 499)).toEqual([["CHICKEN BREAST", 1649], ["Auto air freshener", 499]]);
   });
 });
