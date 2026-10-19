@@ -10,6 +10,7 @@ import {
   refuseExactChange,
   splitEqually,
 } from "../lib/money";
+import { loadExpenseItems, saveExpenseItems } from "../lib/expenseItems";
 import { attachReceipt, detachReceipt } from "../lib/receipts";
 import {
   centsByPercent,
@@ -190,11 +191,29 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   const photoInput = useRef<HTMLInputElement>(null);
   const savedPhoto = removeSaved ? null : (expense?.receipt_path ?? null);
 
-  // What the last receipt scan said, and its items for "Split by item" (never saved).
+  // What the last receipt scan said, and its items for "Split by item". The items are
+  // saved with the expense (with who was ticked), and come back when it's edited.
+  // null = no items; when editing, also while they load or if loading failed, so a
+  // failed load never wipes the saved ones.
   const [scanNotes, setScanNotes] = useState<string[]>(givenTemplate?.notes ?? []);
   const [itemLines, setItemLines] = useState<ItemLine[] | null>(null);
   const [itemSheetOpen, setItemSheetOpen] = useState(false);
-  const working = busy || savingPhoto;
+  const [savingItems, setSavingItems] = useState(false);
+  const working = busy || savingPhoto || savingItems;
+
+  // Editing: bring back the receipt items saved with this expense, if it has any.
+  const editingId = expense && !recurring ? expense.id : null;
+  const memberKey = data.members.map((m) => m.id).join(",");
+  useEffect(() => {
+    if (!editingId) return;
+    let live = true;
+    loadExpenseItems(editingId, memberKey.split(",")).then((lines) => {
+      if (live && lines !== "failed" && lines !== null) setItemLines((current) => current ?? lines);
+    });
+    return () => {
+      live = false;
+    };
+  }, [editingId, memberKey]);
 
   // The preview only lives in this browser tab; free it when it's replaced or the form closes.
   useEffect(() => {
@@ -616,13 +635,21 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
     );
     if (!saved || !expenseId) return;
 
-    // The expense is saved whatever happens next; a photo problem only adds a message.
-    let receiptNotice: string | null = null;
+    // The expense is saved whatever happens next; a problem with its receipt items or
+    // photo only adds a message.
+    let itemsNotice: string | null = null;
+    if (itemLines !== null) {
+      setSavingItems(true);
+      itemsNotice = await saveExpenseItems(expenseId, itemLines);
+      setSavingItems(false);
+    }
+    let photoNotice: string | null = null;
     if (newPhoto || (removeSaved && expense?.receipt_path)) {
       setSavingPhoto(true);
-      receiptNotice = newPhoto ? await attachReceipt(expenseId, newPhoto.blob) : await detachReceipt(expenseId);
+      photoNotice = newPhoto ? await attachReceipt(expenseId, newPhoto.blob) : await detachReceipt(expenseId);
       setSavingPhoto(false);
     }
+    const receiptNotice = [itemsNotice, photoNotice].filter(Boolean).join(" ") || null;
     onDone({ expenseId, receiptNotice });
   }
 

@@ -14,6 +14,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      expense_items: {
+        Row: {
+          expense_id: string
+          items: Json
+          updated_at: string
+        }
+        Insert: {
+          expense_id: string
+          items: Json
+          updated_at?: string
+        }
+        Update: {
+          expense_id?: string
+          items?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_items_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: true
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_shares: {
         Row: {
           expense_id: string
@@ -616,6 +642,10 @@ export type Database = {
           p_visibility: string
         }
         Returns: string
+      }
+      set_expense_items: {
+        Args: { p_expense_id: string; p_items: Json }
+        Returns: undefined
       }
       set_expense_receipt: {
         Args: { p_expense_id: string; p_path: string }
