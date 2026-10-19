@@ -28,9 +28,12 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 import {
+  answerShape,
   CATEGORY_KEYS,
   cleanReceipt,
   MAX_ITEMS,
+  parseModelJson,
+  unwrapReceipt,
 } from './cleanup.ts';
 
 const DEFAULT_MODEL = 'gemini-3.1-flash-lite';
@@ -99,6 +102,43 @@ const RECEIPT_SCHEMA = {
     category: { type: 'string', enum: CATEGORY_KEYS },
   },
   required: ['is_receipt', 'merchant', 'date', 'currency', 'items', 'subtotal_cents',
+    'tax_cents', 'tip_cents', 'total_cents', 'category'],
+};
+
+// The same answer format in Gemini's own schema style (responseSchema, an OpenAPI subset:
+// upper-case types, "nullable" instead of a list of types). Google has refused the
+// JSON-Schema style above for this model, so this is tried first.
+const GEMINI_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    is_receipt: { type: 'BOOLEAN' },
+    merchant: { type: 'STRING', nullable: true },
+    date: { type: 'STRING', nullable: true, description: 'YYYY-MM-DD' },
+    currency: { type: 'STRING', nullable: true, description: 'ISO 4217 code such as CAD' },
+    items: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          printed: { type: 'STRING' },
+          name: { type: 'STRING' },
+          quantity: { type: 'NUMBER' },
+          amount_cents: { type: 'INTEGER' },
+          taxed: { type: 'BOOLEAN', nullable: true },
+        },
+        required: ['printed', 'name', 'quantity', 'amount_cents', 'taxed'],
+        propertyOrdering: ['printed', 'name', 'quantity', 'amount_cents', 'taxed'],
+      },
+    },
+    subtotal_cents: { type: 'INTEGER', nullable: true },
+    tax_cents: { type: 'INTEGER', nullable: true },
+    tip_cents: { type: 'INTEGER', nullable: true },
+    total_cents: { type: 'INTEGER', nullable: true },
+    category: { type: 'STRING', enum: CATEGORY_KEYS },
+  },
+  required: ['is_receipt', 'merchant', 'date', 'currency', 'items', 'subtotal_cents',
+    'tax_cents', 'tip_cents', 'total_cents', 'category'],
+  propertyOrdering: ['is_receipt', 'merchant', 'date', 'currency', 'items', 'subtotal_cents',
     'tax_cents', 'tip_cents', 'total_cents', 'category'],
 };
 
@@ -246,30 +286,34 @@ async function postGemini(url: string, request: Record<string, unknown>, label: 
 // Reads the receipt with Gemini. If Google refuses the request as invalid (400), it tries
 // simpler versions of the same request, one by one, so a scan still works and the logs
 // show exactly which part Google objects to:
-//   full       -> strict JSON schema + "don't store" setting
-//   no_store   -> strict JSON schema only
-//   no_schema  -> plain JSON answer (the instructions still name every field)
-// If all three are refused, a tiny text-only check (no photo) tells us whether the key or
+//   gemini_schema  -> answer format in Gemini's own schema style + "don't store" setting
+//   gemini_nostore -> the same, without "don't store"
+//   json_schema    -> answer format in JSON-Schema style (refused for this model so far)
+//   no_schema      -> plain JSON answer (the instructions still name every field)
+// If all are refused, a tiny text-only check (no photo) tells us whether the key or
 // model itself is the problem. A Google server error (5xx) is retried once.
 async function askGemini(photo: Uint8Array, mimeType: string): Promise<Outcome> {
   const setting = (Deno.env.get('GEMINI_MODEL') ?? '').trim();
   const model = /^[a-z0-9][a-z0-9.-]{2,63}$/.test(setting) ? setting : DEFAULT_MODEL;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const photoPart = { inlineData: { mimeType, data: toBase64(photo) } };
-  const build = (withSchema: boolean, withStore: boolean): Record<string, unknown> => ({
+  type Format = 'gemini' | 'json' | 'none';
+  const build = (format: Format, withStore: boolean): Record<string, unknown> => ({
     systemInstruction: { parts: [{ text: INSTRUCTIONS }] },
     contents: [{ role: 'user', parts: [photoPart, { text: 'Read this receipt.' }] }],
     generationConfig: {
       responseMimeType: 'application/json',
-      ...(withSchema ? { responseJsonSchema: RECEIPT_SCHEMA } : {}),
+      ...(format === 'gemini' ? { responseSchema: GEMINI_SCHEMA } : {}),
+      ...(format === 'json' ? { responseJsonSchema: RECEIPT_SCHEMA } : {}),
       maxOutputTokens: 8192, // room for a 60-line receipt; only what's used is paid for
     },
     ...(withStore ? { store: false } : {}), // never keep this request in Google AI Studio logs
   });
   const tries: Array<[string, Record<string, unknown>]> = [
-    ['full', build(true, true)],
-    ['no_store', build(true, false)],
-    ['no_schema', build(false, false)],
+    ['gemini_schema', build('gemini', true)],
+    ['gemini_nostore', build('gemini', false)],
+    ['json_schema', build('json', false)],
+    ['no_schema', build('none', false)],
   ];
 
   for (const [label, request] of tries) {
@@ -295,11 +339,14 @@ async function askGemini(photo: Uint8Array, mimeType: string): Promise<Outcome> 
     }
     const parts: Array<{ text?: unknown; thought?: unknown }> = candidate.content?.parts ?? [];
     const text = parts.filter((p) => typeof p.text === 'string' && p.thought !== true).map((p) => p.text).join('');
-    try {
-      return { ok: true, data: JSON.parse(text.replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, '')) };
-    } catch {
-      return { ok: false, error: 'unreadable' }; // the parse error text could quote the receipt: not logged
+    // Read the JSON even when it's wrapped in text, a list or another object. Only the
+    // shape is logged, never the text (it could quote the receipt).
+    const data = unwrapReceipt(parseModelJson(text));
+    if (data === null) {
+      log({ step: 'answer', try: label, outcome: 'no_json', chars: text.length });
+      return { ok: false, error: 'unreadable' };
     }
+    return { ok: true, data };
   }
 
   // Every shape was refused. A tiny text-only request (no photo) shows whether the key or
@@ -370,7 +417,7 @@ async function handle(req: Request): Promise<Response> {
     }
     const receipt = cleanReceipt(answer.data, new Date().toISOString().slice(0, 10));
     if (!receipt) {
-      log({ outcome: 'unreadable', bytes: photo.byteLength, ms: Date.now() - started });
+      log({ outcome: 'unreadable', shape: answerShape(answer.data), bytes: photo.byteLength, ms: Date.now() - started });
       return fail('unreadable', 422, cors);
     }
     const { minus_lines: minusLines, ...result } = receipt;

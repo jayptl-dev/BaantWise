@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   cleanReceipt,
+  answerShape,
   isItemFeeLine,
+  parseModelJson,
+  unwrapReceipt,
   isRealDiscountLine,
   isSummaryLine,
   settleTaxMarks,
@@ -190,5 +193,65 @@ describe("likely misreads (from real Canadian receipt formats)", () => {
   it("keeps ordinary items that share a word with those lines", () => {
     expect(after("PC ORGANIC MILK", 599)).toEqual([["CHICKEN BREAST", 1649], ["PC ORGANIC MILK", 599]]);
     expect(after("Auto air freshener", 499)).toEqual([["CHICKEN BREAST", 1649], ["Auto air freshener", 499]]);
+  });
+});
+
+describe("reading the AI's answer in whatever shape it comes", () => {
+  const good = {
+    is_receipt: true, merchant: "Costco", date: "2026-10-18", currency: "CAD", category: "groceries",
+    items: [
+      { printed: "KIRKLAND MILK", name: "Kirkland milk", quantity: 1, amount_cents: 1049, taxed: false },
+      { printed: "KS PAPER TOWEL", name: "Paper towels", quantity: 1, amount_cents: 2499, taxed: true },
+    ],
+    subtotal_cents: 3548, tax_cents: 325, tip_cents: null, total_cents: 3873,
+  };
+  const items = (raw: unknown) => cleanReceipt(unwrapReceipt(raw), TODAY)?.items.map((i) => [i.name, i.amount_cents, i.taxed]);
+  const expected = [["Kirkland milk", 1049, false], ["Paper towels", 2499, true]];
+
+  it("plain JSON, code fences, or JSON with words around it", () => {
+    const json = JSON.stringify(good);
+    for (const text of [json, "```json\n" + json + "\n```", "Here is the receipt:\n" + json + "\nDone."]) {
+      expect(items(parseModelJson(text))).toEqual(expected);
+    }
+  });
+
+  it("the receipt wrapped in a list or inside another object", () => {
+    expect(items(parseModelJson(JSON.stringify([good])))).toEqual(expected);
+    expect(items({ receipt: good })).toEqual(expected);
+  });
+
+  it("other field names, with amounts in dollars", () => {
+    const loose = {
+      is_receipt: true, merchant: "Costco", category: "groceries",
+      line_items: [
+        { description: "Kirkland milk", quantity: 1, price: 10.49, taxed: false },
+        { name: "Paper towels", quantity: 1, price: "$24.99", taxed: true },
+      ],
+      subtotal: 35.48, tax: "3.25", total: 38.73,
+    };
+    expect(items(loose)).toEqual(expected);
+    const r = cleanReceipt(unwrapReceipt(loose), TODAY)!;
+    expect([r.subtotal_cents, r.tax_cents, r.total_cents]).toEqual([3548, 325, 3873]);
+    expect(r.warnings).toEqual([]);
+  });
+
+  it("French decimal commas and trailing minus in dollar amounts", () => {
+    const r = cleanReceipt(
+      unwrapReceipt({ items: [{ name: "Fromage", price: "12,54" }, { name: "Rabais", price: "2,00-" }], total: "10,54" }),
+      TODAY,
+    )!;
+    expect(r.items.map((i) => [i.name, i.amount_cents])).toEqual([["Fromage", 1054]]);
+  });
+
+  it("gives up only when there is no JSON or no receipt", () => {
+    expect(parseModelJson("Sorry, I can't read this.")).toBeNull();
+    expect(unwrapReceipt(null)).toBeNull();
+    expect(unwrapReceipt("text")).toBeNull();
+    expect(cleanReceipt(unwrapReceipt({ is_receipt: false, items: [] }), TODAY)).toBeNull();
+  });
+
+  it("describes the shape for the logs without any receipt text", () => {
+    expect(answerShape([good])).toEqual({ kind: "list", is_receipt: true, item_list: "items", has_total: true });
+    expect(JSON.stringify(answerShape({ line_items: [{ name: "SECRET" }] }))).not.toContain("SECRET");
   });
 });
