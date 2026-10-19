@@ -105,3 +105,17 @@ describe("broken lines and counts", () => {
     expect(back[0].part).toBeUndefined();
   });
 });
+
+describe("taxed marks", () => {
+  it("saves taxed only when the receipt marks items, and reads it back", () => {
+    const lines: ItemLine[] = [
+      { ...line(0, "Paper towels", "24.99", ["a"]), taxed: true },
+      { ...line(1, "Milk", "10.49", ["b"]), taxed: false },
+      { ...line(2, "Burger", "19.99", ["a"]), taxed: null },
+    ];
+    const saved = itemsToSave(lines);
+    expect(saved.map((s) => s.taxed)).toEqual([true, false, undefined]);
+    expect(saved[2]).not.toHaveProperty("taxed");
+    expect(linesFromSaved(saved, ["a", "b"])!.map((l) => l.taxed)).toEqual([true, false, null]);
+  });
+});

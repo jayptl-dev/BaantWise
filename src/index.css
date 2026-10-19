@@ -1924,6 +1924,18 @@ p.scan-box {
   max-width: 12rem;
 }
 
+/* "Taxed" tick for one item, when the receipt marks taxed items. */
+.dialog-body .item-taxed {
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.dialog-body .item-taxed .hint {
+  margin: 0 0 0 auto;
+  font-size: 0.8125rem;
+}
+
 /* ---------- Break this line ---------- */
 
 .item-break {

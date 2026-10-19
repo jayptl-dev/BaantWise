@@ -1,7 +1,14 @@
 import { useId, useState } from "react";
 import { centsToDecimal, formatCents, MAX_CENTS, readMoney } from "../lib/money";
 import type { ScannedItem } from "../lib/receiptScan";
-import { carryForward, checkItems, firstUnticked, itemsSoFar, type ReceiptTotals } from "../lib/itemSplit";
+import {
+  carryForward,
+  checkItems,
+  firstUnticked,
+  itemsSoFar,
+  splitItemsWithTax,
+  type ReceiptTotals,
+} from "../lib/itemSplit";
 import {
   addPart,
   breakLine,
@@ -18,8 +25,8 @@ import {
   removeLine,
   setLineName,
   setLinePrice,
+  setLineTaxed,
 } from "../lib/breakLine";
-import { splitByItems } from "../lib/split";
 import type { Member } from "../lib/useGroup";
 import { Sheet } from "./Sheet";
 
@@ -28,6 +35,8 @@ import { Sheet } from "./Sheet";
 // quantity: how many are on the receipt line (from the scanner, or typed in; a weight
 // like 0.535 is possible), null when unknown. part: set when the line has been broken
 // into parts (lib/breakLine.ts); then quantity is the whole line's count.
+// taxed: true/false when the receipt marks taxed items one by one (the tax is then
+// shared only over taxed items), null/undefined when it doesn't.
 export type ItemLine = {
   key: number;
   name: string;
@@ -36,6 +45,7 @@ export type ItemLine = {
   people: Set<string>;
   quantity?: number | null;
   part?: { line: number; count: number };
+  taxed?: boolean | null;
 };
 type Line = ItemLine;
 
@@ -48,6 +58,7 @@ export function linesFromScan(items: ScannedItem[]): ItemLine[] {
     amountText: centsToDecimal(item.amountCents),
     people: new Set<string>(),
     quantity: item.quantity > 0 ? item.quantity : null,
+    taxed: item.taxed,
   }));
 }
 
@@ -103,6 +114,13 @@ export function ItemSplitSheet({
   const order = people.map((p) => p.id);
   const soFar = itemsSoFar(steps, order, payerId);
   const check = checkItems(itemsTotal, totalCents, receipt);
+  // Tax only on taxed items: the receipt marks items one by one and its tax is known.
+  const taxCents = receipt?.taxCents ?? null;
+  const hasTaxMarks = lines.some((l) => typeof l.taxed === "boolean") && !!taxCents && taxCents > 0;
+  const splitItems = lines.map((l) => ({ amountCents: cents(l), memberIds: [...l.people], taxed: l.taxed ?? null }));
+  // At least one taxed item, and the tax fits inside what's left over after the items.
+  const taxToMarked =
+    hasTaxMarks && lines.some((l) => l.taxed === true && cents(l) > 0) && rest !== null && taxCents! <= rest;
   const printedExtras = [
     receipt?.taxCents ? `tax ${format(receipt.taxCents)}` : null,
     receipt?.tipCents ? `tip ${format(receipt.tipCents)}` : null,
@@ -156,12 +174,9 @@ export function ItemSplitSheet({
       setWarning(`Nobody is ticked for "${lines[missing].name || "this item"}". Tick at least one person.`);
       return;
     }
-    const shares = splitByItems(
-      totalCents,
-      lines.map((l) => ({ amountCents: cents(l), memberIds: [...l.people] })),
-      order,
-      payerId,
-    );
+    const shares = taxToMarked
+      ? splitItemsWithTax(totalCents, splitItems, taxCents, order, payerId)
+      : splitItemsWithTax(totalCents, splitItems, null, order, payerId);
     onUse(new Map([...shares].filter(([, c]) => c > 0)));
   }
 
@@ -238,6 +253,7 @@ export function ItemSplitSheet({
                   {l.people.size > 0 ? "✓ " : ""}
                   {i + 1}. {l.name || "Item"}
                   {partLabel(l) ? ` (${partLabel(l)})` : ""} · {format(cents(l))}
+                  {hasTaxMarks && l.taxed ? " · taxed" : ""}
                 </option>
               ))}
             </select>
@@ -294,6 +310,21 @@ export function ItemSplitSheet({
                 )}
               </div>
             )
+          )}
+
+          {hasTaxMarks && (
+            <label className="choice item-taxed">
+              <input
+                type="checkbox"
+                checked={line.taxed === true}
+                onChange={(event) => {
+                  const taxed = event.target.checked;
+                  setLines((current) => setLineTaxed(current, line.key, taxed));
+                }}
+              />
+              <span>Taxed</span>
+              <span className="hint">The receipt marks it with a tax code</span>
+            </label>
           )}
 
           <div className="item-quick">
@@ -419,14 +450,28 @@ export function ItemSplitSheet({
             the Amount. Check the items' prices, or the Amount.
           </p>
         ) : (
-          <>
-            <p>
-              Tax, tip and other: <strong>{format(rest)}</strong>, shared in proportion
-            </p>
-            {printedExtras.length > 0 && check.subtotalGap === null && (
-              <p className="hint">On the receipt: {printedExtras.join(" + ")}</p>
-            )}
-          </>
+          taxToMarked ? (
+            <>
+              <p>
+                Tax: <strong>{format(taxCents!)}</strong>, shared only by the taxed items
+              </p>
+              <p>
+                Tip and other: <strong>{format(rest - taxCents!)}</strong>, shared in proportion
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                Tax, tip and other: <strong>{format(rest)}</strong>, shared in proportion
+              </p>
+              {hasTaxMarks && (
+                <p className="hint">No item is marked taxed, so the tax is shared over every item.</p>
+              )}
+              {printedExtras.length > 0 && check.subtotalGap === null && (
+                <p className="hint">On the receipt: {printedExtras.join(" + ")}</p>
+              )}
+            </>
+          )
         )}
         {check.subtotalGap !== null && check.overAmount === null && (
           <p className="item-check" role="alert">

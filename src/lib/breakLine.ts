@@ -173,6 +173,7 @@ export function joinBack(lines: readonly ItemLine[], key: number): ItemLine[] {
     amountText: centsToDecimal(lineTotal(parts)),
     people,
     quantity,
+    taxed: first.taxed,
   };
   return lines.flatMap((l) => (l.key === first.key ? [joined] : keys.has(l.key) ? [] : [l]));
 }
@@ -192,6 +193,14 @@ export function setLineName(lines: readonly ItemLine[], key: number, name: strin
   if (!line) return [...lines];
   const id = line.part?.line;
   return lines.map((l) => (l.key === key || (id !== undefined && l.part?.line === id) ? { ...l, name } : l));
+}
+
+// Taxed or not belongs to the receipt line, so it changes all of a line's parts together.
+export function setLineTaxed(lines: readonly ItemLine[], key: number, taxed: boolean): ItemLine[] {
+  const line = lines.find((l) => l.key === key);
+  if (!line) return [...lines];
+  const id = line.part?.line;
+  return lines.map((l) => (l.key === key || (id !== undefined && l.part?.line === id) ? { ...l, taxed } : l));
 }
 
 // Removing one part removes the whole receipt line (all its parts).

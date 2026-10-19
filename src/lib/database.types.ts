@@ -18,16 +18,19 @@ export type Database = {
         Row: {
           expense_id: string
           items: Json
+          tax_cents: number | null
           updated_at: string
         }
         Insert: {
           expense_id: string
           items: Json
+          tax_cents?: number | null
           updated_at?: string
         }
         Update: {
           expense_id?: string
           items?: Json
+          tax_cents?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -644,7 +647,7 @@ export type Database = {
         Returns: string
       }
       set_expense_items: {
-        Args: { p_expense_id: string; p_items: Json }
+        Args: { p_expense_id: string; p_items: Json; p_tax_cents?: number }
         Returns: undefined
       }
       set_expense_receipt: {
