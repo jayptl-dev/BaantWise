@@ -25,6 +25,7 @@ export type SavedItem = {
   member_ids: string[];
   quantity?: number;
   part?: { line: number; count: number };
+  taxed?: boolean;
 };
 
 const MAX_QUANTITY = 9999;
@@ -46,6 +47,7 @@ export function itemsToSave(lines: readonly ItemLine[]): SavedItem[] {
     };
     if (isQuantity(line.quantity)) saved.quantity = line.quantity;
     if (line.part) saved.part = { line: line.part.line, count: line.part.count };
+    if (typeof line.taxed === "boolean") saved.taxed = line.taxed;
     return saved;
   });
 }
@@ -82,6 +84,7 @@ export function linesFromSaved(raw: unknown, memberIds: readonly string[]): Item
       amountText: centsToDecimal(item.amount_cents as number),
       people: new Set(people),
       quantity: isQuantity(item.quantity) ? item.quantity : null,
+      taxed: typeof item.taxed === "boolean" ? item.taxed : null,
     };
     const part = readPart(item.part);
     if (part) line.part = part;
@@ -91,17 +94,36 @@ export function linesFromSaved(raw: unknown, memberIds: readonly string[]): Item
   return lines.length > 0 ? tidyParts(lines) : null;
 }
 
-// The saved items of an expense as sheet lines: null when it has none. "failed" when
-// they couldn't be loaded, so the form knows not to overwrite them.
-export async function loadExpenseItems(expenseId: string, memberIds: readonly string[]): Promise<ItemLine[] | null | "failed"> {
-  const { data, error } = await supabase.from("expense_items").select("items").eq("expense_id", expenseId).maybeSingle();
+// The saved items of an expense as sheet lines, with the receipt's tax when it was saved:
+// null when it has none. "failed" when they couldn't be loaded, so the form knows not to
+// overwrite them.
+export async function loadExpenseItems(
+  expenseId: string,
+  memberIds: readonly string[],
+): Promise<{ lines: ItemLine[]; taxCents: number | null } | null | "failed"> {
+  const { data, error } = await supabase
+    .from("expense_items")
+    .select("items, tax_cents")
+    .eq("expense_id", expenseId)
+    .maybeSingle();
   if (error) return "failed";
-  return data ? linesFromSaved(data.items, memberIds) : null;
+  const lines = data ? linesFromSaved(data.items, memberIds) : null;
+  if (!lines) return null;
+  return { lines, taxCents: Number.isInteger(data?.tax_cents) ? (data!.tax_cents as number) : null };
 }
 
 // Saves (or, for an empty list, removes) an expense's items. Returns null if it worked,
 // or the message to show (the expense itself is already saved).
-export async function saveExpenseItems(expenseId: string, lines: readonly ItemLine[]): Promise<string | null> {
-  const { error } = await supabase.rpc("set_expense_items", { p_expense_id: expenseId, p_items: itemsToSave(lines) });
+export async function saveExpenseItems(
+  expenseId: string,
+  lines: readonly ItemLine[],
+  taxCents: number | null = null,
+): Promise<string | null> {
+  const { error } = await supabase.rpc("set_expense_items", {
+    p_expense_id: expenseId,
+    p_items: itemsToSave(lines),
+    // Left out when unknown: the database then keeps no tax for these items.
+    ...(taxCents !== null ? { p_tax_cents: taxCents } : {}),
+  });
   return error ? ITEMS_SAVE_FAILED : null;
 }

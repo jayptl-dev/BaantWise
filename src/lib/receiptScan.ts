@@ -13,7 +13,12 @@ export const SCAN_FAILED =
   "Receipt scanning isn't working right now. Try again in a few minutes, or type it in.";
 
 // name is the plain name; printed is the line as on the receipt, when it differs.
-export type ScannedItem = { name: string; printed: string | null; quantity: number; amountCents: number };
+// taxed: true/false when the receipt marks taxed items one by one, null when it doesn't.
+export type ScannedItem = { name: string; printed: string | null; quantity: number; amountCents: number; taxed: boolean | null };
+
+// The scan's warnings that mean the receipt's numbers don't add up (others, like unsure
+// tax marks, only change how tax is shared).
+const ADD_UP_WARNINGS = ["total_guessed", "totals_dont_match", "items_dont_match"];
 
 export type ScannedReceipt = {
   merchant: string | null;
@@ -77,11 +82,12 @@ export function readScan(raw: unknown): ScannedReceipt {
           printed: printed && printed.toLowerCase() !== name.toLowerCase() ? printed : null,
           quantity: typeof i.quantity === "number" ? i.quantity : 1,
           amountCents,
+          taxed: typeof i.taxed === "boolean" ? i.taxed : null,
         },
       ];
     }),
     category: isCategoryKey(r.category) ? r.category : "other",
-    hasWarnings: Array.isArray(r.warnings) && r.warnings.length > 0,
+    hasWarnings: Array.isArray(r.warnings) && r.warnings.some((w) => ADD_UP_WARNINGS.includes(w)),
     scansLeft: number(r.scans_left),
   };
 }

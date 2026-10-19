@@ -210,8 +210,13 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
   useEffect(() => {
     if (!editingId) return;
     let live = true;
-    loadExpenseItems(editingId, memberKey.split(",")).then((lines) => {
-      if (live && lines !== "failed" && lines !== null) setItemLines((current) => current ?? lines);
+    loadExpenseItems(editingId, memberKey.split(",")).then((saved) => {
+      if (!live || saved === "failed" || saved === null) return;
+      setItemLines((current) => current ?? saved.lines);
+      if (saved.taxCents !== null) {
+        const taxCents = saved.taxCents;
+        setReceiptTotals((current) => current ?? { subtotalCents: null, taxCents, tipCents: null });
+      }
     });
     return () => {
       live = false;
@@ -644,7 +649,7 @@ export function ExpenseForm({ data, me, expense, template: givenTemplate, recurr
     let itemsNotice: string | null = null;
     if (itemLines !== null) {
       setSavingItems(true);
-      itemsNotice = await saveExpenseItems(expenseId, itemLines);
+      itemsNotice = await saveExpenseItems(expenseId, itemLines, receiptTotals?.taxCents ?? null);
       setSavingItems(false);
     }
     let photoNotice: string | null = null;

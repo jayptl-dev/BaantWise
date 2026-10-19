@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carryForward, checkItems, firstUnticked, itemsSoFar } from "./itemSplit";
+import { carryForward, checkItems, firstUnticked, itemsSoFar, splitItemsWithTax, taxOnMarkedItems } from "./itemSplit";
 
 const item = (amountCents: number, people: string[] = []) => ({ amountCents, people: new Set(people) });
 
@@ -81,5 +81,60 @@ describe("checkItems (numbers from real test receipts)", () => {
   it("skips the subtotal check without a scan", () => {
     expect(checkItems(10296, 10618, null).subtotalGap).toBeNull();
     expect(checkItems(10296, 10618, r(null, 1078)).subtotalGap).toBeNull();
+  });
+});
+
+describe("tax only on taxed items (Costco and Walmart test receipts)", () => {
+  const order = ["a", "b", "c"];
+  const sum = (m: Map<string, number>) => [...m.values()].reduce((x, y) => x + y, 0);
+
+  it("Costco: only the paper towels (A) are taxed, so only their buyer pays the $3.25 HST", () => {
+    const items = [
+      { amountCents: 1049, memberIds: ["b"], taxed: false }, // milk
+      { amountCents: 2499, memberIds: ["a"], taxed: true }, // paper towels (A)
+      { amountCents: 799, memberIds: ["b"], taxed: false }, // chicken
+      { amountCents: 2199, memberIds: ["b"], taxed: false }, // olive oil
+      { amountCents: 1149, memberIds: ["b"], taxed: false }, // Kraft Dinner
+    ];
+    const shares = splitItemsWithTax(8020, items, 325, order, "a");
+    expect(shares.get("a")).toBe(2499 + 325);
+    expect(shares.get("b")).toBe(1049 + 799 + 2199 + 1149);
+    expect(sum(shares)).toBe(8020);
+  });
+
+  it("Walmart: paper towels (GP) taxed and shared by two; a tip-free remainder still adds up", () => {
+    const items = [
+      { amountCents: 568, memberIds: ["a"], taxed: false },
+      { amountCents: 897, memberIds: ["b"], taxed: false },
+      { amountCents: 247, memberIds: ["c"], taxed: false },
+      { amountCents: 797, memberIds: ["a", "b"], taxed: true },
+      { amountCents: 1198, memberIds: ["c"], taxed: false },
+    ];
+    const shares = splitItemsWithTax(3811, items, 104, order, "a");
+    expect(sum(shares)).toBe(3811);
+    expect(shares.get("c")).toBe(247 + 1198); // bought nothing taxed: pays no tax
+    expect((shares.get("a") ?? 0) + (shares.get("b") ?? 0)).toBe(568 + 897 + 797 + 104);
+  });
+
+  it("tax and a tip: tax to taxed items, the tip over everything", () => {
+    const items = [
+      { amountCents: 1000, memberIds: ["a"], taxed: true },
+      { amountCents: 1000, memberIds: ["b"], taxed: false },
+    ];
+    const shares = splitItemsWithTax(2330, items, 130, order); // $1.30 tax + $2.00 tip
+    expect(shares.get("a")).toBe(1000 + 130 + 100);
+    expect(shares.get("b")).toBe(1000 + 100);
+  });
+
+  it("falls back to sharing over everything without marks, or when the tax is bigger than the Amount", () => {
+    const plain = [
+      { amountCents: 1000, memberIds: ["a"], taxed: null },
+      { amountCents: 1000, memberIds: ["b"], taxed: null },
+    ];
+    expect(taxOnMarkedItems(plain, 260)).toBe(false);
+    expect(splitItemsWithTax(2260, plain, 260, order).get("a")).toBe(1130);
+    const marked = [{ amountCents: 100, memberIds: ["a"], taxed: true }];
+    expect(sum(splitItemsWithTax(50, marked, 99, order))).toBe(50);
+    expect(taxOnMarkedItems(marked, 0)).toBe(false);
   });
 });
