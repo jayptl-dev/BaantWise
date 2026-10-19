@@ -302,3 +302,101 @@ export function cleanReceipt(raw: unknown, today: string): ScanResult | null {
     minus_lines: minusLines,
   };
 }
+
+// ---------- Reading the AI's answer ----------
+// The answer should be one JSON object in the shape the instructions ask for. When Google
+// won't take the strict answer format, the AI picks its own shape and sometimes wraps the
+// JSON in text or code fences, wraps the object in a list or another object, or uses other
+// field names with amounts in dollars. These helpers turn all of that back into the
+// expected shape, so a readable receipt isn't thrown away over the wrapping.
+
+// The JSON in the AI's text: the whole text, or the part from the first { (or [) to the
+// last } (or ]). null when there is none.
+export function parseModelJson(text: string): unknown {
+  const bare = text.replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, '').trim();
+  try {
+    return JSON.parse(bare);
+  } catch {
+    // look for the JSON inside the text
+  }
+  for (const [open, close] of [['{', '}'], ['[', ']']] as const) {
+    const start = bare.indexOf(open);
+    const end = bare.lastIndexOf(close);
+    if (start !== -1 && end > start) {
+      try {
+        return JSON.parse(bare.slice(start, end + 1));
+      } catch {
+        // try the next shape
+      }
+    }
+  }
+  return null;
+}
+
+const ITEM_LIST_KEYS = ['items', 'line_items', 'lineItems', 'products', 'lines'];
+const isObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+
+// Dollars as the AI may write them: 10.49, "10.49", "$10.49", "10,49" -> 1049 cents.
+function dollarsToCents(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value * 100);
+  if (typeof value !== 'string') return null;
+  const raw = value.replace(/[\s$]/g, '');
+  const negative = raw.startsWith('-') || raw.endsWith('-');
+  const text = raw.replace(/^-|-$/g, '').replace(/,(\d{2})$/, '.$1');
+  if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
+  const cents = Math.round(Number(text) * 100);
+  return negative ? -cents : cents;
+}
+
+// A money field: the *_cents name when present, otherwise the first other name, in dollars.
+function money(o: Record<string, unknown>, centsKey: string, dollarKeys: string[]): unknown {
+  if (o[centsKey] !== undefined && o[centsKey] !== null) return o[centsKey];
+  for (const key of dollarKeys) {
+    if (o[key] !== undefined && o[key] !== null) return dollarsToCents(o[key]);
+  }
+  return o[centsKey];
+}
+
+// The receipt object inside the AI's answer, with the field names the cleanup expects.
+// Returns the answer unchanged when it's already in shape; null when no receipt is in it.
+export function unwrapReceipt(data: unknown): unknown {
+  let r: unknown = data;
+  if (Array.isArray(r)) r = r.find(isObject) ?? null;
+  if (!isObject(r)) return null;
+  const hasList = (o: Record<string, unknown>) => ITEM_LIST_KEYS.some((k) => Array.isArray(o[k]));
+  if (!hasList(r) && !('total_cents' in r) && !('total' in r)) {
+    const inner = Object.values(r).find((v) => isObject(v) && (hasList(v) || 'total_cents' in v || 'total' in v));
+    if (inner) r = inner;
+  }
+  const o = r as Record<string, unknown>;
+  const list = ITEM_LIST_KEYS.map((k) => o[k]).find(Array.isArray) as unknown[] | undefined;
+  return {
+    ...o,
+    items: (list ?? []).map((entry) => {
+      if (!isObject(entry)) return entry;
+      const name = entry.name ?? entry.description ?? entry.item;
+      return {
+        ...entry,
+        name,
+        printed: entry.printed ?? entry.printed_text ?? entry.text ?? name,
+        amount_cents: money(entry, 'amount_cents', ['price', 'amount', 'total', 'line_total']),
+      };
+    }),
+    subtotal_cents: money(o, 'subtotal_cents', ['subtotal', 'sub_total']),
+    tax_cents: money(o, 'tax_cents', ['tax', 'taxes', 'total_tax']),
+    tip_cents: money(o, 'tip_cents', ['tip', 'gratuity']),
+    total_cents: money(o, 'total_cents', ['total', 'grand_total', 'amount_due']),
+  };
+}
+
+// Content-free facts about the answer's shape, for the logs when it can't be used.
+export function answerShape(data: unknown): Record<string, unknown> {
+  const r = Array.isArray(data) ? data.find(isObject) : data;
+  return {
+    kind: data === null ? 'none' : Array.isArray(data) ? 'list' : typeof data,
+    is_receipt: isObject(r) ? (r.is_receipt ?? null) : null,
+    item_list: isObject(r) ? (ITEM_LIST_KEYS.find((k) => Array.isArray(r[k])) ?? null) : null,
+    has_total: isObject(r) ? ('total_cents' in r || 'total' in r) : false,
+  };
+}
+
