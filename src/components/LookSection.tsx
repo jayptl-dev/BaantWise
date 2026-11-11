@@ -30,6 +30,7 @@ export function LookSection() {
               <span />
               <span />
               <span />
+              <span />
             </span>
             <span className="look-text">
               <span className="look-name">{p.label}</span>

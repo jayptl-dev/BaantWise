@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { initialOf } from "../lib/format";
+import { hueOf, initialOf } from "../lib/format";
 
 // A round Google photo, or the first letter of the name if there's no photo
-// (or the photo doesn't load).
+// (or the photo doesn't load). Each name gets its own steady colour.
 export function Avatar({ name, url, size = 40 }: { name: string; url: string | null; size?: number }) {
   const [brokenUrl, setBrokenUrl] = useState<string | null>(null);
 
@@ -21,7 +21,7 @@ export function Avatar({ name, url, size = 40 }: { name: string; url: string | n
   }
   return (
     <span
-      className="avatar avatar-initial"
+      className={`avatar avatar-initial hue-${hueOf(name)}`}
       style={{ width: size, height: size, fontSize: size * 0.45 }}
       aria-hidden="true"
     >

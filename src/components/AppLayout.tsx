@@ -4,6 +4,7 @@ import { displayNameOf, photoOf, useAuth } from "../lib/auth";
 import { hasSeenTour, markTourSeen, SHOW_TOUR_EVENT } from "../lib/tour";
 import { WelcomeTour } from "./WelcomeTour";
 import { Avatar } from "./Avatar";
+import { BrandLink } from "./Brand";
 import { SiteFooter } from "./SiteFooter";
 import { FullPageLoading } from "./Status";
 import { SignInPage } from "./SignIn";
@@ -57,9 +58,7 @@ function AppHeader() {
   return (
     <>
       <header className="app-header">
-        <Link to="/" className="brand">
-          Baantwise
-        </Link>
+        <BrandLink />
         {user && (
           <div className="header-account">
             <Link to="/profile" className="avatar-link" aria-label="Your profile" title="Your profile">

@@ -5,6 +5,7 @@ import { formatCents } from "../lib/money";
 import { sendReminder } from "../lib/reminders";
 import type { Feedback } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
+import { Avatar } from "./Avatar";
 import { LockIcon } from "./LockIcon";
 import { SettleUpDialog } from "./SettleUpDialog";
 import { FeedbackLine } from "./Status";
@@ -30,6 +31,9 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
   const [reminderNote, setReminderNote] = useState<Feedback>(null);
   const people = peopleById(data);
   const nameOf = (id: string) => people.get(id)?.display_name ?? "Someone";
+
+  // The other person's photo (or coloured initial) at the start of a balance row.
+  const faceOf = (id: string) => <Avatar name={nameOf(id)} url={people.get(id)?.avatar_url ?? null} size={36} />;
 
   // Who owes whom, in words: "You owe Jay", "Sam owes you", "Sam owes Priya".
   function owesLine(from: string, to: string): string {
@@ -111,6 +115,7 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
         <ul className="balance-list">
           {balances.transfers.map((t) => (
             <li key={`${t.from}-${t.to}`} className="balance-row">
+              {faceOf(t.from === me.id ? t.to : t.from)}
               <span className="balance-text">
                 {owesLine(t.from, t.to)} <strong>{formatCents(t.cents)}</strong>
               </span>
@@ -130,6 +135,7 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
             </h3>
             <ul className="balance-list">
               <li className="balance-row">
+                {faceOf(pair.with)}
                 <span className="balance-text">
                   {owesLine(from, to)} <strong>{formatCents(Math.abs(pair.cents))}</strong>
                 </span>
@@ -167,10 +173,12 @@ function Overall({ cents }: { cents: number }) {
   return (
     <p className={`overall ${kind}`}>
       <span className="overall-label">Overall</span>
+      {/* One sentence for screen readers; the amount is its own big line on screen. */}
       <span className="overall-value">
-        {cents > 0 && `You're owed ${formatCents(cents)}`}
-        {cents < 0 && `You owe ${formatCents(-cents)}`}
+        {cents > 0 && "You're owed "}
+        {cents < 0 && "You owe "}
         {cents === 0 && "You're all settled up"}
+        {cents !== 0 && <strong className="overall-amount">{formatCents(Math.abs(cents))}</strong>}
       </span>
     </p>
   );

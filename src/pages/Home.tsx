@@ -5,6 +5,9 @@ import { useAuth } from "../lib/auth";
 import { useOneTimeNote } from "../lib/useOneTimeNote";
 import YourGroups from "./YourGroups";
 import { SiteFooter } from "../components/SiteFooter";
+import { BrandMark } from "../components/Brand";
+import { hueOf } from "../lib/format";
+import { HomeFeatures, HomeFree, HomeQuestions } from "../components/HomeSections";
 
 // "/": the landing page when signed out, "Your groups" when signed in.
 export default function Home() {
@@ -18,69 +21,105 @@ export default function Home() {
   );
 }
 
+// The example on the landing page: one month's bills, torn into three shares.
+// $438.26 split three ways is 146.09 + 146.09 + 146.08, the same leftover-cent rule the app uses.
+const SLIP_LINES = [
+  { emoji: "🛒", what: "Groceries", amount: "$214.86" },
+  { emoji: "💡", what: "Hydro", amount: "$128.40" },
+  { emoji: "🌐", what: "Internet", amount: "$95.00" },
+];
+const SLIP_SHARES = [
+  { name: "Priya", amount: "$146.09" },
+  { name: "Sam", amount: "$146.09" },
+  { name: "Alex", amount: "$146.08" },
+];
+
 function Landing() {
   // Just deleted your account in Profile.
   const deleted = useOneTimeNote((state) => (state as { accountDeleted?: boolean } | null)?.accountDeleted) === true;
   return (
-    <main className="landing">
-      {deleted && (
-        <p className="feedback" role="status">
-          Your account was deleted. Thanks for trying Baantwise.
-        </p>
-      )}
-      <h1>Baantwise</h1>
-      <p className="tagline">Split bills with roommates, friends and trips. Free, with no ads.</p>
-      {/* Up top on purpose: first-time visitors worried we'd ask for bank details. */}
-      <p className="trust-note">
-        <strong>Your money stays with you.</strong> Baantwise never asks for bank or card details, and it never holds
-        or moves money. It only keeps track of who owes whom.
-      </p>
+    <div className="home">
+      <header className="home-nav">
+        <a href="#top" className="brand">
+          <BrandMark />
+          Baantwise
+        </a>
+        <nav aria-label="On this page">
+          <a href="#features">Features</a>
+          <a href="#faq">Questions</a>
+        </nav>
+        <a href="#signin" className="button nav-signin">
+          Sign in
+        </a>
+      </header>
 
-      {/* What a group's balance looks like, so people see the idea before signing in. */}
-      <figure className="landing-sample">
-        <div aria-hidden="true">
-          <p className="overall lent">
-            <span className="overall-label">Your house</span>
-            <span className="overall-value">You're owed $54.86</span>
-          </p>
-          <ul className="balance-list">
-            <li className="balance-row">
-              <span className="balance-text">
-                Sam owes you <strong>$70.93</strong>
-              </span>
-              <span className="sample-chip">Remind</span>
-            </li>
-            <li className="balance-row">
-              <span className="balance-text">
-                You owe Priya <strong>$16.07</strong>
-              </span>
-              <span className="sample-chip">Pay</span>
-            </li>
-          </ul>
+      <main id="top">
+        <div className="home-top">
+          <div className="home-intro">
+            {deleted && (
+              <p className="feedback" role="status">
+                Your account was deleted. Thanks for trying Baantwise.
+              </p>
+            )}
+            <h1 className="home-headline">Split bills with roommates, friends and trips.</h1>
+            <p className="home-free">Free, with no ads.</p>
+          </div>
+          <div className="home-action">
+            {/* Up top on purpose: first-time visitors worried we'd ask for bank details. */}
+            <p className="trust-note">
+              <strong>Your money stays with you.</strong> Baantwise never asks for bank or card details, and it never
+              holds or moves money. It only keeps track of who owes whom.
+            </p>
+            <section className="account" id="signin" aria-label="Account">
+              <p className="beta-note">Sign in with Google to try it. It's free, and no bank details are needed.</p>
+              <SignInButton />
+              <AuthMessage />
+            </section>
+          </div>
+
+          {/* A paper receipt on the table, its bottom torn into one share each: the whole idea in one picture. */}
+          <figure className="home-table">
+            <div className="slip" aria-hidden="true">
+              <p className="slip-title">Maple Street house</p>
+              <p className="slip-sub">November</p>
+              <ul className="slip-lines">
+                {SLIP_LINES.map((line) => (
+                  <li key={line.what}>
+                    <span className="slip-what">
+                      <span className="slip-emoji">{line.emoji}</span>
+                      {line.what}
+                    </span>
+                    <span className="slip-amount">{line.amount}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="slip-total">
+                <span>Total</span>
+                <span className="slip-amount">$438.26</span>
+              </p>
+              <p className="slip-cut">split 3 ways</p>
+              <ul className="slip-stubs">
+                {SLIP_SHARES.map((share, i) => (
+                  <li key={share.name} className={`slip-stub stub-${i}`}>
+                    <span className={`avatar avatar-initial hue-${hueOf(share.name)}`}>{share.name[0]}</span>
+                    <span className="slip-stub-name">{share.name}</span>
+                    <span className="slip-amount">{share.amount}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <figcaption className="visually-hidden">
+              An example: three bills adding up to $438.26, split three ways. Priya and Sam each owe $146.09 and Alex
+              owes $146.08.
+            </figcaption>
+          </figure>
         </div>
-        <figcaption className="visually-hidden">
-          An example: Baantwise shows each person what they're owed and who to pay.
-        </figcaption>
-      </figure>
 
-      <ul className="landing-features">
-        <li>Add shared expenses and see who owes whom, with the fewest payments to settle up.</li>
-        <li>Split equally, by exact amounts, by percent or by shares, or item by item from a scanned receipt.</li>
-        <li>Forward a bill email, like your hydro or internet bill, and Baantwise fills in the amount.</li>
-        <li>Rent and other recurring bills add themselves. Friendly payment reminders by email.</li>
-        <li>Keep some expenses private between just the people in them.</li>
-      </ul>
-      <p className="name-note">
-        The name blends the Hindi word <em lang="hi-Latn">baant</em>, meaning
-        "to divide or share out", with "-wise".
-      </p>
-
-      <section className="account" aria-label="Account">
-        <p className="beta-note">Sign in with Google to try it. It's free, and no bank details are needed.</p>
-        <SignInButton />
-        <AuthMessage />
-      </section>
+        <HomeFeatures />
+        <HomeFree />
+        <HomeQuestions />
+      </main>
       <SiteFooter />
-    </main>
+    </div>
   );
 }

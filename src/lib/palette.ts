@@ -7,7 +7,7 @@
 // paints, so keep STORAGE_KEY and the attribute name in step with the script there.
 
 export const PALETTES = [
-  { key: "autumn", label: "Autumn", note: "Rust, evergreen and birch. The Baantwise look." },
+  { key: "autumn", label: "Autumn", note: "Rust, maple gold, evergreen and birch. The Baantwise look." },
   { key: "teal", label: "Teal", note: "Calm teal and cool grey." },
 ] as const;
 

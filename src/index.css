@@ -1,8 +1,13 @@
 /* Mobile-first: base styles are for phones, the media query adds room on larger screens.
 
-   The look: a calm page with white panels, one main colour, and one bold moment, the
-   balance slip ("You're owed $54.86") at the top of each group. Lists are grouped into
-   one panel with hairlines between rows, not a stack of separate cards.
+   The look: paper on a table. Everything in Baantwise starts from a receipt being
+   shared out, so the bold moments are slips of paper: the balance slip ("You're owed
+   $54.86") at the top of each group, the receipt on the landing page, and the split
+   on an expense. Around them the page stays calm: white panels, hairlines between
+   rows, and people and groups in their own steady colours (.hue-0 … .hue-5).
+
+   Type: Anek Latin (--display, a little narrow and heavy) for titles and money,
+   Schibsted Grotesk for everything you read.
 
    Colours come in "looks" (src/lib/palette.ts). Autumn, below, is the default and
    Baantwise's own look; other looks override the colour tokens with
@@ -26,9 +31,22 @@
   --owe-soft: #fbe4df;
   --danger: #b42318;
   --on-danger: #ffffff;
-  --shadow: 0 1px 2px rgb(19 32 30 / 0.05), 0 6px 18px rgb(19 32 30 / 0.05);
-  --radius: 0.75rem; /* buttons and boxes you type in */
-  --radius-panel: 1.125rem; /* panels and lists */
+  --accent-edge: #7e2f12; /* the darker lip under a main button */
+  --gold: #e9a531; /* maple gold: highlights, and the slip when you owe */
+  --on-gold: #2a1d16;
+  --gold-soft: #fbeac6;
+  --ink: #2a1d16; /* the dark table the landing page's receipt lies on */
+  --on-ink: #f4eee6;
+  /* Paper stays paper in dark mode too. */
+  --paper: #fdf8ee;
+  --paper-ink: #2a1d16;
+  --paper-muted: #7a685b;
+  --paper-line: #d8c9b6;
+  --shadow: 0 1px 2px rgb(42 29 22 / 0.06), 0 8px 24px rgb(42 29 22 / 0.06);
+  --shadow-lift: 0 1.25rem 3rem rgb(42 29 22 / 0.28);
+  --radius: 0.875rem; /* buttons and boxes you type in */
+  --radius-panel: 1.25rem; /* panels and lists */
+  --display: "Anek Latin Variable", "Schibsted Grotesk Variable", system-ui, sans-serif;
 
   color-scheme: light dark;
   font-family: "Schibsted Grotesk Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -56,7 +74,14 @@
     --owe-soft: #3a1f1b;
     --danger: #fda29b;
     --on-danger: #1f0c0a;
+    --accent-edge: #b5612f;
+    --gold: #f0b653;
+    --on-gold: #2a1d16;
+    --gold-soft: #3d2e14;
+    --ink: #0d0a08;
+    --on-ink: #f1e8df;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-lift: 0 1.25rem 3rem rgb(0 0 0 / 0.6);
   }
 }
 
@@ -77,6 +102,11 @@
   --soft: #dcefea;
   --owe: #b4470a;
   --owe-soft: #fbeadd;
+  --accent-edge: #064a44;
+  --gold: #e3a63a;
+  --gold-soft: #f7ecd0;
+  --ink: #13201e;
+  --on-ink: #eef3f1;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -96,6 +126,11 @@
     --soft: #1b3431;
     --owe: #f5b04e;
     --owe-soft: #33261a;
+    --accent-edge: #2f9c8e;
+    --gold: #f0c065;
+    --gold-soft: #33301c;
+    --ink: #090e0d;
+    --on-ink: #e6eeec;
   }
 }
 
@@ -103,6 +138,37 @@ h1,
 h2,
 h3 {
   letter-spacing: -0.015em;
+}
+
+/* Titles: Anek Latin, a little narrow. */
+h1,
+h2 {
+  font-family: var(--display);
+  font-stretch: 90%;
+  letter-spacing: -0.005em;
+}
+
+/* A colour per person or group (hueOf in src/lib/format.ts picks the number). Used
+   by initials and group tiles: a soft tint behind, the same colour darker on top. */
+.hue-0 { --h: #c2531f; } /* rust */
+.hue-1 { --h: #c98d14; } /* maple gold */
+.hue-2 { --h: #2f7a55; } /* evergreen */
+.hue-3 { --h: #9b3a6e; } /* plum */
+.hue-4 { --h: #2c6f93; } /* lake blue */
+.hue-5 { --h: #c23a48; } /* cranberry */
+
+.avatar-initial,
+.group-tile {
+  color: color-mix(in srgb, var(--h, var(--accent)) 70%, #000000);
+  background: color-mix(in srgb, var(--h, var(--accent)) 24%, var(--surface));
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatar-initial,
+  .group-tile {
+    color: color-mix(in srgb, var(--h, var(--accent)) 45%, #ffffff);
+    background: color-mix(in srgb, var(--h, var(--accent)) 32%, var(--surface));
+  }
 }
 
 * {
@@ -128,60 +194,50 @@ body {
   justify-content: center;
 }
 
-.landing h1 {
-  margin: 0 0 0.75rem;
-  font-size: 3.25rem;
-  font-weight: 850;
+/* The name with the mark beside it, on signed-out pages. */
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0 0 1.5rem;
+  font-size: 2rem;
+  font-weight: 800;
+  font-stretch: 100%;
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.02em;
   color: var(--accent);
+}
+
+.brand-mark {
+  flex: none;
+  border-radius: 28%;
 }
 
 .tagline {
   text-wrap: balance;
   margin: 0 0 1.75rem;
-  font-size: 1.375rem;
-  font-weight: 650;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
-}
-
-/* The example balance under the tagline: the same slip people see in a group. */
-.landing-sample {
-  margin: 0 0 2rem;
-}
-
-.landing-sample .overall {
-  margin-bottom: 0.5rem;
-}
-
-.sample-chip {
-  flex: none;
-  padding: 0.375rem 0.875rem;
-  border-radius: var(--radius);
-  font-size: 0.9375rem;
-  font-weight: 650;
-  color: var(--accent-strong);
-  background: var(--soft);
+  font-family: var(--display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-stretch: 90%;
+  line-height: 1.15;
 }
 
 /* The "your money stays with you" note under the tagline. */
 .trust-note {
-  margin: -0.75rem 0 1.75rem;
-  padding: 0.75rem 1rem;
-  border-left: 4px solid var(--lent);
-  border-radius: var(--radius);
-  background: var(--surface);
+  margin: 0 0 1.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--lent) 12%, var(--surface));
   line-height: 1.45;
 }
 
-.name-note {
-  margin: 0;
-  color: var(--muted);
+.trust-note strong {
+  color: var(--lent);
 }
 
 .account {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   padding: 1.25rem;
   border-radius: var(--radius-panel);
   background: var(--surface);
@@ -248,10 +304,12 @@ body {
 .brand {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
   min-height: 2.75rem;
-  font-size: 1.25rem;
+  font-family: var(--display);
+  font-size: 1.4375rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--accent);
   text-decoration: none;
 }
@@ -260,6 +318,11 @@ body {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.header-account .text-button {
+  font-size: 0.9375rem;
+  color: var(--muted);
 }
 
 /* Your photo in the header: opens your profile. */
@@ -289,10 +352,10 @@ body {
 .page-title {
   text-wrap: balance;
   margin: 0 0 1rem;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  font-stretch: 85%;
+  line-height: 1;
   overflow-wrap: anywhere;
 }
 
@@ -303,8 +366,9 @@ body {
 .section h2,
 .empty h2 {
   margin: 0 0 0.75rem;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 750;
+  line-height: 1.15;
 }
 
 .section-actions {
@@ -326,8 +390,8 @@ body {
 .state,
 .empty {
   padding: 1.25rem;
-  border: 1px dashed var(--border);
   border-radius: var(--radius-panel);
+  background: var(--gold-soft);
 }
 
 .state p:first-child,
@@ -387,11 +451,49 @@ button.back-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  min-height: 4rem;
+  gap: 0.875rem;
+  min-height: 4.5rem;
   padding: 0.75rem 1rem;
   color: inherit;
   text-decoration: none;
+}
+
+/* The group's first letter on its own colour. */
+.group-tile {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.875rem;
+  height: 2.875rem;
+  border-radius: 0.9375rem;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.group-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.group-link > .group-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.group-sub {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.chevron {
+  flex: none;
+  color: var(--muted);
+  opacity: 0.7;
 }
 
 .group-link:hover,
@@ -479,9 +581,15 @@ button.member-name {
   padding: 0.125rem 0.5rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent);
-  background: var(--soft);
+  font-weight: 650;
+  color: var(--on-gold);
+  background: var(--gold-soft);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge {
+    color: var(--gold);
+  }
 }
 
 .member-menu {
@@ -509,9 +617,9 @@ button.member-name {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  color: var(--accent);
-  background: var(--soft);
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 1;
 }
 
 /* ---------- Buttons ---------- */
@@ -521,7 +629,7 @@ button.member-name {
   display: block;
   width: 100%;
   min-height: 3rem;
-  padding: 0.6875rem 1.25rem;
+  padding: 0.625rem 1.25rem;
   border: 1px solid var(--accent);
   border-radius: var(--radius);
   font: inherit;
@@ -530,8 +638,14 @@ button.member-name {
   text-decoration: none;
   color: var(--on-accent);
   background: var(--accent);
-  box-shadow: 0 1px 2px var(--accent-shadow);
+  /* A darker lip underneath, so it looks pressable; pressing pushes it down. */
+  box-shadow: 0 0.1875rem 0 var(--accent-edge);
   cursor: pointer;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0.125rem);
+  box-shadow: 0 0.0625rem 0 var(--accent-edge);
 }
 
 /* The quieter button: a soft tint, no outline. */
@@ -542,10 +656,17 @@ button.member-name {
   box-shadow: none;
 }
 
+.button.secondary:active:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.96);
+}
+
 .button.danger {
   border-color: var(--danger);
   color: var(--on-danger);
   background: var(--danger);
+  box-shadow: none;
 }
 
 .button.secondary.danger {
@@ -555,7 +676,7 @@ button.member-name {
 }
 
 .button:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.06);
 }
 
 .button:disabled {
@@ -603,7 +724,7 @@ button.member-name {
   width: 2.75rem;
   height: 2.75rem;
   border: 1px solid transparent;
-  border-radius: var(--radius);
+  border-radius: 50%;
   font-size: 1.25rem;
   line-height: 1;
   color: var(--text);
@@ -653,7 +774,7 @@ button.member-name:focus-visible {
   min-height: 2.75rem;
   margin-top: 0.375rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius);
   font: inherit;
   font-size: 1rem; /* 16px or more stops phones from zooming in */
@@ -667,8 +788,9 @@ button.member-name:focus-visible {
 .field select:focus-visible,
 .money-input input:focus-visible,
 .choice input:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 1px;
+  border-color: var(--accent);
+  outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: 0;
 }
 
 .form-actions {
@@ -684,7 +806,7 @@ button.member-name:focus-visible {
 .feedback {
   margin: 0.75rem 0;
   padding: 0.625rem 0.875rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius);
   overflow-wrap: anywhere;
   background: var(--soft);
 }
@@ -702,14 +824,16 @@ button.member-name:focus-visible {
 dialog.confirm {
   width: min(28rem, calc(100vw - 2rem));
   padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border: 0;
+  border-radius: var(--radius-panel);
   color: var(--text);
   background: var(--bg);
+  box-shadow: var(--shadow-lift);
 }
 
 dialog.confirm::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(42 29 22 / 0.55);
+  backdrop-filter: blur(3px);
 }
 
 dialog.confirm p {
@@ -724,15 +848,17 @@ dialog.sheet {
   width: min(28rem, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border: 0;
+  border-radius: var(--radius-panel);
   color: var(--text);
   background: var(--bg);
+  box-shadow: var(--shadow-lift);
 }
 
 dialog.share-dialog::backdrop,
 dialog.sheet::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(42 29 22 / 0.55);
+  backdrop-filter: blur(3px);
 }
 
 .dialog-body {
@@ -741,7 +867,8 @@ dialog.sheet::backdrop {
 
 .dialog-body h2 {
   margin: 0 0 1rem;
-  font-size: 1.25rem;
+  font-size: 1.625rem;
+  line-height: 1.1;
   overflow-wrap: anywhere;
 }
 
@@ -799,17 +926,17 @@ dialog.sheet::backdrop {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
-  font-size: 1.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.9375rem;
+  font-size: 1.375rem;
   line-height: 1;
-  background: var(--bg);
+  background: var(--gold-soft);
 }
 
 .expense-icon.payment {
-  color: var(--accent);
-  background: var(--soft);
+  color: var(--lent);
+  background: color-mix(in srgb, var(--lent) 16%, var(--surface));
 }
 
 /* A payment in the list opens a pop-up, so it's a button that looks like the other rows. */
@@ -864,7 +991,11 @@ button.expense-link {
 }
 
 .my-part strong {
-  font-size: 1.0625rem;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
 }
 
 .my-part.lent {
@@ -882,10 +1013,12 @@ button.expense-link {
 /* Details page */
 .expense-amount {
   margin: 0;
-  font-size: 2.5rem;
+  font-family: var(--display);
+  font-size: 3.5rem;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  font-stretch: 85%;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .expense-paid {
@@ -902,7 +1035,7 @@ button.expense-link {
   border-radius: 999px;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-strong);
   background: var(--soft);
   overflow-wrap: anywhere;
 }
@@ -928,22 +1061,52 @@ button.expense-link {
   background: var(--surface);
 }
 
+/* The split on an expense's page: a paper receipt. Dotted leaders run from each name
+   to its amount, and the bottom edge is torn like the balance slip. */
 .share-list {
-  padding: 0 1rem;
-  border-radius: var(--radius-panel);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  position: relative;
+  padding: 0.5rem 1.25rem 0.5rem;
+  border-radius: 0.375rem 0.375rem 0 0;
+  margin-bottom: 0.5rem;
+  color: var(--paper-ink);
+  background: var(--paper);
+  filter: drop-shadow(0 0.375rem 0.625rem rgb(42 29 22 / 0.14));
+}
+
+.share-list::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 1px);
+  height: 0.5rem;
+  background:
+    linear-gradient(135deg, var(--paper) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x,
+    linear-gradient(225deg, var(--paper) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x;
+  pointer-events: none;
 }
 
 .share-list li {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 0;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.625rem 0;
 }
 
-.share-list li + li {
-  border-top: 1px solid var(--line);
+.share-list li::after {
+  content: "";
+  order: 1;
+  flex: 1;
+  min-width: 1rem;
+  border-bottom: 2px dotted var(--paper-line);
+}
+
+.share-list li > span:last-child {
+  order: 2;
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .share-name {
@@ -1189,11 +1352,11 @@ button.expense-link {
   width: 2.75rem;
   min-height: 2.75rem;
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius);
   font-size: 1.375rem;
   line-height: 1;
-  background: var(--surface);
+  background: var(--gold-soft);
   cursor: pointer;
 }
 
@@ -1214,15 +1377,15 @@ dialog.category-picker {
   max-height: calc(100dvh - 2rem);
   margin: auto 0 0;
   padding: 0;
-  border: 1px solid var(--border);
-  border-bottom: 0;
-  border-radius: 0.75rem 0.75rem 0 0;
+  border: 0;
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   color: var(--text);
   background: var(--bg);
 }
 
 dialog.category-picker::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(42 29 22 / 0.55);
+  backdrop-filter: blur(3px);
 }
 
 .category-picker .dialog-body {
@@ -1392,49 +1555,70 @@ dialog.photo-overlay::backdrop {
 
 /* ---------- Balances and payments ---------- */
 
-/* The balance slip: the one bold thing on the page. Solid teal when you're owed,
-   a warm tint when you owe, quiet when you're settled. The notched bottom edge is a
-   torn-off receipt, because that's where every split starts. */
+/* The balance slip: the one bold thing on the page. Evergreen when you're owed,
+   maple gold when you owe, plain paper when you're settled. "Overall" sits above a
+   perforation, the amount is the biggest thing on the screen, and the bottom edge is
+   torn off like a receipt, because that's where every split starts. */
 .overall {
   --slip-bg: var(--surface);
   --slip-text: var(--text);
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
-  margin: 0 0 1.25rem;
-  padding: 1.125rem 1.25rem 1.5rem;
-  border-radius: var(--radius-panel) var(--radius-panel) 0.25rem 0.25rem;
+  margin: 0 0 1.75rem;
+  padding: 0.875rem 1.25rem 1.25rem;
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   color: var(--slip-text);
   background: var(--slip-bg);
+  filter: drop-shadow(0 0.375rem 0.625rem rgb(42 29 22 / 0.14));
 }
 
-/* The torn edge: little half-circles in the page colour along the bottom. Drawn on
-   top rather than cut out with a CSS mask, which iPhone Safari sometimes paints
-   solid black. */
+/* The torn edge: a row of teeth in the slip's own colour hanging below it. Drawn with
+   gradients rather than cut out with a CSS mask, which iPhone Safari sometimes paints
+   solid black. The shadow above is a drop-shadow so it follows the teeth. */
 .overall::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -1px;
-  height: calc(0.4rem + 1px);
-  background: radial-gradient(circle 0.4rem at 50% 100%, var(--bg) 97%, transparent 100%) 50% 100% / 1.05rem 100%
-    repeat-x;
+  top: calc(100% - 1px);
+  height: 0.5rem;
+  background:
+    linear-gradient(135deg, var(--slip-bg) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x,
+    linear-gradient(225deg, var(--slip-bg) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x;
   pointer-events: none;
 }
 
 .overall-label {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 2px dashed color-mix(in srgb, currentColor 35%, transparent);
   font-size: 0.9375rem;
   font-weight: 600;
-  opacity: 0.8;
 }
 
 .overall-value {
-  font-size: 2rem;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.overall-amount {
+  font-family: var(--display);
+  font-size: 3.5rem;
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  font-stretch: 85%;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.overall.none .overall-value {
+  font-family: var(--display);
+  font-size: 1.75rem;
+  font-weight: 750;
+  font-stretch: 90%;
 }
 
 .overall.lent {
@@ -1443,13 +1627,14 @@ dialog.photo-overlay::backdrop {
 }
 
 .overall.owe {
-  --slip-bg: var(--owe-soft);
-  --slip-text: var(--owe);
+  --slip-bg: var(--gold);
+  --slip-text: var(--on-gold);
 }
 
 .section h3.balance-heading {
-  margin: 1.25rem 0 0.25rem;
+  margin: 1.25rem 0 0.375rem;
   font-size: 1rem;
+  color: var(--muted);
 }
 
 .balance-heading.private-note {
@@ -1464,9 +1649,10 @@ dialog.photo-overlay::backdrop {
 
 .balance-row {
   display: flex;
+  flex-wrap: wrap; /* two buttons don't fit beside a long line on a phone: they go underneath */
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  justify-content: flex-end;
+  gap: 0.5rem 0.75rem;
   min-height: 3.75rem;
   padding: 0.5rem 1rem;
 }
@@ -1476,14 +1662,24 @@ dialog.photo-overlay::backdrop {
 }
 
 .balance-text {
+  flex: 1 1 9.5rem;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.balance-text strong {
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .balance-row .balance-button {
   flex: none;
   width: auto;
-  padding-inline: 0.875rem;
+  min-height: 2.5rem;
+  padding: 0.25rem 0.875rem;
+  border-radius: 999px;
 }
 
 /* The pay box */
@@ -1502,8 +1698,9 @@ dialog.photo-overlay::backdrop {
 
 .pay-option {
   padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border: 0;
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow);
   background: var(--surface);
 }
 
@@ -1614,14 +1811,6 @@ dialog.photo-overlay::backdrop {
 }
 
 @media (min-width: 640px) {
-  .landing h1 {
-    font-size: 3.5rem;
-  }
-
-  .tagline {
-    font-size: 1.5rem;
-  }
-
   .button {
     display: inline-block;
     width: auto;
@@ -2217,43 +2406,14 @@ p.scan-box {
   margin-top: 0.25rem;
 }
 
-/* Landing: what Baantwise does (Google's sign-in review needs this on the home page). */
-.landing-features {
-  margin: 0 0 1.5rem;
-  padding: 0;
-  list-style: none;
-  line-height: 1.5;
-}
-
-/* A small teal tick before each line. */
-.landing-features li {
-  position: relative;
-  padding-left: 1.75rem;
-}
-
-.landing-features li::before {
-  content: "";
-  position: absolute;
-  left: 0.125rem;
-  top: 0.4em;
-  width: 1rem;
-  height: 0.5rem;
-  border-left: 2.5px solid var(--accent);
-  border-bottom: 2.5px solid var(--accent);
-  transform: rotate(-45deg) scale(0.8);
-}
-
-.landing-features li + li {
-  margin-top: 0.625rem;
-}
-
 /* The expense's amount: the biggest thing on the form. */
 .money-input.amount-input input {
-  min-height: 3.5rem;
-  padding-left: 2.125rem;
-  font-size: 1.625rem;
+  min-height: 4rem;
+  padding-left: 2.375rem;
+  font-family: var(--display);
+  font-size: 2.25rem;
   font-weight: 750;
-  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .money-input.amount-input input.no-prefix {
@@ -2262,7 +2422,8 @@ p.scan-box {
 
 .money-input.amount-input > span {
   left: 0.875rem;
-  font-size: 1.625rem;
+  font-family: var(--display);
+  font-size: 2.25rem;
   font-weight: 750;
 }
 
@@ -2301,7 +2462,7 @@ p.scan-box {
   outline-offset: 2px;
 }
 
-/* Three dots of each look's colours: background, main colour, "you're owed". */
+/* Four dots of each look's colours: background, main colour, gold, "you're owed". */
 .look-swatch {
   flex: none;
   display: inline-flex;
@@ -2320,10 +2481,12 @@ p.scan-box {
 
 .look-swatch.autumn span:nth-child(1) { background: #f4eee6; box-shadow: inset 0 0 0 1px #e3d6c8; }
 .look-swatch.autumn span:nth-child(2) { background: #a3401a; }
-.look-swatch.autumn span:nth-child(3) { background: #2f6247; }
+.look-swatch.autumn span:nth-child(3) { background: #e9a531; }
+.look-swatch.autumn span:nth-child(4) { background: #2f6247; }
 .look-swatch.teal span:nth-child(1) { background: #eef3f1; box-shadow: inset 0 0 0 1px #d5dfdb; }
 .look-swatch.teal span:nth-child(2) { background: #0b6e66; }
-.look-swatch.teal span:nth-child(3) { background: #b4470a; }
+.look-swatch.teal span:nth-child(3) { background: #e3a63a; }
+.look-swatch.teal span:nth-child(4) { background: #b4470a; }
 
 .look-text {
   display: flex;
@@ -2381,14 +2544,13 @@ dialog.tour {
   border-radius: 1.25rem;
   font-size: 2.25rem;
   line-height: 1;
-  background: var(--soft);
+  background: var(--gold-soft);
 }
 
 .tour .dialog-body h2 {
   margin-bottom: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.875rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .tour-text {
@@ -2431,13 +2593,18 @@ dialog.tour {
 .sample-offer {
   margin-top: 2rem;
   padding: 1.25rem;
-  border: 1.5px dashed var(--border);
   border-radius: var(--radius-panel);
+  background: var(--gold-soft);
 }
 
 .sample-offer h2 {
   margin: 0 0 0.25rem;
-  font-size: 1.125rem;
+  font-size: 1.375rem;
+}
+
+.sample-offer .button.secondary {
+  color: var(--on-gold);
+  background: var(--gold);
 }
 
 .sample-offer p {
@@ -2456,7 +2623,7 @@ dialog.tour {
   border-radius: var(--radius-panel);
   font-size: 0.9375rem;
   line-height: 1.5;
-  background: var(--soft);
+  background: var(--gold-soft);
 }
 
 .sample-intro {
@@ -2535,4 +2702,681 @@ dialog.tour {
 
 .shared-note {
   margin: -0.5rem 0 0.75rem;
+}
+
+/* ---------- Home (the landing page) ---------- */
+
+/* Phones: the pitch, then the receipt on its table, then what Baantwise does.
+   Wide screens: pitch on the left, table on the right. */
+.home {
+  width: 100%;
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  scroll-behavior: smooth;
+}
+
+/* The menu across the top: stays in view while you scroll. */
+.home-nav {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 4rem;
+  margin: 0 -1.25rem 1.25rem;
+  padding: 0.5rem 1.25rem;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.home-nav nav {
+  display: none;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
+.home-nav nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.home-nav nav a:hover {
+  color: var(--accent);
+}
+
+.home-nav nav a:focus-visible,
+.band-link:focus-visible,
+.home-faq summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.home-nav .nav-signin {
+  width: auto;
+  min-height: 2.5rem;
+  margin-left: auto;
+  padding: 0.375rem 1.125rem;
+}
+
+/* The page's sections stop a little below the menu when you jump to them. */
+.home [id] {
+  scroll-margin-top: 5rem;
+}
+
+.home-top {
+  display: grid;
+  grid-template-areas: "intro" "table" "action";
+  gap: 1.5rem;
+}
+
+.home-intro {
+  grid-area: intro;
+}
+
+.home-action {
+  grid-area: action;
+}
+
+.home-headline {
+  text-wrap: balance;
+  margin: 0 0 0.875rem;
+  font-family: var(--display);
+  font-size: clamp(3rem, 13vw, 4.75rem);
+  font-weight: 800;
+  font-stretch: 80%;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+/* "Free, with no ads." under a swipe of highlighter, the way you'd mark a line on a receipt. */
+.home-free {
+  display: inline-block;
+  margin: 0;
+  padding: 0 0.375rem;
+  font-size: 1.375rem;
+  font-weight: 700;
+  background: linear-gradient(transparent 45%, var(--gold) 45%, var(--gold) 92%, transparent 92%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-free {
+    background: linear-gradient(transparent 45%, color-mix(in srgb, var(--gold) 45%, transparent) 45% 92%, transparent 92%);
+  }
+}
+
+.home .trust-note {
+  max-width: 34rem;
+}
+
+.home .account {
+  max-width: 34rem;
+  margin-top: 0;
+}
+
+/* The table: a dark top the paper receipt lies on. */
+.home-table {
+  grid-area: table;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 2.5rem 1.25rem 4rem;
+  border-radius: 2rem;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+/* The receipt. It has no background of its own: every part is its own piece of paper,
+   so the three shares at the bottom can come away from it. */
+.slip {
+  width: min(92%, 21rem);
+  color: var(--paper-ink);
+  transform: rotate(-2deg);
+  filter: drop-shadow(0 1.25rem 1.5rem rgb(0 0 0 / 0.45));
+}
+
+.slip > * {
+  margin: 0;
+  padding: 0 1.25rem;
+  background: var(--paper);
+}
+
+.slip-title {
+  padding-top: 1.375rem;
+  border-radius: 0.375rem 0.375rem 0 0;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-stretch: 90%;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.slip-sub {
+  padding-bottom: 0.75rem;
+  font-size: 0.9375rem;
+  text-align: center;
+  color: var(--paper-muted);
+}
+
+.slip-lines {
+  list-style: none;
+}
+
+.slip-lines li,
+.slip-total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-block: 0.4375rem;
+}
+
+/* Dotted leaders from each bill to its amount. */
+.slip-lines li::after {
+  content: "";
+  order: 1;
+  flex: 1;
+  border-bottom: 2px dotted var(--paper-line);
+}
+
+.slip-lines .slip-amount {
+  order: 2;
+}
+
+.slip-emoji {
+  display: inline-block;
+  width: 1.75rem;
+}
+
+.slip-amount {
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.slip .slip-total {
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-weight: 700;
+  /* A double rule above the total, like a till receipt. */
+  background:
+    linear-gradient(var(--paper-ink), var(--paper-ink)) 1.25rem 0.25rem / calc(100% - 2.5rem) 1.5px no-repeat,
+    linear-gradient(var(--paper-ink), var(--paper-ink)) 1.25rem 0.5rem / calc(100% - 2.5rem) 1.5px no-repeat,
+    var(--paper);
+}
+
+.slip-total .slip-amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+/* The perforation the shares tear along. */
+.slip .slip-cut {
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px dashed var(--paper-line);
+  font-size: 0.875rem;
+  text-align: center;
+  color: var(--paper-muted);
+}
+
+.slip .slip-stubs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 0;
+  list-style: none;
+  background: none;
+}
+
+/* One share each. They start joined to the receipt, then come away one by one. */
+.slip-stub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.875rem 0.25rem 1rem;
+  border-radius: 0 0 0.375rem 0.375rem;
+  font-size: 0.9375rem;
+  background: var(--paper);
+  transform-origin: 50% 0;
+  transform: var(--torn);
+  animation: tear-off 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) backwards;
+}
+
+.slip-stub .avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.25rem;
+  border-radius: 50%;
+  font-size: 1.0625rem;
+  /* On paper, whatever the mode: the light-mode colours. */
+  color: color-mix(in srgb, var(--h) 70%, #000000);
+  background: color-mix(in srgb, var(--h) 24%, #ffffff);
+}
+
+.stub-0 {
+  --torn: translate(-0.375rem, 0.75rem) rotate(-5deg);
+  animation-delay: 0.7s;
+}
+
+.stub-1 {
+  --torn: translateY(1.375rem) rotate(1.5deg);
+  animation-delay: 0.95s;
+}
+
+.stub-2 {
+  --torn: translate(0.375rem, 0.625rem) rotate(6deg);
+  animation-delay: 1.2s;
+}
+
+@keyframes tear-off {
+  from {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slip-stub {
+    animation: none;
+  }
+}
+
+.feature-emoji {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.9375rem;
+  font-size: 1.375rem;
+  line-height: 1;
+  background: var(--gold-soft);
+}
+
+.name-hindi {
+  font-family: "Anek Devanagari Variable", var(--display);
+  font-weight: 600;
+  color: var(--text);
+}
+
+@media (min-width: 60rem) {
+  .home-nav nav {
+    display: flex;
+  }
+
+  .home-nav .nav-signin {
+    margin-left: 0;
+  }
+
+  .home-top {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-areas: "intro table" "action table";
+    grid-template-rows: 1fr 1fr;
+    gap: 2rem 3.5rem;
+  }
+
+  .home-intro {
+    align-self: end;
+  }
+
+  .home-action {
+    align-self: start;
+  }
+
+  .home-table {
+    min-height: 38rem;
+  }
+
+  .slip {
+    width: 23rem;
+  }
+}
+
+/* ---------- Home: what Baantwise does ---------- */
+
+.features {
+  display: grid;
+  gap: 4rem;
+  margin-top: 4.5rem;
+}
+
+/* One feature: the words, then a phone on a coloured stage. */
+.feature {
+  display: grid;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+.feature h2,
+.home-band h2,
+.home-faq h2 {
+  text-wrap: balance;
+  margin: 0 0 0.75rem;
+  font-size: clamp(2.125rem, 8vw, 3rem);
+  font-weight: 800;
+  font-stretch: 85%;
+  line-height: 1;
+}
+
+.feature-lead {
+  max-width: 34rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.125rem;
+  color: var(--muted);
+}
+
+.feature-points {
+  display: grid;
+  gap: 1rem;
+  max-width: 34rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  line-height: 1.45;
+}
+
+.feature-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.feature-stage {
+  display: grid;
+  place-items: center;
+  padding: 2.25rem 1rem;
+  border-radius: 2rem;
+}
+
+.stage-green { background: color-mix(in srgb, var(--lent) 20%, var(--bg)); }
+.stage-gold { background: color-mix(in srgb, var(--gold) 38%, var(--bg)); }
+.stage-rust { background: color-mix(in srgb, var(--accent) 22%, var(--bg)); }
+.stage-plum { background: color-mix(in srgb, #9b3a6e 20%, var(--bg)); }
+
+/* A phone with a piece of the app on its screen. */
+.phone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(100%, 19.5rem);
+  padding: 1.5rem 0.875rem 1.25rem;
+  border: 0.4375rem solid var(--ink);
+  border-radius: 2.5rem;
+  background: var(--bg);
+  box-shadow: var(--shadow-lift);
+}
+
+@media (prefers-color-scheme: dark) {
+  .phone {
+    border-color: #3a2f27;
+  }
+}
+
+.phone > * {
+  margin: 0;
+}
+
+.phone .overall {
+  margin-bottom: 0.5rem;
+}
+
+.phone-title {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-stretch: 85%;
+  line-height: 1.1;
+}
+
+.phone-step,
+.phone-heading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.phone .balance-button {
+  display: inline-flex;
+  align-items: center;
+}
+
+.phone .balance-row {
+  padding-inline: 0.75rem;
+}
+
+.phone .balance-text {
+  flex-basis: 5rem;
+  font-size: 0.9375rem;
+}
+
+.phone .expense-sub,
+.phone .private-note {
+  font-size: 0.8125rem;
+}
+
+.phone .my-part strong {
+  font-size: 1.125rem;
+}
+
+.phone .expense-link {
+  padding-inline: 0.75rem;
+  gap: 0.625rem;
+}
+
+.phone .avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1rem;
+}
+
+/* The item being shared out, and who's ticked for it. */
+.phone-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.phone-printed {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.phone-price,
+.phone-total {
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.phone-people {
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.phone-people li {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 3.25rem;
+  padding: 0 0.875rem;
+}
+
+.phone-people li + li {
+  border-top: 1px solid var(--line);
+}
+
+.phone-person {
+  flex: 1;
+}
+
+.phone-total {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.phone-tick {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--border);
+  border-radius: 0.3125rem;
+}
+
+.phone-tick.on {
+  border-color: var(--accent);
+  /* A white tick drawn with two gradients on the accent colour. */
+  background:
+    linear-gradient(45deg, transparent 44%, var(--on-accent) 44% 56%, transparent 56%) 15% 70% / 45% 45% no-repeat,
+    linear-gradient(-45deg, transparent 44%, var(--on-accent) 44% 56%, transparent 56%) 85% 45% / 65% 65% no-repeat,
+    var(--accent);
+}
+
+.phone > .button {
+  margin-top: auto;
+}
+
+/* The coloured band: free, and open. */
+.home-band {
+  margin-top: 4.5rem;
+  padding: 2.5rem 1.5rem;
+  border-radius: 2rem;
+  color: var(--on-gold);
+  background: var(--gold);
+}
+
+.home-band p {
+  max-width: 36rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.125rem;
+}
+
+.home-band-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.home-band .button {
+  width: auto;
+  border-color: var(--ink);
+  color: var(--on-ink);
+  background: var(--ink);
+  box-shadow: none;
+}
+
+.band-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 650;
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-band .button {
+    border-color: #2a1d16;
+    color: #f4eee6;
+    background: #2a1d16;
+  }
+}
+
+/* Questions: tap one to open its answer. */
+.home-faq {
+  max-width: 44rem;
+  margin: 4.5rem auto 0;
+}
+
+.home-faq details {
+  border-bottom: 1px solid var(--border);
+}
+
+.home-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.75rem;
+  padding: 0.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  list-style: none;
+  cursor: pointer;
+}
+
+.home-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A plus that turns into a minus when the answer is open. */
+.home-faq summary::after {
+  content: "";
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  background:
+    linear-gradient(var(--accent), var(--accent)) 50% 50% / 100% 2px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 50% 50% / 2px 100% no-repeat;
+}
+
+.home-faq details[open] summary::after {
+  background: linear-gradient(var(--accent), var(--accent)) 50% 50% / 100% 2px no-repeat;
+}
+
+.home-faq details p {
+  margin: 0 0 1.25rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.home-faq a {
+  color: var(--accent);
+}
+
+@media (min-width: 60rem) {
+  .features {
+    gap: 6rem;
+    margin-top: 6rem;
+  }
+
+  .feature {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  /* Every second feature: the phone on the left. */
+  .feature:nth-child(even) .feature-stage {
+    order: -1;
+  }
+
+  .feature-stage {
+    padding: 3rem 1rem;
+  }
+
+  .home-band {
+    margin-top: 6rem;
+    padding: 3.5rem;
+  }
+
+  .home-faq {
+    margin-top: 6rem;
+  }
 }
