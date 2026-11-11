@@ -7,6 +7,7 @@ import YourGroups from "./YourGroups";
 import { SiteFooter } from "../components/SiteFooter";
 import { BrandMark } from "../components/Brand";
 import { hueOf } from "../lib/format";
+import { Arrow, Coin, Loop, Sparkle, Squiggle, Star } from "../components/Doodle";
 import { HomeFeatures, HomeFree, HomeQuestions } from "../components/HomeSections";
 
 // "/": the landing page when signed out, "Your groups" when signed in.
@@ -61,12 +62,21 @@ function Landing() {
                 Your account was deleted. Thanks for trying Baantwise.
               </p>
             )}
-            <h1 className="home-headline">Split bills with roommates, friends and trips.</h1>
-            <p className="home-free">Free, with no ads.</p>
+            <h1 className="home-headline">
+              <span className="inked">
+                Split bills
+                <Squiggle draw />
+              </span>{" "}
+              with roommates, friends and trips.
+            </h1>
+            <p className="home-free">
+              Free, with no ads.
+              <Loop draw />
+            </p>
           </div>
           <div className="home-action">
             {/* Up top on purpose: first-time visitors worried we'd ask for bank details. */}
-            <p className="trust-note">
+            <p className="trust-note sticky-note">
               <strong>Your money stays with you.</strong> Baantwise never asks for bank or card details, and it never
               holds or moves money. It only keeps track of who owes whom.
             </p>
@@ -79,6 +89,9 @@ function Landing() {
 
           {/* A paper receipt on the table, its bottom torn into one share each: the whole idea in one picture. */}
           <figure className="home-table">
+            <Star className="table-star" />
+            <Coin className="table-coin" />
+            <Sparkle className="table-sparkle" />
             <div className="slip" aria-hidden="true">
               <p className="slip-title">Maple Street house</p>
               <p className="slip-sub">November</p>
@@ -108,6 +121,11 @@ function Landing() {
                 ))}
               </ul>
             </div>
+            {/* A handwritten note pointing at the share that's a cent smaller. */}
+            <p className="hand-note table-note" aria-hidden="true">
+              <Arrow draw />
+              fair to the cent!
+            </p>
             <figcaption className="visually-hidden">
               An example: three bills adding up to $438.26, split three ways. Priya and Sam each owe $146.09 and Alex
               owes $146.08.

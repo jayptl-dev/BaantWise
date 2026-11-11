@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { hueOf } from "../lib/format";
+import { DoubleLine, Scribble, Sparkle, Star } from "./Doodle";
 import { LockIcon } from "./LockIcon";
 
 // The rest of the landing page under the receipt: what Baantwise does (Google's sign-in
@@ -44,6 +45,7 @@ function Feature({
       </div>
       {/* A picture of the app: decoration only, the words beside it say the same. */}
       <div className={`feature-stage ${tint}`} aria-hidden="true">
+        <Scribble seed={title.length} />
         <div className="phone">{children}</div>
       </div>
     </section>
@@ -109,7 +111,11 @@ export function HomeFeatures() {
         <p className="overall lent">
           <span className="overall-label">Overall</span>
           <span className="overall-value">
-            You're owed <strong className="overall-amount">$54.86</strong>
+            You're owed{" "}
+            <strong className="overall-amount">
+              $54.86
+              <DoubleLine />
+            </strong>
           </span>
         </p>
         <ul className="balance-list">
@@ -241,6 +247,8 @@ export function HomeFeatures() {
 export function HomeFree() {
   return (
     <section className="home-band" aria-labelledby="home-free-heading">
+      <Star className="band-star" />
+      <Sparkle className="band-sparkle" />
       <h2 id="home-free-heading">Free for everyone. No ads.</h2>
       <p>
         There's no paid plan and nothing to buy. Baantwise is open source, so anyone can see exactly how it works.

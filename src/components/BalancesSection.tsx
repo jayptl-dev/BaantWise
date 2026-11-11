@@ -6,6 +6,7 @@ import { sendReminder } from "../lib/reminders";
 import type { Feedback } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
 import { Avatar } from "./Avatar";
+import { DoubleLine } from "./Doodle";
 import { LockIcon } from "./LockIcon";
 import { SettleUpDialog } from "./SettleUpDialog";
 import { FeedbackLine } from "./Status";
@@ -178,7 +179,12 @@ function Overall({ cents }: { cents: number }) {
         {cents > 0 && "You're owed "}
         {cents < 0 && "You owe "}
         {cents === 0 && "You're all settled up"}
-        {cents !== 0 && <strong className="overall-amount">{formatCents(Math.abs(cents))}</strong>}
+        {cents !== 0 && (
+          <strong className="overall-amount">
+            {formatCents(Math.abs(cents))}
+            <DoubleLine />
+          </strong>
+        )}
       </span>
     </p>
   );

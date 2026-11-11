@@ -1,52 +1,56 @@
 /* Mobile-first: base styles are for phones, the media query adds room on larger screens.
 
-   The look: paper on a table. Everything in Baantwise starts from a receipt being
-   shared out, so the bold moments are slips of paper: the balance slip ("You're owed
-   $54.86") at the top of each group, the receipt on the landing page, and the split
-   on an expense. Around them the page stays calm: white panels, hairlines between
-   rows, and people and groups in their own steady colours (.hue-0 … .hue-5).
+   The look: pen and paper. Splitting a bill starts with someone scribbling sums on
+   the back of a receipt, so Baantwise looks hand-drawn: a dotted notebook page, pen
+   outlines with wobbly corners, sticker buttons with a hard shadow, highlighter,
+   sticky notes, and little pen strokes (src/components/Doodle.tsx). Dark mode is a
+   chalkboard. Words you read stay in a plain typeface so nothing gets hard to read.
 
-   Type: Anek Latin (--display, a little narrow and heavy) for titles and money,
-   Schibsted Grotesk for everything you read.
-
-   Colours come in "looks" (src/lib/palette.ts). Autumn, below, is the default and
-   Baantwise's own look; other looks override the colour tokens with
-   :root[data-palette="..."], once for light and once for dark mode. Money keeps its
-   meaning in every look: --lent (you're owed) and --owe (you owe). */
+   Type: Shantell Sans (--display, a marker pen) for titles and money, Caveat
+   (--hand, a quick pen) for handwritten notes, Schibsted Grotesk for reading.
+   */
 :root {
-  --bg: #f4eee6; /* birch bark */
-  --surface: #fffdfa;
-  --text: #2a1d16; /* dark bark */
-  --muted: #6b5a4e;
-  --accent: #a3401a; /* rust, like oak leaves in October */
-  --accent-strong: #7e2f12;
+  --bg: #fbf7ee; /* notebook paper */
+  --dot: #d9d2c3; /* the dots printed on it */
+  --surface: #ffffff;
+  --text: #1f2430; /* pen ink */
+  --muted: #5c6270; /* pencil */
+  --pen: var(--text); /* outlines */
+  --shadow-pen: var(--text); /* the hard shadow under stickers and buttons */
+  --accent: #c2410c; /* orange marker: links and small accents */
+  --accent-strong: #9a3412;
   --on-accent: #ffffff;
-  --accent-shadow: rgb(126 47 18 / 0.25);
-  --lent: #2f6247; /* evergreen: money coming back to you */
+  --accent-shadow: rgb(194 65 12 / 0.25);
+  --pop: #ff9a4d; /* main buttons: bright, with ink writing on top */
+  --on-pop: #1f2430;
+  --lent: #1a7f4f; /* green pen: money coming back to you */
   --on-lent: #ffffff;
-  --border: #e3d6c8;
-  --line: #efe5da; /* hairlines between rows inside a panel */
-  --soft: #f7e3d2;
-  --owe: #b3261e; /* maple red: you owe */
-  --owe-soft: #fbe4df;
-  --danger: #b42318;
+  --border: #9a9fa9; /* pencil lines */
+  --line: #e6e1d5; /* faint rules between rows */
+  --soft: #ffe8d6;
+  --owe: #c92a2a; /* red pen: you owe */
+  --owe-soft: #ffe3e3;
+  --danger: #c92a2a;
   --on-danger: #ffffff;
-  --accent-edge: #7e2f12; /* the darker lip under a main button */
-  --gold: #e9a531; /* maple gold: highlights, and the slip when you owe */
-  --on-gold: #2a1d16;
-  --gold-soft: #fbeac6;
-  --ink: #2a1d16; /* the dark table the landing page's receipt lies on */
-  --on-ink: #f4eee6;
-  /* Paper stays paper in dark mode too. */
-  --paper: #fdf8ee;
-  --paper-ink: #2a1d16;
-  --paper-muted: #7a685b;
-  --paper-line: #d8c9b6;
-  --shadow: 0 1px 2px rgb(42 29 22 / 0.06), 0 8px 24px rgb(42 29 22 / 0.06);
-  --shadow-lift: 0 1.25rem 3rem rgb(42 29 22 / 0.28);
-  --radius: 0.875rem; /* buttons and boxes you type in */
-  --radius-panel: 1.25rem; /* panels and lists */
-  --display: "Anek Latin Variable", "Schibsted Grotesk Variable", system-ui, sans-serif;
+  --gold: #ffd43b; /* highlighter */
+  --on-gold: #1f2430;
+  --gold-soft: #fff3bf; /* a sticky note */
+  --ink: var(--text);
+  --on-ink: #fbf7ee;
+  /* A paper receipt stays paper in dark mode too. */
+  --paper: #fffdf6;
+  --paper-ink: #1f2430;
+  --paper-muted: #6b7080;
+  --paper-line: #c9c4b8;
+  /* Every panel is outlined in pen and lifted off the page a little. */
+  --shadow: 0 0 0 2px var(--pen), 0.1875rem 0.3125rem 0 2px var(--shadow-pen);
+  --shadow-lift: 0 0 0 2px var(--pen), 0.5rem 0.625rem 0 2px var(--shadow-pen);
+  /* Corners no ruler drew: each one a different curve. */
+  --radius: 14px 22px 12px 20px / 20px 12px 22px 14px; /* buttons and boxes you type in */
+  --radius-panel: 18px 26px 16px 28px / 26px 16px 28px 18px; /* panels and lists */
+  --radius-blob: 48% 52% 55% 45% / 52% 46% 54% 48%; /* faces and round buttons */
+  --display: "Shantell Sans Variable", "Schibsted Grotesk Variable", system-ui, sans-serif;
+  --hand: "Caveat Variable", "Shantell Sans Variable", cursive;
 
   color-scheme: light dark;
   font-family: "Schibsted Grotesk Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -55,82 +59,59 @@
   background: var(--bg);
 }
 
+/* Dark mode: a chalkboard. Chalk outlines, chalk colours. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #17120f;
-    --surface: #221b16;
-    --text: #f1e8df;
-    --muted: #b7a698;
-    --accent: #f0915a;
-    --accent-strong: #f6ad80;
+    --bg: #1c2a26;
+    --dot: #2f423c;
+    --surface: #25362f;
+    --text: #f3efe4; /* chalk */
+    --muted: #b3c0b9;
+    --shadow-pen: #0d1512;
+    --accent: #ffb27a;
+    --accent-strong: #ffc9a3;
     --on-accent: #2a130a;
     --accent-shadow: rgb(0 0 0 / 0.3);
-    --lent: #7fc39d;
+    --pop: #ffa45c;
+    --on-pop: #1f2430;
+    --lent: #8fe0ae;
     --on-lent: #0e2418;
-    --border: #3a2f27;
-    --line: #2e251f;
-    --soft: #3a2519;
-    --owe: #f58a7c;
-    --owe-soft: #3a1f1b;
-    --danger: #fda29b;
+    --border: #6c7d76;
+    --line: #34473f;
+    --soft: #4a3a2a;
+    --owe: #ff9d94;
+    --owe-soft: #4a2b28;
+    --danger: #ffa8a0;
     --on-danger: #1f0c0a;
-    --accent-edge: #b5612f;
-    --gold: #f0b653;
-    --on-gold: #2a1d16;
-    --gold-soft: #3d2e14;
-    --ink: #0d0a08;
-    --on-ink: #f1e8df;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
-    --shadow-lift: 0 1.25rem 3rem rgb(0 0 0 / 0.6);
+    --gold: #ffe066;
+    --gold-soft: #4a4628;
+    --on-ink: #1c2a26;
   }
 }
 
-/* Teal: calm teal and cool grey. */
+/* Teal: the same notebook with a teal marker. */
 :root[data-palette="teal"] {
-  --bg: #eef3f1;
-  --surface: #ffffff;
-  --text: #13201e;
-  --muted: #56635f;
   --accent: #0b6e66;
   --accent-strong: #075a53;
-  --on-accent: #ffffff;
   --accent-shadow: rgb(7 90 83 / 0.25);
+  --pop: #63d3c4;
   --lent: #0b6e66;
-  --on-lent: #ffffff;
-  --border: #d5dfdb;
-  --line: #e6edea;
-  --soft: #dcefea;
+  --soft: #d9f2ed;
   --owe: #b4470a;
   --owe-soft: #fbeadd;
-  --accent-edge: #064a44;
-  --gold: #e3a63a;
-  --gold-soft: #f7ecd0;
-  --ink: #13201e;
-  --on-ink: #eef3f1;
 }
 
 @media (prefers-color-scheme: dark) {
   :root[data-palette="teal"] {
-    --bg: #0f1716;
-    --surface: #18221f;
-    --text: #e6eeec;
-    --muted: #9fb0ac;
     --accent: #5fd4c4;
     --accent-strong: #84e3d6;
     --on-accent: #082522;
-    --accent-shadow: rgb(0 0 0 / 0.3);
+    --pop: #5fd4c4;
     --lent: #5fd4c4;
     --on-lent: #082522;
-    --border: #2b3835;
-    --line: #233030;
-    --soft: #1b3431;
+    --soft: #1f4640;
     --owe: #f5b04e;
-    --owe-soft: #33261a;
-    --accent-edge: #2f9c8e;
-    --gold: #f0c065;
-    --gold-soft: #33301c;
-    --ink: #090e0d;
-    --on-ink: #e6eeec;
+    --owe-soft: #4a3a22;
   }
 }
 
@@ -140,44 +121,120 @@ h3 {
   letter-spacing: -0.015em;
 }
 
-/* Titles: Anek Latin, a little narrow. */
+/* Titles: the marker pen, with a bit of bounce in the letters. */
 h1,
 h2 {
   font-family: var(--display);
-  font-stretch: 90%;
-  letter-spacing: -0.005em;
+  font-variation-settings: "BNCE" 30, "INFM" 70;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Pen strokes (src/components/Doodle.tsx) ---------- */
+
+.doodle {
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.doodle path {
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Draws itself once, like someone adding it with a pen. */
+.doodle.draw path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: pen-draw 0.7s ease-out 0.5s forwards;
+}
+
+@keyframes pen-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doodle.draw path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
+
+/* A word with a pen line under it. */
+.inked {
+  position: relative;
+  display: inline-block;
+}
+
+.inked > .doodle {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: -0.18em;
+  width: 104%;
+  height: 0.28em;
+  color: var(--pop);
+}
+
+.inked > .doodle path {
+  stroke-width: 5;
+}
+
+/* A line of handwriting. */
+.hand-note {
+  margin: 0;
+  font-family: var(--hand);
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* A yellow sticky note, stuck on a little crooked. */
+.sticky-note {
+  position: relative;
+  transform: rotate(-0.8deg);
+}
+
+.sticky-note::before {
+  content: "";
+  position: absolute;
+  top: -0.625rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 1.25rem;
+  background: color-mix(in srgb, var(--pop) 55%, transparent);
+  transform: translateX(-50%) rotate(-3deg);
 }
 
 /* A colour per person or group (hueOf in src/lib/format.ts picks the number). Used
    by initials and group tiles: a soft tint behind, the same colour darker on top. */
-.hue-0 { --h: #c2531f; } /* rust */
-.hue-1 { --h: #c98d14; } /* maple gold */
-.hue-2 { --h: #2f7a55; } /* evergreen */
-.hue-3 { --h: #9b3a6e; } /* plum */
-.hue-4 { --h: #2c6f93; } /* lake blue */
-.hue-5 { --h: #c23a48; } /* cranberry */
+.hue-0 { --h: #ff9a4d; } /* orange marker */
+.hue-1 { --h: #ffd43b; } /* highlighter */
+.hue-2 { --h: #69db7c; } /* green */
+.hue-3 { --h: #f783ac; } /* pink */
+.hue-4 { --h: #74c0fc; } /* blue */
+.hue-5 { --h: #b197fc; } /* purple */
 
+/* Coloured in with a marker, outlined in pen. */
 .avatar-initial,
 .group-tile {
-  color: color-mix(in srgb, var(--h, var(--accent)) 70%, #000000);
-  background: color-mix(in srgb, var(--h, var(--accent)) 24%, var(--surface));
-}
-
-@media (prefers-color-scheme: dark) {
-  .avatar-initial,
-  .group-tile {
-    color: color-mix(in srgb, var(--h, var(--accent)) 45%, #ffffff);
-    background: color-mix(in srgb, var(--h, var(--accent)) 32%, var(--surface));
-  }
+  border: 2px solid var(--pen);
+  color: #1f2430;
+  background: var(--h, var(--pop));
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* The page: dotted notebook paper. */
 body {
   margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(var(--dot) 1.25px, transparent 1.5px) 0 0 / 1.5rem 1.5rem,
+    var(--bg);
 }
 
 /* ---------- Landing and other signed-out pages (centred on the screen) ---------- */
@@ -202,15 +259,16 @@ body {
   margin: 0 0 1.5rem;
   font-size: 2rem;
   font-weight: 800;
-  font-stretch: 100%;
   line-height: 1;
   letter-spacing: -0.02em;
-  color: var(--accent);
+  color: var(--text);
 }
 
 .brand-mark {
   flex: none;
-  border-radius: 28%;
+  border-radius: 30% 34% 28% 36%;
+  box-shadow: 0 0 0 2px var(--pen), 2px 3px 0 2px var(--shadow-pen);
+  transform: rotate(-4deg);
 }
 
 .tagline {
@@ -219,21 +277,22 @@ body {
   font-family: var(--display);
   font-size: 1.75rem;
   font-weight: 700;
-  font-stretch: 90%;
   line-height: 1.15;
 }
 
 /* The "your money stays with you" note under the tagline. */
 .trust-note {
-  margin: 0 0 1.5rem;
-  padding: 0.875rem 1rem;
-  border-radius: var(--radius-panel);
-  background: color-mix(in srgb, var(--lent) 12%, var(--surface));
+  margin: 0 0 1.75rem;
+  padding: 1rem 1.125rem;
   line-height: 1.45;
+  color: #1f2430;
+  background: #fff3bf;
+  box-shadow: 0.25rem 0.375rem 0 rgb(0 0 0 / 0.18);
 }
 
 .trust-note strong {
-  color: var(--lent);
+  font-family: var(--display);
+  font-size: 1.0625rem;
 }
 
 .account {
@@ -309,8 +368,9 @@ body {
   font-family: var(--display);
   font-size: 1.4375rem;
   font-weight: 800;
+  font-variation-settings: "BNCE" 30, "INFM" 70;
   letter-spacing: -0.02em;
-  color: var(--accent);
+  color: var(--text);
   text-decoration: none;
 }
 
@@ -352,10 +412,9 @@ body {
 .page-title {
   text-wrap: balance;
   margin: 0 0 1rem;
-  font-size: 2.5rem;
+  font-size: 2.125rem;
   font-weight: 800;
-  font-stretch: 85%;
-  line-height: 1;
+  line-height: 1.05;
   overflow-wrap: anywhere;
 }
 
@@ -363,12 +422,17 @@ body {
   margin-top: 2rem;
 }
 
+/* Section titles get a wavy highlighter line under them. */
 .section h2,
 .empty h2 {
-  margin: 0 0 0.75rem;
+  margin: 0 0 1rem;
   font-size: 1.5rem;
   font-weight: 750;
-  line-height: 1.15;
+  line-height: 1.3;
+  text-decoration: underline wavy var(--gold);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+  text-decoration-skip-ink: none;
 }
 
 .section-actions {
@@ -390,6 +454,7 @@ body {
 .state,
 .empty {
   padding: 1.25rem;
+  border: 2px dashed var(--pen);
   border-radius: var(--radius-panel);
   background: var(--gold-soft);
 }
@@ -466,9 +531,10 @@ button.back-link {
   justify-content: center;
   width: 2.875rem;
   height: 2.875rem;
-  border-radius: 0.9375rem;
+  border-radius: 14px 18px 13px 19px / 18px 13px 19px 14px;
   font-family: var(--display);
   font-size: 1.5rem;
+  transform: rotate(-3deg);
   font-weight: 800;
   line-height: 1;
 }
@@ -580,16 +646,11 @@ button.member-name {
 .badge {
   padding: 0.125rem 0.5rem;
   border-radius: 999px;
+  border: 1.5px solid var(--pen);
   font-size: 0.75rem;
   font-weight: 650;
   color: var(--on-gold);
-  background: var(--gold-soft);
-}
-
-@media (prefers-color-scheme: dark) {
-  .badge {
-    color: var(--gold);
-  }
+  background: var(--gold);
 }
 
 .member-menu {
@@ -617,6 +678,7 @@ button.member-name {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: var(--radius-blob);
   font-family: var(--display);
   font-weight: 800;
   line-height: 1;
@@ -625,48 +687,46 @@ button.member-name {
 /* ---------- Buttons ---------- */
 
 /* Full-width on phones for an easy tap target; shrinks to fit on wider screens. */
+/* Buttons are stickers: bright, outlined in pen, with a hard shadow. Pressing one
+   pushes it down onto the page. */
 .button {
   display: block;
   width: 100%;
   min-height: 3rem;
   padding: 0.625rem 1.25rem;
-  border: 1px solid var(--accent);
+  border: 2px solid var(--pen);
   border-radius: var(--radius);
   font: inherit;
-  font-weight: 650;
+  font-family: var(--display);
+  font-weight: 700;
   text-align: center;
   text-decoration: none;
-  color: var(--on-accent);
-  background: var(--accent);
-  /* A darker lip underneath, so it looks pressable; pressing pushes it down. */
-  box-shadow: 0 0.1875rem 0 var(--accent-edge);
+  color: var(--on-pop);
+  background: var(--pop);
+  box-shadow: 0.1875rem 0.25rem 0 var(--shadow-pen);
   cursor: pointer;
 }
 
 .button:active:not(:disabled) {
-  transform: translateY(0.125rem);
-  box-shadow: 0 0.0625rem 0 var(--accent-edge);
+  transform: translate(0.1875rem, 0.25rem);
+  box-shadow: none;
 }
 
 /* The quieter button: a soft tint, no outline. */
 .button.secondary {
-  border-color: transparent;
-  color: var(--accent-strong);
-  background: var(--soft);
-  box-shadow: none;
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: 0.125rem 0.1875rem 0 var(--shadow-pen);
 }
 
 .button.secondary:active:not(:disabled) {
-  transform: none;
+  transform: translate(0.125rem, 0.1875rem);
   box-shadow: none;
-  filter: brightness(0.96);
 }
 
 .button.danger {
-  border-color: var(--danger);
   color: var(--on-danger);
   background: var(--danger);
-  box-shadow: none;
 }
 
 .button.secondary.danger {
@@ -723,14 +783,19 @@ button.member-name {
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid transparent;
-  border-radius: 50%;
+  border: 2px solid var(--pen);
+  border-radius: var(--radius-blob);
   font-size: 1.25rem;
   line-height: 1;
   color: var(--text);
   background: var(--surface);
-  box-shadow: var(--shadow);
+  box-shadow: 0.125rem 0.1875rem 0 var(--shadow-pen);
   cursor: pointer;
+}
+
+.icon-button:active {
+  transform: translate(0.125rem, 0.1875rem);
+  box-shadow: none;
 }
 
 .icon-button:hover {
@@ -773,8 +838,8 @@ button.member-name:focus-visible {
   width: 100%;
   min-height: 2.75rem;
   margin-top: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  border: 1.5px solid var(--border);
+  padding: 0.5rem 0.875rem;
+  border: 2px solid var(--pen);
   border-radius: var(--radius);
   font: inherit;
   font-size: 1rem; /* 16px or more stops phones from zooming in */
@@ -832,8 +897,8 @@ dialog.confirm {
 }
 
 dialog.confirm::backdrop {
-  background: rgb(42 29 22 / 0.55);
-  backdrop-filter: blur(3px);
+  background: rgb(31 36 48 / 0.6);
+  backdrop-filter: blur(2px);
 }
 
 dialog.confirm p {
@@ -857,8 +922,8 @@ dialog.sheet {
 
 dialog.share-dialog::backdrop,
 dialog.sheet::backdrop {
-  background: rgb(42 29 22 / 0.55);
-  backdrop-filter: blur(3px);
+  background: rgb(31 36 48 / 0.6);
+  backdrop-filter: blur(2px);
 }
 
 .dialog-body {
@@ -928,8 +993,9 @@ dialog.sheet::backdrop {
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 0.9375rem;
-  font-size: 1.375rem;
+  border: 2px solid var(--pen);
+  border-radius: var(--radius-blob);
+  font-size: 1.25rem;
   line-height: 1;
   background: var(--gold-soft);
 }
@@ -1016,7 +1082,6 @@ button.expense-link {
   font-family: var(--display);
   font-size: 3.5rem;
   font-weight: 800;
-  font-stretch: 85%;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
@@ -1061,29 +1126,15 @@ button.expense-link {
   background: var(--surface);
 }
 
-/* The split on an expense's page: a paper receipt. Dotted leaders run from each name
-   to its amount, and the bottom edge is torn like the balance slip. */
+/* The split on an expense's page: a paper receipt outlined in pen, with dotted
+   leaders running from each name to its amount. */
 .share-list {
-  position: relative;
-  padding: 0.5rem 1.25rem 0.5rem;
-  border-radius: 0.375rem 0.375rem 0 0;
-  margin-bottom: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-panel);
   color: var(--paper-ink);
   background: var(--paper);
-  filter: drop-shadow(0 0.375rem 0.625rem rgb(42 29 22 / 0.14));
-}
-
-.share-list::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% - 1px);
-  height: 0.5rem;
-  background:
-    linear-gradient(135deg, var(--paper) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x,
-    linear-gradient(225deg, var(--paper) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x;
-  pointer-events: none;
+  box-shadow: var(--shadow);
+  transform: rotate(0.4deg);
 }
 
 .share-list li {
@@ -1378,14 +1429,14 @@ dialog.category-picker {
   margin: auto 0 0;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  border-radius: 1.25rem 1.25rem 0 0;
   color: var(--text);
   background: var(--bg);
 }
 
 dialog.category-picker::backdrop {
-  background: rgb(42 29 22 / 0.55);
-  backdrop-filter: blur(3px);
+  background: rgb(31 36 48 / 0.6);
+  backdrop-filter: blur(2px);
 }
 
 .category-picker .dialog-body {
@@ -1555,38 +1606,35 @@ dialog.photo-overlay::backdrop {
 
 /* ---------- Balances and payments ---------- */
 
-/* The balance slip: the one bold thing on the page. Evergreen when you're owed,
-   maple gold when you owe, plain paper when you're settled. "Overall" sits above a
-   perforation, the amount is the biggest thing on the screen, and the bottom edge is
-   torn off like a receipt, because that's where every split starts. */
+/* The balance slip: the one bold thing on the page. A big sticky note, taped on a
+   little crooked: green when you're owed, highlighter yellow when you owe, plain
+   paper when you're settled. The amount is underlined twice in pen. */
 .overall {
   --slip-bg: var(--surface);
   --slip-text: var(--text);
   position: relative;
   display: flex;
   flex-direction: column;
-  margin: 0 0 1.75rem;
-  padding: 0.875rem 1.25rem 1.25rem;
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  margin: 0.5rem 0 1.75rem;
+  padding: 1.125rem 1.25rem 1.375rem;
+  border-radius: var(--radius-panel);
   color: var(--slip-text);
   background: var(--slip-bg);
-  filter: drop-shadow(0 0.375rem 0.625rem rgb(42 29 22 / 0.14));
+  box-shadow: var(--shadow);
+  transform: rotate(-0.8deg);
 }
 
-/* The torn edge: a row of teeth in the slip's own colour hanging below it. Drawn with
-   gradients rather than cut out with a CSS mask, which iPhone Safari sometimes paints
-   solid black. The shadow above is a drop-shadow so it follows the teeth. */
-.overall::after {
+/* The strip of tape holding it on. */
+.overall::before {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% - 1px);
-  height: 0.5rem;
-  background:
-    linear-gradient(135deg, var(--slip-bg) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x,
-    linear-gradient(225deg, var(--slip-bg) 25%, transparent 25%) 0 0 / 1rem 1rem repeat-x;
-  pointer-events: none;
+  top: -0.75rem;
+  left: 50%;
+  width: 5.5rem;
+  height: 1.5rem;
+  border-inline: 2px dotted rgb(31 36 48 / 0.25);
+  background: color-mix(in srgb, var(--pop) 60%, transparent);
+  transform: translateX(-50%) rotate(2.5deg);
 }
 
 .overall-label {
@@ -1606,29 +1654,39 @@ dialog.photo-overlay::backdrop {
 }
 
 .overall-amount {
+  align-self: flex-start;
+  position: relative;
+  padding-bottom: 0.75rem;
   font-family: var(--display);
   font-size: 3.5rem;
   font-weight: 800;
-  font-stretch: 85%;
+  font-variation-settings: "BNCE" 40, "INFM" 80;
   font-variant-numeric: tabular-nums;
-  line-height: 1;
+  line-height: 1.05;
+}
+
+.overall-amount .doodle {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0.75rem;
 }
 
 .overall.none .overall-value {
   font-family: var(--display);
   font-size: 1.75rem;
   font-weight: 750;
-  font-stretch: 90%;
 }
 
 .overall.lent {
-  --slip-bg: var(--lent);
-  --slip-text: var(--on-lent);
+  --slip-bg: #8ce99a;
+  --slip-text: #1f2430;
 }
 
 .overall.owe {
-  --slip-bg: var(--gold);
-  --slip-text: var(--on-gold);
+  --slip-bg: #ffd43b;
+  --slip-text: #1f2430;
 }
 
 .section h3.balance-heading {
@@ -1679,7 +1737,6 @@ dialog.photo-overlay::backdrop {
   width: auto;
   min-height: 2.5rem;
   padding: 0.25rem 0.875rem;
-  border-radius: 999px;
 }
 
 /* The pay box */
@@ -1700,6 +1757,7 @@ dialog.photo-overlay::backdrop {
   padding: 0.75rem 1rem;
   border: 0;
   border-radius: var(--radius-panel);
+  background: var(--surface);
   box-shadow: var(--shadow);
   background: var(--surface);
 }
@@ -2480,12 +2538,12 @@ p.scan-box {
 }
 
 .look-swatch.autumn span:nth-child(1) { background: #f4eee6; box-shadow: inset 0 0 0 1px #e3d6c8; }
-.look-swatch.autumn span:nth-child(2) { background: #a3401a; }
-.look-swatch.autumn span:nth-child(3) { background: #e9a531; }
-.look-swatch.autumn span:nth-child(4) { background: #2f6247; }
+.look-swatch.autumn span:nth-child(2) { background: #ff9a4d; }
+.look-swatch.autumn span:nth-child(3) { background: #ffd43b; }
+.look-swatch.autumn span:nth-child(4) { background: #1a7f4f; }
 .look-swatch.teal span:nth-child(1) { background: #eef3f1; box-shadow: inset 0 0 0 1px #d5dfdb; }
-.look-swatch.teal span:nth-child(2) { background: #0b6e66; }
-.look-swatch.teal span:nth-child(3) { background: #e3a63a; }
+.look-swatch.teal span:nth-child(2) { background: #63d3c4; }
+.look-swatch.teal span:nth-child(3) { background: #ffd43b; }
 .look-swatch.teal span:nth-child(4) { background: #b4470a; }
 
 .look-text {
@@ -2591,10 +2649,12 @@ dialog.tour {
 /* ---------- Sample groups ---------- */
 
 .sample-offer {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   padding: 1.25rem;
+  border: 2px dashed var(--pen);
   border-radius: var(--radius-panel);
   background: var(--gold-soft);
+  transform: rotate(0.5deg);
 }
 
 .sample-offer h2 {
@@ -2727,8 +2787,9 @@ dialog.tour {
   min-height: 4rem;
   margin: 0 -1.25rem 1.25rem;
   padding: 0.5rem 1.25rem;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(10px);
+  border-bottom: 2px dashed var(--border);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(8px);
 }
 
 .home-nav nav {
@@ -2787,27 +2848,31 @@ dialog.tour {
   text-wrap: balance;
   margin: 0 0 0.875rem;
   font-family: var(--display);
-  font-size: clamp(3rem, 13vw, 4.75rem);
+  font-size: clamp(2.5rem, 10.5vw, 3.75rem);
   font-weight: 800;
-  font-stretch: 80%;
   line-height: 0.95;
   letter-spacing: -0.01em;
 }
 
-/* "Free, with no ads." under a swipe of highlighter, the way you'd mark a line on a receipt. */
+/* "Free, with no ads." in handwriting, with a loop drawn round it. */
 .home-free {
+  position: relative;
   display: inline-block;
-  margin: 0;
-  padding: 0 0.375rem;
-  font-size: 1.375rem;
+  margin: 0.25rem 0 0 0.5rem;
+  padding: 0.5rem 1.25rem;
+  font-family: var(--hand);
+  font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(transparent 45%, var(--gold) 45%, var(--gold) 92%, transparent 92%);
+  line-height: 1;
+  transform: rotate(-2deg);
 }
 
-@media (prefers-color-scheme: dark) {
-  .home-free {
-    background: linear-gradient(transparent 45%, color-mix(in srgb, var(--gold) 45%, transparent) 45% 92%, transparent 92%);
-  }
+.home-free .doodle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--accent);
 }
 
 .home .trust-note {
@@ -2819,40 +2884,121 @@ dialog.tour {
   margin-top: 0;
 }
 
-/* The table: a dark top the paper receipt lies on. */
+/* The receipt, lying on the notebook page with doodles round it. */
 .home-table {
   grid-area: table;
+  position: relative;
+  justify-self: center;
   display: grid;
   place-items: center;
+  width: min(100%, 26rem);
   margin: 0;
-  padding: 2.5rem 1.25rem 4rem;
-  border-radius: 2rem;
-  overflow: hidden;
-  background: var(--ink);
+  padding: 2rem 0.5rem 5rem;
+}
+
+.table-star,
+.table-coin,
+.table-sparkle {
+  position: absolute;
+}
+
+.table-star {
+  top: -1rem;
+  right: -0.5rem;
+  z-index: 2;
+  width: 3.25rem;
+  color: var(--gold);
+  transform: rotate(12deg);
+}
+
+.table-star path {
+  fill: var(--gold);
+  stroke: var(--pen);
+}
+
+.table-coin {
+  left: 0.25rem;
+  bottom: 0.75rem;
+  width: 3rem;
+  color: var(--pen);
+  transform: rotate(-14deg);
+}
+
+.table-coin path:first-child {
+  fill: var(--gold);
+}
+
+.table-sparkle {
+  top: 34%;
+  left: 1%;
+  width: 2rem;
+  color: var(--accent);
+}
+
+.table-note {
+  position: absolute;
+  right: 4%;
+  bottom: 0.75rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  color: var(--accent);
+  transform: rotate(-4deg);
+}
+
+.table-note .doodle {
+  width: 3.25rem;
+  transform: scaleY(-1) rotate(200deg);
 }
 
 /* The receipt. It has no background of its own: every part is its own piece of paper,
    so the three shares at the bottom can come away from it. */
 .slip {
-  width: min(92%, 21rem);
+  position: relative;
+  width: min(84%, 21rem);
   color: var(--paper-ink);
   transform: rotate(-2deg);
-  filter: drop-shadow(0 1.25rem 1.5rem rgb(0 0 0 / 0.45));
+  filter: drop-shadow(0 0 0 var(--pen)) drop-shadow(0.3rem 0.4rem 0 rgb(0 0 0 / 0.22));
+}
+
+/* Tape across the top corners. */
+.slip::before,
+.slip::after {
+  content: "";
+  position: absolute;
+  top: -0.625rem;
+  z-index: 1;
+  width: 4.25rem;
+  height: 1.375rem;
+  padding: 0;
+  background: color-mix(in srgb, var(--pop) 65%, transparent);
+}
+
+.slip::before {
+  left: -1.25rem;
+  transform: rotate(-32deg);
+}
+
+.slip::after {
+  right: -1.25rem;
+  transform: rotate(28deg);
 }
 
 .slip > * {
   margin: 0;
   padding: 0 1.25rem;
+  border-inline: 2px solid #1f2430;
   background: var(--paper);
 }
 
 .slip-title {
   padding-top: 1.375rem;
+  border-top: 2px solid #1f2430;
   border-radius: 0.375rem 0.375rem 0 0;
+  font-variation-settings: "BNCE" 30, "INFM" 70;
   font-family: var(--display);
   font-size: 1.5rem;
   font-weight: 800;
-  font-stretch: 90%;
   line-height: 1.1;
   text-align: center;
 }
@@ -2921,8 +3067,9 @@ dialog.tour {
 .slip .slip-cut {
   padding-top: 0.25rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px dashed var(--paper-line);
-  font-size: 0.875rem;
+  font-family: var(--hand);
+  font-size: 1.25rem;
+  font-weight: 700;
   text-align: center;
   color: var(--paper-muted);
 }
@@ -2930,8 +3077,9 @@ dialog.tour {
 .slip .slip-stubs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
+  gap: 3px;
   padding: 0;
+  border: 0;
   list-style: none;
   background: none;
 }
@@ -2943,7 +3091,9 @@ dialog.tour {
   align-items: center;
   gap: 0.125rem;
   padding: 0.875rem 0.25rem 1rem;
-  border-radius: 0 0 0.375rem 0.375rem;
+  border: 2px solid #1f2430;
+  border-top-style: dashed;
+  border-radius: 0 0 0.5rem 0.375rem;
   font-size: 0.9375rem;
   background: var(--paper);
   transform-origin: 50% 0;
@@ -2957,9 +3107,7 @@ dialog.tour {
   margin-bottom: 0.25rem;
   border-radius: 50%;
   font-size: 1.0625rem;
-  /* On paper, whatever the mode: the light-mode colours. */
-  color: color-mix(in srgb, var(--h) 70%, #000000);
-  background: color-mix(in srgb, var(--h) 24%, #ffffff);
+  border-color: #1f2430;
 }
 
 .stub-0 {
@@ -2996,15 +3144,24 @@ dialog.tour {
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 0.9375rem;
-  font-size: 1.375rem;
+  border: 2px solid var(--pen);
+  border-radius: var(--radius-blob);
+  font-size: 1.25rem;
   line-height: 1;
-  background: var(--gold-soft);
+  background: var(--surface);
+}
+
+.feature-points li:nth-child(odd) .feature-emoji {
+  transform: rotate(-5deg);
+}
+
+.feature-points li:nth-child(even) .feature-emoji {
+  transform: rotate(4deg);
 }
 
 .name-hindi {
-  font-family: "Anek Devanagari Variable", var(--display);
-  font-weight: 600;
+  font-family: "Kalam", var(--display);
+  font-weight: 700;
   color: var(--text);
 }
 
@@ -3033,12 +3190,14 @@ dialog.tour {
   }
 
   .home-table {
-    min-height: 38rem;
+    align-self: center;
+    grid-row: 1 / -1;
   }
 
-  .slip {
-    width: 23rem;
+  .table-star {
+    width: 4.5rem;
   }
+
 }
 
 /* ---------- Home: what Baantwise does ---------- */
@@ -3063,7 +3222,6 @@ dialog.tour {
   margin: 0 0 0.75rem;
   font-size: clamp(2.125rem, 8vw, 3rem);
   font-weight: 800;
-  font-stretch: 85%;
   line-height: 1;
 }
 
@@ -3090,17 +3248,49 @@ dialog.tour {
   gap: 0.875rem;
 }
 
+/* The phone sits on a patch scribbled in with a marker. */
 .feature-stage {
+  position: relative;
   display: grid;
   place-items: center;
   padding: 2.25rem 1rem;
-  border-radius: 2rem;
 }
 
-.stage-green { background: color-mix(in srgb, var(--lent) 20%, var(--bg)); }
-.stage-gold { background: color-mix(in srgb, var(--gold) 38%, var(--bg)); }
-.stage-rust { background: color-mix(in srgb, var(--accent) 22%, var(--bg)); }
-.stage-plum { background: color-mix(in srgb, #9b3a6e 20%, var(--bg)); }
+.feature-stage > .doodle-scribble {
+  position: absolute;
+  inset: 0.5rem 0;
+  width: 100%;
+  height: calc(100% - 1rem);
+}
+
+.feature-stage > .doodle-scribble path {
+  stroke-width: 26;
+  opacity: 0.85;
+}
+
+.stage-green { color: #8ce99a; }
+.stage-gold { color: #ffd43b; }
+.stage-rust { color: #ffa86b; }
+.stage-plum { color: #f7a8c4; }
+
+@media (prefers-color-scheme: dark) {
+  .feature-stage > .doodle-scribble path {
+    opacity: 0.45;
+  }
+}
+
+.feature-stage > .phone {
+  position: relative;
+  color: var(--text);
+}
+
+.feature:nth-child(odd) .phone {
+  transform: rotate(1.5deg);
+}
+
+.feature:nth-child(even) .phone {
+  transform: rotate(-1.5deg);
+}
 
 /* A phone with a piece of the app on its screen. */
 .phone {
@@ -3109,16 +3299,10 @@ dialog.tour {
   gap: 0.75rem;
   width: min(100%, 19.5rem);
   padding: 1.5rem 0.875rem 1.25rem;
-  border: 0.4375rem solid var(--ink);
-  border-radius: 2.5rem;
+  border: 3px solid var(--pen);
+  border-radius: 38px 44px 36px 46px / 44px 36px 46px 38px;
   background: var(--bg);
-  box-shadow: var(--shadow-lift);
-}
-
-@media (prefers-color-scheme: dark) {
-  .phone {
-    border-color: #3a2f27;
-  }
+  box-shadow: 0.5rem 0.625rem 0 var(--shadow-pen);
 }
 
 .phone > * {
@@ -3126,6 +3310,7 @@ dialog.tour {
 }
 
 .phone .overall {
+  margin-top: 0.75rem;
   margin-bottom: 0.5rem;
 }
 
@@ -3133,7 +3318,6 @@ dialog.tour {
   font-family: var(--display);
   font-size: 1.5rem;
   font-weight: 800;
-  font-stretch: 85%;
   line-height: 1.1;
 }
 
@@ -3185,7 +3369,7 @@ dialog.tour {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem 0.875rem;
-  border-radius: var(--radius);
+  border-radius: var(--radius-panel);
   background: var(--surface);
   box-shadow: var(--shadow);
 }
@@ -3253,13 +3437,39 @@ dialog.tour {
   margin-top: auto;
 }
 
-/* The coloured band: free, and open. */
+/* The coloured band: a big highlighter-yellow note saying it's free. */
 .home-band {
+  position: relative;
   margin-top: 4.5rem;
   padding: 2.5rem 1.5rem;
-  border-radius: 2rem;
-  color: var(--on-gold);
-  background: var(--gold);
+  border-radius: var(--radius-panel);
+  color: #1f2430;
+  background: #ffd43b;
+  box-shadow: var(--shadow-lift);
+  transform: rotate(-0.6deg);
+}
+
+.band-star,
+.band-sparkle {
+  position: absolute;
+  color: #1f2430;
+}
+
+.band-star {
+  top: -1.5rem;
+  right: 1.5rem;
+  width: 3.5rem;
+  transform: rotate(14deg);
+}
+
+.band-star path {
+  fill: #ffffff;
+}
+
+.band-sparkle {
+  right: 5.5rem;
+  bottom: 1.25rem;
+  width: 2.25rem;
 }
 
 .home-band p {
@@ -3277,10 +3487,10 @@ dialog.tour {
 
 .home-band .button {
   width: auto;
-  border-color: var(--ink);
-  color: var(--on-ink);
-  background: var(--ink);
-  box-shadow: none;
+  border-color: #1f2430;
+  color: #1f2430;
+  background: #ffffff;
+  box-shadow: 0.1875rem 0.25rem 0 #1f2430;
 }
 
 .band-link {
@@ -3291,14 +3501,6 @@ dialog.tour {
   color: inherit;
 }
 
-@media (prefers-color-scheme: dark) {
-  .home-band .button {
-    border-color: #2a1d16;
-    color: #f4eee6;
-    background: #2a1d16;
-  }
-}
-
 /* Questions: tap one to open its answer. */
 .home-faq {
   max-width: 44rem;
@@ -3306,10 +3508,11 @@ dialog.tour {
 }
 
 .home-faq details {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px dashed var(--border);
 }
 
 .home-faq summary {
+  font-family: var(--display);
   display: flex;
   align-items: center;
   justify-content: space-between;
