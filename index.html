@@ -4,20 +4,156 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Baantwise: a free app to split bills with roommates, friends and trips. No ads." />
-    <meta name="theme-color" content="#f4eee6" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)" />
+    <!-- The page colours: notebook paper, or the chalkboard in dark mode (--bg in src/index.css). -->
+    <meta name="theme-color" content="#fbf7ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1c2a26" media="(prefers-color-scheme: dark)" />
     <script>
       // Apply the look chosen in Profile before the page paints (see src/lib/palette.ts).
       try {
         var look = localStorage.getItem("baantwise-palette");
-        if (look === "teal") {
-          document.documentElement.dataset.palette = look;
-          var metas = document.querySelectorAll('meta[name="theme-color"]');
-          metas[0].content = "#eef3f1";
-          metas[1].content = "#0f1716";
-        }
+        if (look === "teal") document.documentElement.dataset.palette = look;
+        // The splash screen only animates the first time in this tab (see src/lib/splash.ts).
+        if (sessionStorage.getItem("baantwise-splash-seen")) document.documentElement.classList.add("splash-quick");
       } catch (e) {}
     </script>
+    <style>
+      /* The splash screen. These styles are here, not in index.css, so the splash can
+         show before the app's code and styles have loaded. src/lib/splash.ts adds
+         "named" (write the name in) and "done" (fade away). */
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: #1f2430;
+        background: #fbf7ee;
+        /* If the app's code never arrives, get out of the way after 8 seconds. */
+        animation: splash-bail 0.3s linear 8s forwards;
+      }
+      #splash.done {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease-out;
+      }
+      #splash svg {
+        overflow: visible;
+      }
+      #splash .draw {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: splash-draw 0.4s ease-out forwards;
+      }
+      #splash .draw.line {
+        animation-duration: 0.25s;
+        animation-delay: 0.3s;
+      }
+      #splash .paper {
+        fill-opacity: 0;
+        animation:
+          splash-draw 0.4s ease-out forwards,
+          splash-fill 0.2s linear 0.25s forwards;
+      }
+      #splash .half {
+        transform-box: fill-box;
+        transform-origin: 50% 0;
+        animation: splash-tear 0.3s cubic-bezier(0.3, 1.4, 0.5, 1) 0.55s forwards;
+      }
+      #splash .half.left {
+        --torn: translate(-9px, 3px) rotate(-7deg);
+      }
+      #splash .half.right {
+        --torn: translate(9px, 5px) rotate(6deg);
+      }
+      #splash .name {
+        margin: 0;
+        font-family: "Shantell Sans Variable", system-ui, sans-serif;
+        font-size: 2.25rem;
+        font-weight: 800;
+        font-variation-settings: "BNCE" 30, "INFM" 70;
+        line-height: 1.1;
+        clip-path: inset(0 100% 0 0);
+      }
+      #splash.named .name {
+        animation: splash-write 0.4s ease-out forwards;
+      }
+      #splash .under {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+      }
+      #splash.named .under {
+        animation: splash-draw 0.25s ease-out 0.3s forwards;
+      }
+      @keyframes splash-draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes splash-fill {
+        to {
+          fill-opacity: 1;
+        }
+      }
+      @keyframes splash-tear {
+        to {
+          transform: var(--torn);
+        }
+      }
+      @keyframes splash-write {
+        to {
+          clip-path: inset(0 -6% 0 0);
+        }
+      }
+      @keyframes splash-bail {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+      @media (prefers-color-scheme: dark) {
+        /* Chalk on the chalkboard. */
+        #splash {
+          color: #f3efe4;
+          background: #1c2a26;
+        }
+      }
+      /* Seen already in this tab: the finished picture straight away, no movement. */
+      .splash-quick #splash .draw,
+      .splash-quick #splash .paper,
+      .splash-quick #splash .under {
+        stroke-dashoffset: 0;
+        fill-opacity: 1;
+        animation: none;
+      }
+      .splash-quick #splash .half {
+        transform: var(--torn);
+        animation: none;
+      }
+      .splash-quick #splash .name {
+        clip-path: none;
+        animation: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash .draw,
+        #splash .paper,
+        #splash .under {
+          stroke-dashoffset: 0;
+          fill-opacity: 1;
+          animation: none;
+        }
+        #splash .half {
+          transform: var(--torn);
+          animation: none;
+        }
+        #splash .name {
+          clip-path: none;
+          animation: none;
+        }
+      }
+    </style>
     <!-- App icon and "add to home screen" (manifest.webmanifest; icons drawn from public/icon.svg). -->
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
@@ -28,6 +164,42 @@
     <title>Baantwise</title>
   </head>
   <body>
+    <!-- The splash screen: a receipt draws itself and tears in two, then the name is
+         written in. Shown while the app starts; src/lib/splash.ts takes it away. -->
+    <div id="splash" role="status" aria-label="Baantwise is loading">
+      <svg
+        viewBox="0 0 200 180"
+        width="190"
+        height="171"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <g class="half left">
+          <path class="draw paper" pathLength="1" fill="#ff9a4d" d="M100 28 L50 30 L52 148 l8 9 l8 -9 l8 9 l8 -9 l8 9 l8 -9 Z" />
+          <g stroke="#1f2430">
+            <path class="draw line" pathLength="1" d="M62 56 H90" />
+            <path class="draw line" pathLength="1" d="M62 76 H90" />
+            <path class="draw line" pathLength="1" d="M62 96 H82" />
+          </g>
+        </g>
+        <g class="half right">
+          <path class="draw paper" pathLength="1" fill="#ffd43b" d="M100 28 L150 29 L149 148 l-8 9 l-8 -9 l-8 9 l-8 -9 l-8 9 l-9 -9 Z" />
+          <g stroke="#1f2430">
+            <path class="draw line" pathLength="1" d="M110 56 H138" />
+            <path class="draw line" pathLength="1" d="M110 76 H138" />
+            <path class="draw line" pathLength="1" d="M118 96 H138" />
+          </g>
+        </g>
+      </svg>
+      <p class="name" aria-hidden="true">Baantwise</p>
+      <svg viewBox="0 0 200 16" width="150" height="12" preserveAspectRatio="none" fill="none" stroke="#ff9a4d" stroke-width="5" stroke-linecap="round" aria-hidden="true">
+        <path class="under" pathLength="1" d="M3 10 C 18 2, 34 15, 52 8 S 86 2, 106 9 S 144 14, 164 6 S 188 5, 197 9" />
+      </svg>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

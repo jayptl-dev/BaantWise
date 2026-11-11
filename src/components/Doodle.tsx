@@ -84,6 +84,11 @@ export function Arrow(props: Props) {
   );
 }
 
+// A big tick, the kind you put next to something that's done.
+export function Tick(props: Props) {
+  return <Stroke {...props} name="tick" viewBox="0 0 100 64" d={["M8 34 C 16 40, 22 50, 29 58 C 40 36, 62 14, 92 6"]} />;
+}
+
 // A five-point star done in one go, not quite closed.
 export function Star(props: Props) {
   return (

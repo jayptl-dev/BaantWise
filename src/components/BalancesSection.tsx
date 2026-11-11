@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { computeBalances, type Balances } from "../lib/balances";
 import { peopleById, type Visibility } from "../lib/expenses";
 import { formatCents } from "../lib/money";
@@ -6,7 +6,7 @@ import { sendReminder } from "../lib/reminders";
 import type { Feedback } from "../lib/useDbAction";
 import type { GroupData, Member } from "../lib/useGroup";
 import { Avatar } from "./Avatar";
-import { DoubleLine } from "./Doodle";
+import { DoubleLine, Sparkle, Tick } from "./Doodle";
 import { LockIcon } from "./LockIcon";
 import { SettleUpDialog } from "./SettleUpDialog";
 import { FeedbackLine } from "./Status";
@@ -171,8 +171,23 @@ export function BalancesSection({ data, me, feedback, onSaved }: BalancesSection
 // private balances together.
 function Overall({ cents }: { cents: number }) {
   const kind = cents > 0 ? "lent" : cents < 0 ? "owe" : "none";
+  // Did the balance reach zero while this page was open? Then the tick draws itself
+  // and a couple of sparkles pop; arriving already settled just shows the tick.
+  const before = useRef(cents);
+  const [justSettled, setJustSettled] = useState(false);
+  useEffect(() => {
+    if (before.current !== 0 && cents === 0) setJustSettled(true);
+    if (cents !== 0) setJustSettled(false);
+    before.current = cents;
+  }, [cents]);
   return (
-    <p className={`overall ${kind}`}>
+    <p className={`overall ${kind}${justSettled ? " just-settled" : ""}`}>
+      {cents === 0 && (
+        <>
+          <Tick key={justSettled ? "drawn" : "still"} className="settled-tick" draw={justSettled} />
+          {justSettled && <Sparkle className="settled-sparkle" />}
+        </>
+      )}
       <span className="overall-label">Overall</span>
       {/* One sentence for screen readers; the amount is its own big line on screen. */}
       <span className="overall-value">

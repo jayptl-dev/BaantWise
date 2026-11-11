@@ -7,6 +7,7 @@ import YourGroups from "./YourGroups";
 import { SiteFooter } from "../components/SiteFooter";
 import { BrandMark } from "../components/Brand";
 import { hueOf } from "../lib/format";
+import { useReveal } from "../lib/useReveal";
 import { Arrow, Coin, Loop, Sparkle, Squiggle, Star } from "../components/Doodle";
 import { HomeFeatures, HomeFree, HomeQuestions } from "../components/HomeSections";
 
@@ -38,8 +39,10 @@ const SLIP_SHARES = [
 function Landing() {
   // Just deleted your account in Profile.
   const deleted = useOneTimeNote((state) => (state as { accountDeleted?: boolean } | null)?.accountDeleted) === true;
+  // Pen strokes further down the page draw themselves when they scroll into view.
+  const page = useReveal<HTMLDivElement>();
   return (
-    <div className="home">
+    <div className="home" ref={page}>
       <header className="home-nav">
         <a href="#top" className="brand">
           <BrandMark />

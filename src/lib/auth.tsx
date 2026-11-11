@@ -1,3 +1,4 @@
+import { finishSplash } from "./splash";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   isAuthImplicitGrantRedirectError,
@@ -28,6 +29,10 @@ const AuthContext = createContext<Auth | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
+  // The splash screen (index.html) stays up until we know who is signed in.
+  useEffect(() => {
+    if (!checking) finishSplash();
+  }, [checking]);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {

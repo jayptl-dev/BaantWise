@@ -1,3 +1,4 @@
+import { stamp } from "./Stamp";
 import { useId, useState, type FormEvent } from "react";
 import type { Visibility } from "../lib/expenses";
 import { todayLocal } from "../lib/format";
@@ -97,6 +98,7 @@ export function SettleUpDialog({
       false,
     );
     if (!saved) return;
+    stamp(mode === "received" ? "Received" : "Paid");
     const amount = formatCents(cents);
     if (mode === "pay") onSaved(`Marked as paid: you paid ${to.display_name} ${amount}.`);
     else if (mode === "received") onSaved(`Marked as received: ${from.display_name} paid you ${amount}.`);

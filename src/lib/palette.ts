@@ -18,8 +18,9 @@ export const STORAGE_KEY = "baantwise-palette";
 
 // The colour the phone paints around the page (address bar, status bar), per look.
 const THEME_COLORS: Record<PaletteKey, { light: string; dark: string }> = {
-  autumn: { light: "#f4eee6", dark: "#17120f" },
-  teal: { light: "#eef3f1", dark: "#0f1716" },
+  // Both looks share the notebook page and the chalkboard (--bg in index.css).
+  autumn: { light: "#fbf7ee", dark: "#1c2a26" },
+  teal: { light: "#fbf7ee", dark: "#1c2a26" },
 };
 
 type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
