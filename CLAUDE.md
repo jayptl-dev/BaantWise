@@ -66,6 +66,7 @@ Put the full explanation in the commit message and the pull request description,
 - People and groups get a steady marker colour from their name: `hueOf` in `src/lib/format.ts` picks `.hue-0` … `.hue-5`.
 - The balance slip (`.overall`) is a taped-on sticky note: green when you're owed, yellow when you owe. Sticky notes and paper keep their light colours in dark mode.
 - The landing page (`Home.tsx` + `components/HomeSections.tsx`): a menu, the taped receipt whose shares tear off, four feature sections with a phone drawn from the app's own styles on a marker scribble, a yellow "free" note and questions. Keep every line true to what the app does; no invented reviews.
+- Motion: showy on the landing page, quick inside the app (nothing over about a third of a second that people must wait for), and all of it off under `prefers-reduced-motion`. Landing blocks with class `reveal` get `seen` when scrolled into view (`src/lib/useReveal.ts`): their `draw` strokes draw and marker scribbles colour in. In the app: tick boxes draw their tick, `stamp("Paid")` from `src/components/Stamp.tsx` thumps a rubber stamp after a payment is recorded (`StampHost` is in `AppLayout`), and the balance slip draws a green tick when the balance reaches zero while the page is open.
 - Don't use a CSS mask for edges (iPhone Safari painted it black).
 
 ## Looks (themes)

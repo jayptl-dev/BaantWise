@@ -5,6 +5,7 @@ import { hasSeenTour, markTourSeen, SHOW_TOUR_EVENT } from "../lib/tour";
 import { WelcomeTour } from "./WelcomeTour";
 import { Avatar } from "./Avatar";
 import { BrandLink } from "./Brand";
+import { StampHost } from "./Stamp";
 import { SiteFooter } from "./SiteFooter";
 import { FullPageLoading } from "./Status";
 import { SignInPage } from "./SignIn";
@@ -57,6 +58,7 @@ function AppHeader() {
 
   return (
     <>
+      <StampHost />
       <header className="app-header">
         <BrandLink />
         {user && (

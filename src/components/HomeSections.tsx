@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { hueOf } from "../lib/format";
-import { DoubleLine, Scribble, Sparkle, Star } from "./Doodle";
+import { DoubleLine, Scribble, Sparkle, Squiggle, Star } from "./Doodle";
 import { LockIcon } from "./LockIcon";
 
 // The rest of the landing page under the receipt: what Baantwise does (Google's sign-in
@@ -26,9 +26,10 @@ function Feature({
   children: ReactNode;
 }) {
   return (
-    <section className="feature">
+    <section className="feature reveal">
       <div className="feature-text">
         <h2>{title}</h2>
+        <Squiggle className="feature-rule" draw />
         <p className="feature-lead">{lead}</p>
         <ul className="feature-points">
           {points.map((point) => (
@@ -246,9 +247,9 @@ export function HomeFeatures() {
 // The coloured band: it's free, and the code is open.
 export function HomeFree() {
   return (
-    <section className="home-band" aria-labelledby="home-free-heading">
-      <Star className="band-star" />
-      <Sparkle className="band-sparkle" />
+    <section className="home-band reveal" aria-labelledby="home-free-heading">
+      <Star className="band-star" draw />
+      <Sparkle className="band-sparkle" draw />
       <h2 id="home-free-heading">Free for everyone. No ads.</h2>
       <p>
         There's no paid plan and nothing to buy. Baantwise is open source, so anyone can see exactly how it works.
@@ -267,8 +268,9 @@ export function HomeFree() {
 
 export function HomeQuestions() {
   return (
-    <section id="faq" className="home-faq" aria-labelledby="home-faq-heading">
+    <section id="faq" className="home-faq reveal" aria-labelledby="home-faq-heading">
       <h2 id="home-faq-heading">Questions people ask</h2>
+      <Squiggle className="feature-rule" draw />
       <details>
         <summary>Is Baantwise really free?</summary>
         <p>Yes. There are no ads and no paid plan.</p>
