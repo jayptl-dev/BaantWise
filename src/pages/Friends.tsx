@@ -1,3 +1,4 @@
+import { Avatar } from "../components/Avatar";
 import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { FeedbackLine, LoadError, Loading } from "../components/Status";
@@ -133,6 +134,7 @@ export default function Friends() {
           {state.friends.map((f) => (
             <li key={f.groupId}>
               <Link to={`/groups/${f.groupId}`} className="group-link">
+                <Avatar name={f.name} url={null} size={44} />
                 <span className="group-name">
                   {f.name}
                   {f.left && <span className="badge sample-badge">Removed you</span>}

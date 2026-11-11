@@ -1,34 +1,56 @@
 /* Mobile-first: base styles are for phones, the media query adds room on larger screens.
 
-   The look: a calm page with white panels, one main colour, and one bold moment, the
-   balance slip ("You're owed $54.86") at the top of each group. Lists are grouped into
-   one panel with hairlines between rows, not a stack of separate cards.
+   The look: pen and paper. Splitting a bill starts with someone scribbling sums on
+   the back of a receipt, so Baantwise looks hand-drawn: a dotted notebook page, pen
+   outlines with wobbly corners, sticker buttons with a hard shadow, highlighter,
+   sticky notes, and little pen strokes (src/components/Doodle.tsx). Dark mode is a
+   chalkboard. Words you read stay in a plain typeface so nothing gets hard to read.
 
-   Colours come in "looks" (src/lib/palette.ts). Autumn, below, is the default and
-   Baantwise's own look; other looks override the colour tokens with
-   :root[data-palette="..."], once for light and once for dark mode. Money keeps its
-   meaning in every look: --lent (you're owed) and --owe (you owe). */
+   Type: Shantell Sans (--display, a marker pen) for titles and money, Caveat
+   (--hand, a quick pen) for handwritten notes, Schibsted Grotesk for reading.
+   */
 :root {
-  --bg: #f4eee6; /* birch bark */
-  --surface: #fffdfa;
-  --text: #2a1d16; /* dark bark */
-  --muted: #6b5a4e;
-  --accent: #a3401a; /* rust, like oak leaves in October */
-  --accent-strong: #7e2f12;
+  --bg: #fbf7ee; /* notebook paper */
+  --dot: #d9d2c3; /* the dots printed on it */
+  --surface: #ffffff;
+  --text: #1f2430; /* pen ink */
+  --muted: #5c6270; /* pencil */
+  --pen: var(--text); /* outlines */
+  --shadow-pen: var(--text); /* the hard shadow under stickers and buttons */
+  --accent: #c2410c; /* orange marker: links and small accents */
+  --accent-strong: #9a3412;
   --on-accent: #ffffff;
-  --accent-shadow: rgb(126 47 18 / 0.25);
-  --lent: #2f6247; /* evergreen: money coming back to you */
+  --accent-shadow: rgb(194 65 12 / 0.25);
+  --pop: #ff9a4d; /* main buttons: bright, with ink writing on top */
+  --on-pop: #1f2430;
+  --lent: #1a7f4f; /* green pen: money coming back to you */
   --on-lent: #ffffff;
-  --border: #e3d6c8;
-  --line: #efe5da; /* hairlines between rows inside a panel */
-  --soft: #f7e3d2;
-  --owe: #b3261e; /* maple red: you owe */
-  --owe-soft: #fbe4df;
-  --danger: #b42318;
+  --border: #9a9fa9; /* pencil lines */
+  --line: #e6e1d5; /* faint rules between rows */
+  --soft: #ffe8d6;
+  --owe: #c92a2a; /* red pen: you owe */
+  --owe-soft: #ffe3e3;
+  --danger: #c92a2a;
   --on-danger: #ffffff;
-  --shadow: 0 1px 2px rgb(19 32 30 / 0.05), 0 6px 18px rgb(19 32 30 / 0.05);
-  --radius: 0.75rem; /* buttons and boxes you type in */
-  --radius-panel: 1.125rem; /* panels and lists */
+  --gold: #ffd43b; /* highlighter */
+  --on-gold: #1f2430;
+  --gold-soft: #fff3bf; /* a sticky note */
+  --ink: var(--text);
+  --on-ink: #fbf7ee;
+  /* A paper receipt stays paper in dark mode too. */
+  --paper: #fffdf6;
+  --paper-ink: #1f2430;
+  --paper-muted: #6b7080;
+  --paper-line: #c9c4b8;
+  /* Every panel is outlined in pen and lifted off the page a little. */
+  --shadow: 0 0 0 2px var(--pen), 0.1875rem 0.3125rem 0 2px var(--shadow-pen);
+  --shadow-lift: 0 0 0 2px var(--pen), 0.5rem 0.625rem 0 2px var(--shadow-pen);
+  /* Corners no ruler drew: each one a different curve. */
+  --radius: 14px 22px 12px 20px / 20px 12px 22px 14px; /* buttons and boxes you type in */
+  --radius-panel: 18px 26px 16px 28px / 26px 16px 28px 18px; /* panels and lists */
+  --radius-blob: 48% 52% 55% 45% / 52% 46% 54% 48%; /* faces and round buttons */
+  --display: "Shantell Sans Variable", "Schibsted Grotesk Variable", system-ui, sans-serif;
+  --hand: "Caveat Variable", "Shantell Sans Variable", cursive;
 
   color-scheme: light dark;
   font-family: "Schibsted Grotesk Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -37,65 +59,59 @@
   background: var(--bg);
 }
 
+/* Dark mode: a chalkboard. Chalk outlines, chalk colours. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #17120f;
-    --surface: #221b16;
-    --text: #f1e8df;
-    --muted: #b7a698;
-    --accent: #f0915a;
-    --accent-strong: #f6ad80;
+    --bg: #1c2a26;
+    --dot: #2f423c;
+    --surface: #25362f;
+    --text: #f3efe4; /* chalk */
+    --muted: #b3c0b9;
+    --shadow-pen: #0d1512;
+    --accent: #ffb27a;
+    --accent-strong: #ffc9a3;
     --on-accent: #2a130a;
     --accent-shadow: rgb(0 0 0 / 0.3);
-    --lent: #7fc39d;
+    --pop: #ffa45c;
+    --on-pop: #1f2430;
+    --lent: #8fe0ae;
     --on-lent: #0e2418;
-    --border: #3a2f27;
-    --line: #2e251f;
-    --soft: #3a2519;
-    --owe: #f58a7c;
-    --owe-soft: #3a1f1b;
-    --danger: #fda29b;
+    --border: #6c7d76;
+    --line: #34473f;
+    --soft: #4a3a2a;
+    --owe: #ff9d94;
+    --owe-soft: #4a2b28;
+    --danger: #ffa8a0;
     --on-danger: #1f0c0a;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    --gold: #ffe066;
+    --gold-soft: #4a4628;
+    --on-ink: #1c2a26;
   }
 }
 
-/* Teal: calm teal and cool grey. */
+/* Teal: the same notebook with a teal marker. */
 :root[data-palette="teal"] {
-  --bg: #eef3f1;
-  --surface: #ffffff;
-  --text: #13201e;
-  --muted: #56635f;
   --accent: #0b6e66;
   --accent-strong: #075a53;
-  --on-accent: #ffffff;
   --accent-shadow: rgb(7 90 83 / 0.25);
+  --pop: #63d3c4;
   --lent: #0b6e66;
-  --on-lent: #ffffff;
-  --border: #d5dfdb;
-  --line: #e6edea;
-  --soft: #dcefea;
+  --soft: #d9f2ed;
   --owe: #b4470a;
   --owe-soft: #fbeadd;
 }
 
 @media (prefers-color-scheme: dark) {
   :root[data-palette="teal"] {
-    --bg: #0f1716;
-    --surface: #18221f;
-    --text: #e6eeec;
-    --muted: #9fb0ac;
     --accent: #5fd4c4;
     --accent-strong: #84e3d6;
     --on-accent: #082522;
-    --accent-shadow: rgb(0 0 0 / 0.3);
+    --pop: #5fd4c4;
     --lent: #5fd4c4;
     --on-lent: #082522;
-    --border: #2b3835;
-    --line: #233030;
-    --soft: #1b3431;
+    --soft: #1f4640;
     --owe: #f5b04e;
-    --owe-soft: #33261a;
+    --owe-soft: #4a3a22;
   }
 }
 
@@ -105,13 +121,120 @@ h3 {
   letter-spacing: -0.015em;
 }
 
+/* Titles: the marker pen, with a bit of bounce in the letters. */
+h1,
+h2 {
+  font-family: var(--display);
+  font-variation-settings: "BNCE" 30, "INFM" 70;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Pen strokes (src/components/Doodle.tsx) ---------- */
+
+.doodle {
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.doodle path {
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Draws itself once, like someone adding it with a pen. */
+.doodle.draw path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: pen-draw 0.7s ease-out 0.5s forwards;
+}
+
+@keyframes pen-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doodle.draw path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
+
+/* A word with a pen line under it. */
+.inked {
+  position: relative;
+  display: inline-block;
+}
+
+.inked > .doodle {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: -0.18em;
+  width: 104%;
+  height: 0.28em;
+  color: var(--pop);
+}
+
+.inked > .doodle path {
+  stroke-width: 5;
+}
+
+/* A line of handwriting. */
+.hand-note {
+  margin: 0;
+  font-family: var(--hand);
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* A yellow sticky note, stuck on a little crooked. */
+.sticky-note {
+  position: relative;
+  transform: rotate(-0.8deg);
+}
+
+.sticky-note::before {
+  content: "";
+  position: absolute;
+  top: -0.625rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 1.25rem;
+  background: color-mix(in srgb, var(--pop) 55%, transparent);
+  transform: translateX(-50%) rotate(-3deg);
+}
+
+/* A colour per person or group (hueOf in src/lib/format.ts picks the number). Used
+   by initials and group tiles: a soft tint behind, the same colour darker on top. */
+.hue-0 { --h: #ff9a4d; } /* orange marker */
+.hue-1 { --h: #ffd43b; } /* highlighter */
+.hue-2 { --h: #69db7c; } /* green */
+.hue-3 { --h: #f783ac; } /* pink */
+.hue-4 { --h: #74c0fc; } /* blue */
+.hue-5 { --h: #b197fc; } /* purple */
+
+/* Coloured in with a marker, outlined in pen. */
+.avatar-initial,
+.group-tile {
+  border: 2px solid var(--pen);
+  color: #1f2430;
+  background: var(--h, var(--pop));
+}
+
 * {
   box-sizing: border-box;
 }
 
+/* The page: dotted notebook paper. */
 body {
   margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(var(--dot) 1.25px, transparent 1.5px) 0 0 / 1.5rem 1.5rem,
+    var(--bg);
 }
 
 /* ---------- Landing and other signed-out pages (centred on the screen) ---------- */
@@ -128,60 +251,52 @@ body {
   justify-content: center;
 }
 
-.landing h1 {
-  margin: 0 0 0.75rem;
-  font-size: 3.25rem;
-  font-weight: 850;
+/* The name with the mark beside it, on signed-out pages. */
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0 0 1.5rem;
+  font-size: 2rem;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.05em;
-  color: var(--accent);
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.brand-mark {
+  flex: none;
+  border-radius: 30% 34% 28% 36%;
+  box-shadow: 0 0 0 2px var(--pen), 2px 3px 0 2px var(--shadow-pen);
+  transform: rotate(-4deg);
 }
 
 .tagline {
   text-wrap: balance;
   margin: 0 0 1.75rem;
-  font-size: 1.375rem;
-  font-weight: 650;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
-}
-
-/* The example balance under the tagline: the same slip people see in a group. */
-.landing-sample {
-  margin: 0 0 2rem;
-}
-
-.landing-sample .overall {
-  margin-bottom: 0.5rem;
-}
-
-.sample-chip {
-  flex: none;
-  padding: 0.375rem 0.875rem;
-  border-radius: var(--radius);
-  font-size: 0.9375rem;
-  font-weight: 650;
-  color: var(--accent-strong);
-  background: var(--soft);
+  font-family: var(--display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
 /* The "your money stays with you" note under the tagline. */
 .trust-note {
-  margin: -0.75rem 0 1.75rem;
-  padding: 0.75rem 1rem;
-  border-left: 4px solid var(--lent);
-  border-radius: var(--radius);
-  background: var(--surface);
+  margin: 0 0 1.75rem;
+  padding: 1rem 1.125rem;
   line-height: 1.45;
+  color: #1f2430;
+  background: #fff3bf;
+  box-shadow: 0.25rem 0.375rem 0 rgb(0 0 0 / 0.18);
 }
 
-.name-note {
-  margin: 0;
-  color: var(--muted);
+.trust-note strong {
+  font-family: var(--display);
+  font-size: 1.0625rem;
 }
 
 .account {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   padding: 1.25rem;
   border-radius: var(--radius-panel);
   background: var(--surface);
@@ -248,11 +363,14 @@ body {
 .brand {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
   min-height: 2.75rem;
-  font-size: 1.25rem;
+  font-family: var(--display);
+  font-size: 1.4375rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--accent);
+  font-variation-settings: "BNCE" 30, "INFM" 70;
+  letter-spacing: -0.02em;
+  color: var(--text);
   text-decoration: none;
 }
 
@@ -260,6 +378,11 @@ body {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.header-account .text-button {
+  font-size: 0.9375rem;
+  color: var(--muted);
 }
 
 /* Your photo in the header: opens your profile. */
@@ -289,10 +412,9 @@ body {
 .page-title {
   text-wrap: balance;
   margin: 0 0 1rem;
-  font-size: 2rem;
+  font-size: 2.125rem;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  line-height: 1.05;
   overflow-wrap: anywhere;
 }
 
@@ -300,11 +422,17 @@ body {
   margin-top: 2rem;
 }
 
+/* Section titles get a wavy highlighter line under them. */
 .section h2,
 .empty h2 {
-  margin: 0 0 0.75rem;
-  font-size: 1.25rem;
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
   font-weight: 750;
+  line-height: 1.3;
+  text-decoration: underline wavy var(--gold);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+  text-decoration-skip-ink: none;
 }
 
 .section-actions {
@@ -326,8 +454,9 @@ body {
 .state,
 .empty {
   padding: 1.25rem;
-  border: 1px dashed var(--border);
+  border: 2px dashed var(--pen);
   border-radius: var(--radius-panel);
+  background: var(--gold-soft);
 }
 
 .state p:first-child,
@@ -387,11 +516,50 @@ button.back-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  min-height: 4rem;
+  gap: 0.875rem;
+  min-height: 4.5rem;
   padding: 0.75rem 1rem;
   color: inherit;
   text-decoration: none;
+}
+
+/* The group's first letter on its own colour. */
+.group-tile {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.875rem;
+  height: 2.875rem;
+  border-radius: 14px 18px 13px 19px / 18px 13px 19px 14px;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  transform: rotate(-3deg);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.group-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.group-link > .group-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.group-sub {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.chevron {
+  flex: none;
+  color: var(--muted);
+  opacity: 0.7;
 }
 
 .group-link:hover,
@@ -478,10 +646,11 @@ button.member-name {
 .badge {
   padding: 0.125rem 0.5rem;
   border-radius: 999px;
+  border: 1.5px solid var(--pen);
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent);
-  background: var(--soft);
+  font-weight: 650;
+  color: var(--on-gold);
+  background: var(--gold);
 }
 
 .member-menu {
@@ -509,41 +678,53 @@ button.member-name {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  color: var(--accent);
-  background: var(--soft);
+  border-radius: var(--radius-blob);
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 1;
 }
 
 /* ---------- Buttons ---------- */
 
 /* Full-width on phones for an easy tap target; shrinks to fit on wider screens. */
+/* Buttons are stickers: bright, outlined in pen, with a hard shadow. Pressing one
+   pushes it down onto the page. */
 .button {
   display: block;
   width: 100%;
   min-height: 3rem;
-  padding: 0.6875rem 1.25rem;
-  border: 1px solid var(--accent);
+  padding: 0.625rem 1.25rem;
+  border: 2px solid var(--pen);
   border-radius: var(--radius);
   font: inherit;
-  font-weight: 650;
+  font-family: var(--display);
+  font-weight: 700;
   text-align: center;
   text-decoration: none;
-  color: var(--on-accent);
-  background: var(--accent);
-  box-shadow: 0 1px 2px var(--accent-shadow);
+  color: var(--on-pop);
+  background: var(--pop);
+  box-shadow: 0.1875rem 0.25rem 0 var(--shadow-pen);
   cursor: pointer;
+}
+
+.button:active:not(:disabled) {
+  transform: translate(0.1875rem, 0.25rem);
+  box-shadow: none;
 }
 
 /* The quieter button: a soft tint, no outline. */
 .button.secondary {
-  border-color: transparent;
-  color: var(--accent-strong);
-  background: var(--soft);
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: 0.125rem 0.1875rem 0 var(--shadow-pen);
+}
+
+.button.secondary:active:not(:disabled) {
+  transform: translate(0.125rem, 0.1875rem);
   box-shadow: none;
 }
 
 .button.danger {
-  border-color: var(--danger);
   color: var(--on-danger);
   background: var(--danger);
 }
@@ -555,7 +736,7 @@ button.member-name {
 }
 
 .button:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.06);
 }
 
 .button:disabled {
@@ -602,14 +783,19 @@ button.member-name {
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius);
+  border: 2px solid var(--pen);
+  border-radius: var(--radius-blob);
   font-size: 1.25rem;
   line-height: 1;
   color: var(--text);
   background: var(--surface);
-  box-shadow: var(--shadow);
+  box-shadow: 0.125rem 0.1875rem 0 var(--shadow-pen);
   cursor: pointer;
+}
+
+.icon-button:active {
+  transform: translate(0.125rem, 0.1875rem);
+  box-shadow: none;
 }
 
 .icon-button:hover {
@@ -652,8 +838,8 @@ button.member-name:focus-visible {
   width: 100%;
   min-height: 2.75rem;
   margin-top: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
+  padding: 0.5rem 0.875rem;
+  border: 2px solid var(--pen);
   border-radius: var(--radius);
   font: inherit;
   font-size: 1rem; /* 16px or more stops phones from zooming in */
@@ -667,8 +853,9 @@ button.member-name:focus-visible {
 .field select:focus-visible,
 .money-input input:focus-visible,
 .choice input:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 1px;
+  border-color: var(--accent);
+  outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: 0;
 }
 
 .form-actions {
@@ -684,7 +871,7 @@ button.member-name:focus-visible {
 .feedback {
   margin: 0.75rem 0;
   padding: 0.625rem 0.875rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius);
   overflow-wrap: anywhere;
   background: var(--soft);
 }
@@ -702,14 +889,16 @@ button.member-name:focus-visible {
 dialog.confirm {
   width: min(28rem, calc(100vw - 2rem));
   padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border: 0;
+  border-radius: var(--radius-panel);
   color: var(--text);
   background: var(--bg);
+  box-shadow: var(--shadow-lift);
 }
 
 dialog.confirm::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(31 36 48 / 0.6);
+  backdrop-filter: blur(2px);
 }
 
 dialog.confirm p {
@@ -724,15 +913,17 @@ dialog.sheet {
   width: min(28rem, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border: 0;
+  border-radius: var(--radius-panel);
   color: var(--text);
   background: var(--bg);
+  box-shadow: var(--shadow-lift);
 }
 
 dialog.share-dialog::backdrop,
 dialog.sheet::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(31 36 48 / 0.6);
+  backdrop-filter: blur(2px);
 }
 
 .dialog-body {
@@ -741,7 +932,8 @@ dialog.sheet::backdrop {
 
 .dialog-body h2 {
   margin: 0 0 1rem;
-  font-size: 1.25rem;
+  font-size: 1.625rem;
+  line-height: 1.1;
   overflow-wrap: anywhere;
 }
 
@@ -799,17 +991,18 @@ dialog.sheet::backdrop {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 2px solid var(--pen);
+  border-radius: var(--radius-blob);
   font-size: 1.25rem;
   line-height: 1;
-  background: var(--bg);
+  background: var(--gold-soft);
 }
 
 .expense-icon.payment {
-  color: var(--accent);
-  background: var(--soft);
+  color: var(--lent);
+  background: color-mix(in srgb, var(--lent) 16%, var(--surface));
 }
 
 /* A payment in the list opens a pop-up, so it's a button that looks like the other rows. */
@@ -864,7 +1057,11 @@ button.expense-link {
 }
 
 .my-part strong {
-  font-size: 1.0625rem;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
 }
 
 .my-part.lent {
@@ -882,10 +1079,11 @@ button.expense-link {
 /* Details page */
 .expense-amount {
   margin: 0;
-  font-size: 2.5rem;
+  font-family: var(--display);
+  font-size: 3.5rem;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .expense-paid {
@@ -902,7 +1100,7 @@ button.expense-link {
   border-radius: 999px;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-strong);
   background: var(--soft);
   overflow-wrap: anywhere;
 }
@@ -928,22 +1126,38 @@ button.expense-link {
   background: var(--surface);
 }
 
+/* The split on an expense's page: a paper receipt outlined in pen, with dotted
+   leaders running from each name to its amount. */
 .share-list {
-  padding: 0 1rem;
+  padding: 0.5rem 1.25rem;
   border-radius: var(--radius-panel);
-  background: var(--surface);
+  color: var(--paper-ink);
+  background: var(--paper);
   box-shadow: var(--shadow);
+  transform: rotate(0.4deg);
 }
 
 .share-list li {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 0;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.625rem 0;
 }
 
-.share-list li + li {
-  border-top: 1px solid var(--line);
+.share-list li::after {
+  content: "";
+  order: 1;
+  flex: 1;
+  min-width: 1rem;
+  border-bottom: 2px dotted var(--paper-line);
+}
+
+.share-list li > span:last-child {
+  order: 2;
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .share-name {
@@ -1189,11 +1403,11 @@ button.expense-link {
   width: 2.75rem;
   min-height: 2.75rem;
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius);
   font-size: 1.375rem;
   line-height: 1;
-  background: var(--surface);
+  background: var(--gold-soft);
   cursor: pointer;
 }
 
@@ -1214,15 +1428,15 @@ dialog.category-picker {
   max-height: calc(100dvh - 2rem);
   margin: auto 0 0;
   padding: 0;
-  border: 1px solid var(--border);
-  border-bottom: 0;
-  border-radius: 0.75rem 0.75rem 0 0;
+  border: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
   color: var(--text);
   background: var(--bg);
 }
 
 dialog.category-picker::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(31 36 48 / 0.6);
+  backdrop-filter: blur(2px);
 }
 
 .category-picker .dialog-body {
@@ -1392,64 +1606,93 @@ dialog.photo-overlay::backdrop {
 
 /* ---------- Balances and payments ---------- */
 
-/* The balance slip: the one bold thing on the page. Solid teal when you're owed,
-   a warm tint when you owe, quiet when you're settled. The notched bottom edge is a
-   torn-off receipt, because that's where every split starts. */
+/* The balance slip: the one bold thing on the page. A big sticky note, taped on a
+   little crooked: green when you're owed, highlighter yellow when you owe, plain
+   paper when you're settled. The amount is underlined twice in pen. */
 .overall {
   --slip-bg: var(--surface);
   --slip-text: var(--text);
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
-  margin: 0 0 1.25rem;
-  padding: 1.125rem 1.25rem 1.5rem;
-  border-radius: var(--radius-panel) var(--radius-panel) 0.25rem 0.25rem;
+  margin: 0.5rem 0 1.75rem;
+  padding: 1.125rem 1.25rem 1.375rem;
+  border-radius: var(--radius-panel);
   color: var(--slip-text);
   background: var(--slip-bg);
+  box-shadow: var(--shadow);
+  transform: rotate(-0.8deg);
 }
 
-/* The torn edge: little half-circles in the page colour along the bottom. Drawn on
-   top rather than cut out with a CSS mask, which iPhone Safari sometimes paints
-   solid black. */
-.overall::after {
+/* The strip of tape holding it on. */
+.overall::before {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: calc(0.4rem + 1px);
-  background: radial-gradient(circle 0.4rem at 50% 100%, var(--bg) 97%, transparent 100%) 50% 100% / 1.05rem 100%
-    repeat-x;
-  pointer-events: none;
+  top: -0.75rem;
+  left: 50%;
+  width: 5.5rem;
+  height: 1.5rem;
+  border-inline: 2px dotted rgb(31 36 48 / 0.25);
+  background: color-mix(in srgb, var(--pop) 60%, transparent);
+  transform: translateX(-50%) rotate(2.5deg);
 }
 
 .overall-label {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 2px dashed color-mix(in srgb, currentColor 35%, transparent);
   font-size: 0.9375rem;
   font-weight: 600;
-  opacity: 0.8;
 }
 
 .overall-value {
-  font-size: 2rem;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.overall-amount {
+  align-self: flex-start;
+  position: relative;
+  padding-bottom: 0.75rem;
+  font-family: var(--display);
+  font-size: 3.5rem;
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  font-variation-settings: "BNCE" 40, "INFM" 80;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.overall-amount .doodle {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0.75rem;
+}
+
+.overall.none .overall-value {
+  font-family: var(--display);
+  font-size: 1.75rem;
+  font-weight: 750;
 }
 
 .overall.lent {
-  --slip-bg: var(--lent);
-  --slip-text: var(--on-lent);
+  --slip-bg: #8ce99a;
+  --slip-text: #1f2430;
 }
 
 .overall.owe {
-  --slip-bg: var(--owe-soft);
-  --slip-text: var(--owe);
+  --slip-bg: #ffd43b;
+  --slip-text: #1f2430;
 }
 
 .section h3.balance-heading {
-  margin: 1.25rem 0 0.25rem;
+  margin: 1.25rem 0 0.375rem;
   font-size: 1rem;
+  color: var(--muted);
 }
 
 .balance-heading.private-note {
@@ -1464,9 +1707,10 @@ dialog.photo-overlay::backdrop {
 
 .balance-row {
   display: flex;
+  flex-wrap: wrap; /* two buttons don't fit beside a long line on a phone: they go underneath */
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  justify-content: flex-end;
+  gap: 0.5rem 0.75rem;
   min-height: 3.75rem;
   padding: 0.5rem 1rem;
 }
@@ -1476,14 +1720,23 @@ dialog.photo-overlay::backdrop {
 }
 
 .balance-text {
+  flex: 1 1 9.5rem;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.balance-text strong {
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .balance-row .balance-button {
   flex: none;
   width: auto;
-  padding-inline: 0.875rem;
+  min-height: 2.5rem;
+  padding: 0.25rem 0.875rem;
 }
 
 /* The pay box */
@@ -1502,8 +1755,10 @@ dialog.photo-overlay::backdrop {
 
 .pay-option {
   padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border: 0;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow);
   background: var(--surface);
 }
 
@@ -1614,14 +1869,6 @@ dialog.photo-overlay::backdrop {
 }
 
 @media (min-width: 640px) {
-  .landing h1 {
-    font-size: 3.5rem;
-  }
-
-  .tagline {
-    font-size: 1.5rem;
-  }
-
   .button {
     display: inline-block;
     width: auto;
@@ -2217,43 +2464,14 @@ p.scan-box {
   margin-top: 0.25rem;
 }
 
-/* Landing: what Baantwise does (Google's sign-in review needs this on the home page). */
-.landing-features {
-  margin: 0 0 1.5rem;
-  padding: 0;
-  list-style: none;
-  line-height: 1.5;
-}
-
-/* A small teal tick before each line. */
-.landing-features li {
-  position: relative;
-  padding-left: 1.75rem;
-}
-
-.landing-features li::before {
-  content: "";
-  position: absolute;
-  left: 0.125rem;
-  top: 0.4em;
-  width: 1rem;
-  height: 0.5rem;
-  border-left: 2.5px solid var(--accent);
-  border-bottom: 2.5px solid var(--accent);
-  transform: rotate(-45deg) scale(0.8);
-}
-
-.landing-features li + li {
-  margin-top: 0.625rem;
-}
-
 /* The expense's amount: the biggest thing on the form. */
 .money-input.amount-input input {
-  min-height: 3.5rem;
-  padding-left: 2.125rem;
-  font-size: 1.625rem;
+  min-height: 4rem;
+  padding-left: 2.375rem;
+  font-family: var(--display);
+  font-size: 2.25rem;
   font-weight: 750;
-  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .money-input.amount-input input.no-prefix {
@@ -2262,7 +2480,8 @@ p.scan-box {
 
 .money-input.amount-input > span {
   left: 0.875rem;
-  font-size: 1.625rem;
+  font-family: var(--display);
+  font-size: 2.25rem;
   font-weight: 750;
 }
 
@@ -2301,7 +2520,7 @@ p.scan-box {
   outline-offset: 2px;
 }
 
-/* Three dots of each look's colours: background, main colour, "you're owed". */
+/* Four dots of each look's colours: background, main colour, gold, "you're owed". */
 .look-swatch {
   flex: none;
   display: inline-flex;
@@ -2319,11 +2538,13 @@ p.scan-box {
 }
 
 .look-swatch.autumn span:nth-child(1) { background: #f4eee6; box-shadow: inset 0 0 0 1px #e3d6c8; }
-.look-swatch.autumn span:nth-child(2) { background: #a3401a; }
-.look-swatch.autumn span:nth-child(3) { background: #2f6247; }
+.look-swatch.autumn span:nth-child(2) { background: #ff9a4d; }
+.look-swatch.autumn span:nth-child(3) { background: #ffd43b; }
+.look-swatch.autumn span:nth-child(4) { background: #1a7f4f; }
 .look-swatch.teal span:nth-child(1) { background: #eef3f1; box-shadow: inset 0 0 0 1px #d5dfdb; }
-.look-swatch.teal span:nth-child(2) { background: #0b6e66; }
-.look-swatch.teal span:nth-child(3) { background: #b4470a; }
+.look-swatch.teal span:nth-child(2) { background: #63d3c4; }
+.look-swatch.teal span:nth-child(3) { background: #ffd43b; }
+.look-swatch.teal span:nth-child(4) { background: #b4470a; }
 
 .look-text {
   display: flex;
@@ -2381,14 +2602,13 @@ dialog.tour {
   border-radius: 1.25rem;
   font-size: 2.25rem;
   line-height: 1;
-  background: var(--soft);
+  background: var(--gold-soft);
 }
 
 .tour .dialog-body h2 {
   margin-bottom: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.875rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .tour-text {
@@ -2429,15 +2649,22 @@ dialog.tour {
 /* ---------- Sample groups ---------- */
 
 .sample-offer {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   padding: 1.25rem;
-  border: 1.5px dashed var(--border);
+  border: 2px dashed var(--pen);
   border-radius: var(--radius-panel);
+  background: var(--gold-soft);
+  transform: rotate(0.5deg);
 }
 
 .sample-offer h2 {
   margin: 0 0 0.25rem;
-  font-size: 1.125rem;
+  font-size: 1.375rem;
+}
+
+.sample-offer .button.secondary {
+  color: var(--on-gold);
+  background: var(--gold);
 }
 
 .sample-offer p {
@@ -2456,7 +2683,7 @@ dialog.tour {
   border-radius: var(--radius-panel);
   font-size: 0.9375rem;
   line-height: 1.5;
-  background: var(--soft);
+  background: var(--gold-soft);
 }
 
 .sample-intro {
@@ -2535,4 +2762,824 @@ dialog.tour {
 
 .shared-note {
   margin: -0.5rem 0 0.75rem;
+}
+
+/* ---------- Home (the landing page) ---------- */
+
+/* Phones: the pitch, then the receipt on its table, then what Baantwise does.
+   Wide screens: pitch on the left, table on the right. */
+.home {
+  width: 100%;
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  scroll-behavior: smooth;
+}
+
+/* The menu across the top: stays in view while you scroll. */
+.home-nav {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 4rem;
+  margin: 0 -1.25rem 1.25rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 2px dashed var(--border);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.home-nav nav {
+  display: none;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
+.home-nav nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.home-nav nav a:hover {
+  color: var(--accent);
+}
+
+.home-nav nav a:focus-visible,
+.band-link:focus-visible,
+.home-faq summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.home-nav .nav-signin {
+  width: auto;
+  min-height: 2.5rem;
+  margin-left: auto;
+  padding: 0.375rem 1.125rem;
+}
+
+/* The page's sections stop a little below the menu when you jump to them. */
+.home [id] {
+  scroll-margin-top: 5rem;
+}
+
+.home-top {
+  display: grid;
+  grid-template-areas: "intro" "table" "action";
+  gap: 1.5rem;
+}
+
+.home-intro {
+  grid-area: intro;
+}
+
+.home-action {
+  grid-area: action;
+}
+
+.home-headline {
+  text-wrap: balance;
+  margin: 0 0 0.875rem;
+  font-family: var(--display);
+  font-size: clamp(2.5rem, 10.5vw, 3.75rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+/* "Free, with no ads." in handwriting, with a loop drawn round it. */
+.home-free {
+  position: relative;
+  display: inline-block;
+  margin: 0.25rem 0 0 0.5rem;
+  padding: 0.5rem 1.25rem;
+  font-family: var(--hand);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  transform: rotate(-2deg);
+}
+
+.home-free .doodle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--accent);
+}
+
+.home .trust-note {
+  max-width: 34rem;
+}
+
+.home .account {
+  max-width: 34rem;
+  margin-top: 0;
+}
+
+/* The receipt, lying on the notebook page with doodles round it. */
+.home-table {
+  grid-area: table;
+  position: relative;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: min(100%, 26rem);
+  margin: 0;
+  padding: 2rem 0.5rem 5rem;
+}
+
+.table-star,
+.table-coin,
+.table-sparkle {
+  position: absolute;
+}
+
+.table-star {
+  top: -1rem;
+  right: -0.5rem;
+  z-index: 2;
+  width: 3.25rem;
+  color: var(--gold);
+  transform: rotate(12deg);
+}
+
+.table-star path {
+  fill: var(--gold);
+  stroke: var(--pen);
+}
+
+.table-coin {
+  left: 0.25rem;
+  bottom: 0.75rem;
+  width: 3rem;
+  color: var(--pen);
+  transform: rotate(-14deg);
+}
+
+.table-coin path:first-child {
+  fill: var(--gold);
+}
+
+.table-sparkle {
+  top: 34%;
+  left: 1%;
+  width: 2rem;
+  color: var(--accent);
+}
+
+.table-note {
+  position: absolute;
+  right: 4%;
+  bottom: 0.75rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  color: var(--accent);
+  transform: rotate(-4deg);
+}
+
+.table-note .doodle {
+  width: 3.25rem;
+  transform: scaleY(-1) rotate(200deg);
+}
+
+/* The receipt. It has no background of its own: every part is its own piece of paper,
+   so the three shares at the bottom can come away from it. */
+.slip {
+  position: relative;
+  width: min(84%, 21rem);
+  color: var(--paper-ink);
+  transform: rotate(-2deg);
+  filter: drop-shadow(0 0 0 var(--pen)) drop-shadow(0.3rem 0.4rem 0 rgb(0 0 0 / 0.22));
+}
+
+/* Tape across the top corners. */
+.slip::before,
+.slip::after {
+  content: "";
+  position: absolute;
+  top: -0.625rem;
+  z-index: 1;
+  width: 4.25rem;
+  height: 1.375rem;
+  padding: 0;
+  background: color-mix(in srgb, var(--pop) 65%, transparent);
+}
+
+.slip::before {
+  left: -1.25rem;
+  transform: rotate(-32deg);
+}
+
+.slip::after {
+  right: -1.25rem;
+  transform: rotate(28deg);
+}
+
+.slip > * {
+  margin: 0;
+  padding: 0 1.25rem;
+  border-inline: 2px solid #1f2430;
+  background: var(--paper);
+}
+
+.slip-title {
+  padding-top: 1.375rem;
+  border-top: 2px solid #1f2430;
+  border-radius: 0.375rem 0.375rem 0 0;
+  font-variation-settings: "BNCE" 30, "INFM" 70;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.slip-sub {
+  padding-bottom: 0.75rem;
+  font-size: 0.9375rem;
+  text-align: center;
+  color: var(--paper-muted);
+}
+
+.slip-lines {
+  list-style: none;
+}
+
+.slip-lines li,
+.slip-total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-block: 0.4375rem;
+}
+
+/* Dotted leaders from each bill to its amount. */
+.slip-lines li::after {
+  content: "";
+  order: 1;
+  flex: 1;
+  border-bottom: 2px dotted var(--paper-line);
+}
+
+.slip-lines .slip-amount {
+  order: 2;
+}
+
+.slip-emoji {
+  display: inline-block;
+  width: 1.75rem;
+}
+
+.slip-amount {
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.slip .slip-total {
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-weight: 700;
+  /* A double rule above the total, like a till receipt. */
+  background:
+    linear-gradient(var(--paper-ink), var(--paper-ink)) 1.25rem 0.25rem / calc(100% - 2.5rem) 1.5px no-repeat,
+    linear-gradient(var(--paper-ink), var(--paper-ink)) 1.25rem 0.5rem / calc(100% - 2.5rem) 1.5px no-repeat,
+    var(--paper);
+}
+
+.slip-total .slip-amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+/* The perforation the shares tear along. */
+.slip .slip-cut {
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
+  font-family: var(--hand);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--paper-muted);
+}
+
+.slip .slip-stubs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  list-style: none;
+  background: none;
+}
+
+/* One share each. They start joined to the receipt, then come away one by one. */
+.slip-stub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.875rem 0.25rem 1rem;
+  border: 2px solid #1f2430;
+  border-top-style: dashed;
+  border-radius: 0 0 0.5rem 0.375rem;
+  font-size: 0.9375rem;
+  background: var(--paper);
+  transform-origin: 50% 0;
+  transform: var(--torn);
+  animation: tear-off 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) backwards;
+}
+
+.slip-stub .avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.25rem;
+  border-radius: 50%;
+  font-size: 1.0625rem;
+  border-color: #1f2430;
+}
+
+.stub-0 {
+  --torn: translate(-0.375rem, 0.75rem) rotate(-5deg);
+  animation-delay: 0.7s;
+}
+
+.stub-1 {
+  --torn: translateY(1.375rem) rotate(1.5deg);
+  animation-delay: 0.95s;
+}
+
+.stub-2 {
+  --torn: translate(0.375rem, 0.625rem) rotate(6deg);
+  animation-delay: 1.2s;
+}
+
+@keyframes tear-off {
+  from {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slip-stub {
+    animation: none;
+  }
+}
+
+.feature-emoji {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 2px solid var(--pen);
+  border-radius: var(--radius-blob);
+  font-size: 1.25rem;
+  line-height: 1;
+  background: var(--surface);
+}
+
+.feature-points li:nth-child(odd) .feature-emoji {
+  transform: rotate(-5deg);
+}
+
+.feature-points li:nth-child(even) .feature-emoji {
+  transform: rotate(4deg);
+}
+
+.name-hindi {
+  font-family: "Kalam", var(--display);
+  font-weight: 700;
+  color: var(--text);
+}
+
+@media (min-width: 60rem) {
+  .home-nav nav {
+    display: flex;
+  }
+
+  .home-nav .nav-signin {
+    margin-left: 0;
+  }
+
+  .home-top {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-areas: "intro table" "action table";
+    grid-template-rows: 1fr 1fr;
+    gap: 2rem 3.5rem;
+  }
+
+  .home-intro {
+    align-self: end;
+  }
+
+  .home-action {
+    align-self: start;
+  }
+
+  .home-table {
+    align-self: center;
+    grid-row: 1 / -1;
+  }
+
+  .table-star {
+    width: 4.5rem;
+  }
+
+}
+
+/* ---------- Home: what Baantwise does ---------- */
+
+.features {
+  display: grid;
+  gap: 4rem;
+  margin-top: 4.5rem;
+}
+
+/* One feature: the words, then a phone on a coloured stage. */
+.feature {
+  display: grid;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+.feature h2,
+.home-band h2,
+.home-faq h2 {
+  text-wrap: balance;
+  margin: 0 0 0.75rem;
+  font-size: clamp(2.125rem, 8vw, 3rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.feature-lead {
+  max-width: 34rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.125rem;
+  color: var(--muted);
+}
+
+.feature-points {
+  display: grid;
+  gap: 1rem;
+  max-width: 34rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  line-height: 1.45;
+}
+
+.feature-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+/* The phone sits on a patch scribbled in with a marker. */
+.feature-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 2.25rem 1rem;
+}
+
+.feature-stage > .doodle-scribble {
+  position: absolute;
+  inset: 0.5rem 0;
+  width: 100%;
+  height: calc(100% - 1rem);
+}
+
+.feature-stage > .doodle-scribble path {
+  stroke-width: 26;
+  opacity: 0.85;
+}
+
+.stage-green { color: #8ce99a; }
+.stage-gold { color: #ffd43b; }
+.stage-rust { color: #ffa86b; }
+.stage-plum { color: #f7a8c4; }
+
+@media (prefers-color-scheme: dark) {
+  .feature-stage > .doodle-scribble path {
+    opacity: 0.45;
+  }
+}
+
+.feature-stage > .phone {
+  position: relative;
+  color: var(--text);
+}
+
+.feature:nth-child(odd) .phone {
+  transform: rotate(1.5deg);
+}
+
+.feature:nth-child(even) .phone {
+  transform: rotate(-1.5deg);
+}
+
+/* A phone with a piece of the app on its screen. */
+.phone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(100%, 19.5rem);
+  padding: 1.5rem 0.875rem 1.25rem;
+  border: 3px solid var(--pen);
+  border-radius: 38px 44px 36px 46px / 44px 36px 46px 38px;
+  background: var(--bg);
+  box-shadow: 0.5rem 0.625rem 0 var(--shadow-pen);
+}
+
+.phone > * {
+  margin: 0;
+}
+
+.phone .overall {
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.phone-title {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.phone-step,
+.phone-heading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.phone .balance-button {
+  display: inline-flex;
+  align-items: center;
+}
+
+.phone .balance-row {
+  padding-inline: 0.75rem;
+}
+
+.phone .balance-text {
+  flex-basis: 5rem;
+  font-size: 0.9375rem;
+}
+
+.phone .expense-sub,
+.phone .private-note {
+  font-size: 0.8125rem;
+}
+
+.phone .my-part strong {
+  font-size: 1.125rem;
+}
+
+.phone .expense-link {
+  padding-inline: 0.75rem;
+  gap: 0.625rem;
+}
+
+.phone .avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1rem;
+}
+
+/* The item being shared out, and who's ticked for it. */
+.phone-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.phone-printed {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.phone-price,
+.phone-total {
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.phone-people {
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.phone-people li {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 3.25rem;
+  padding: 0 0.875rem;
+}
+
+.phone-people li + li {
+  border-top: 1px solid var(--line);
+}
+
+.phone-person {
+  flex: 1;
+}
+
+.phone-total {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.phone-tick {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--border);
+  border-radius: 0.3125rem;
+}
+
+.phone-tick.on {
+  border-color: var(--accent);
+  /* A white tick drawn with two gradients on the accent colour. */
+  background:
+    linear-gradient(45deg, transparent 44%, var(--on-accent) 44% 56%, transparent 56%) 15% 70% / 45% 45% no-repeat,
+    linear-gradient(-45deg, transparent 44%, var(--on-accent) 44% 56%, transparent 56%) 85% 45% / 65% 65% no-repeat,
+    var(--accent);
+}
+
+.phone > .button {
+  margin-top: auto;
+}
+
+/* The coloured band: a big highlighter-yellow note saying it's free. */
+.home-band {
+  position: relative;
+  margin-top: 4.5rem;
+  padding: 2.5rem 1.5rem;
+  border-radius: var(--radius-panel);
+  color: #1f2430;
+  background: #ffd43b;
+  box-shadow: var(--shadow-lift);
+  transform: rotate(-0.6deg);
+}
+
+.band-star,
+.band-sparkle {
+  position: absolute;
+  color: #1f2430;
+}
+
+.band-star {
+  top: -1.5rem;
+  right: 1.5rem;
+  width: 3.5rem;
+  transform: rotate(14deg);
+}
+
+.band-star path {
+  fill: #ffffff;
+}
+
+.band-sparkle {
+  right: 5.5rem;
+  bottom: 1.25rem;
+  width: 2.25rem;
+}
+
+.home-band p {
+  max-width: 36rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.125rem;
+}
+
+.home-band-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.home-band .button {
+  width: auto;
+  border-color: #1f2430;
+  color: #1f2430;
+  background: #ffffff;
+  box-shadow: 0.1875rem 0.25rem 0 #1f2430;
+}
+
+.band-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 650;
+  color: inherit;
+}
+
+/* Questions: tap one to open its answer. */
+.home-faq {
+  max-width: 44rem;
+  margin: 4.5rem auto 0;
+}
+
+.home-faq details {
+  border-bottom: 2px dashed var(--border);
+}
+
+.home-faq summary {
+  font-family: var(--display);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.75rem;
+  padding: 0.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  list-style: none;
+  cursor: pointer;
+}
+
+.home-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A plus that turns into a minus when the answer is open. */
+.home-faq summary::after {
+  content: "";
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  background:
+    linear-gradient(var(--accent), var(--accent)) 50% 50% / 100% 2px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 50% 50% / 2px 100% no-repeat;
+}
+
+.home-faq details[open] summary::after {
+  background: linear-gradient(var(--accent), var(--accent)) 50% 50% / 100% 2px no-repeat;
+}
+
+.home-faq details p {
+  margin: 0 0 1.25rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.home-faq a {
+  color: var(--accent);
+}
+
+@media (min-width: 60rem) {
+  .features {
+    gap: 6rem;
+    margin-top: 6rem;
+  }
+
+  .feature {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  /* Every second feature: the phone on the left. */
+  .feature:nth-child(even) .feature-stage {
+    order: -1;
+  }
+
+  .feature-stage {
+    padding: 3rem 1rem;
+  }
+
+  .home-band {
+    margin-top: 6rem;
+    padding: 3.5rem;
+  }
+
+  .home-faq {
+    margin-top: 6rem;
+  }
 }

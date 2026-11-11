@@ -1,3 +1,4 @@
+import { BrandLink } from "../components/Brand";
 import { Link } from "react-router";
 import { SiteFooter } from "../components/SiteFooter";
 
@@ -12,9 +13,7 @@ export default function Privacy() {
   return (
     <div className="app legal-page">
       <header className="app-header">
-        <Link to="/" className="brand">
-          Baantwise
-        </Link>
+        <BrandLink />
       </header>
       <main className="legal">
         <h1>Privacy policy</h1>

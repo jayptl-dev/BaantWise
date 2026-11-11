@@ -57,9 +57,20 @@ Put the full explanation in the commit message and the pull request description,
 - The privacy policy (`src/pages/Privacy.tsx`, /privacy) describes what the app collects, reads, keeps and shares. When a change affects any of that, update the page and its date.
 - After a database change, regenerate `src/lib/database.types.ts` (Supabase connector `generate_typescript_types`) so the types match.
 
+## Design (the look of the screens)
+
+- The idea: pen and paper (Jay's direction: splitting a bill starts with scribbling on paper). A dotted notebook page, pen outlines with wobbly corners, sticker buttons with a hard shadow, highlighter, sticky notes and tape. Dark mode is a chalkboard.
+- How it's done in `src/index.css`: `--shadow` IS the pen outline plus hard shadow, so any panel with `box-shadow: var(--shadow)` gets it; `--radius`, `--radius-panel` and `--radius-blob` are uneven on purpose (they contain a `/`, so never combine them with other values in one `border-radius`); `--pen` is the outline colour and `--pop` the bright button colour with ink writing (`--on-pop`).
+- Pen strokes are small SVGs in `src/components/Doodle.tsx` (Squiggle, DoubleLine, Loop, Arrow, Star, Sparkle, Coin, Scribble). `draw` makes one draw itself once. Section titles use a CSS wavy underline.
+- Type: Shantell Sans (`--display`) for titles and money, Caveat (`--hand`) for handwritten notes, Schibsted Grotesk for everything you read. Keep body text out of the handwriting fonts so it stays readable.
+- People and groups get a steady marker colour from their name: `hueOf` in `src/lib/format.ts` picks `.hue-0` … `.hue-5`.
+- The balance slip (`.overall`) is a taped-on sticky note: green when you're owed, yellow when you owe. Sticky notes and paper keep their light colours in dark mode.
+- The landing page (`Home.tsx` + `components/HomeSections.tsx`): a menu, the taped receipt whose shares tear off, four feature sections with a phone drawn from the app's own styles on a marker scribble, a yellow "free" note and questions. Keep every line true to what the app does; no invented reviews.
+- Don't use a CSS mask for edges (iPhone Safari painted it black).
+
 ## Looks (themes)
 
-- Colours are tokens in `src/index.css`. Autumn (rust, evergreen, birch) is the default `:root`; other looks override the tokens under `:root[data-palette="<key>"]`, once for light and once inside the dark-mode block. Money keeps its meaning in every look: `--lent` (you're owed) and `--owe` (you owe).
+- Colours are tokens in `src/index.css`. Autumn (orange marker, highlighter, green pen on notebook paper) is the default `:root`; other looks override the tokens under `:root[data-palette="<key>"]`, once for light and once inside the dark-mode block. Money keeps its meaning in every look: `--lent` (you're owed) and `--owe` (you owe).
 - `src/lib/palette.ts` lists the looks; Profile → Look (`LookSection`) saves the choice in this browser only (`localStorage` key `baantwise-palette`). The small script in `index.html` applies it before the page paints, so a new look must be added there too.
 - Planned: seasonal looks, and a "Seasonal" choice that switches by itself.
 

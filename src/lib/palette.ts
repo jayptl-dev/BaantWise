@@ -7,8 +7,8 @@
 // paints, so keep STORAGE_KEY and the attribute name in step with the script there.
 
 export const PALETTES = [
-  { key: "autumn", label: "Autumn", note: "Rust, evergreen and birch. The Baantwise look." },
-  { key: "teal", label: "Teal", note: "Calm teal and cool grey." },
+  { key: "autumn", label: "Autumn", note: "Orange marker and highlighter on notebook paper. The Baantwise look." },
+  { key: "teal", label: "Teal", note: "The same notebook with a teal marker." },
 ] as const;
 
 export type PaletteKey = (typeof PALETTES)[number]["key"];

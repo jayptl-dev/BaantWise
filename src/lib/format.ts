@@ -13,6 +13,16 @@ export function initialOf(name: string): string {
   return first ? first.toLocaleUpperCase() : "?";
 }
 
+// How many colours people and groups can get (see .hue-0 … in index.css).
+export const HUE_COUNT = 6;
+
+// A steady colour number for a name, so "Sam" is the same colour on every screen.
+export function hueOf(name: string): number {
+  let sum = 0;
+  for (const letter of Array.from(name.trim().toLocaleLowerCase())) sum = (sum * 31 + (letter.codePointAt(0) ?? 0)) % 9973;
+  return sum % HUE_COUNT;
+}
+
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Group ids and invite tokens are UUIDs. Checking first means a mistyped link

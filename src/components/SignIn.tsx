@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } fro
 import { GOOGLE_CLIENT_ID } from "../config";
 import { useAuth } from "../lib/auth";
 import { loadGoogleScript, makeNonce, type GoogleId } from "../lib/googleSignIn";
+import { BrandMark } from "./Brand";
 import { SiteFooter } from "./SiteFooter";
 
 export const BETA_NOTE = "Baantwise is brand new and still being tested, so you may spot a few rough edges.";
@@ -127,7 +128,10 @@ export function AuthMessage() {
 export function SignInPage({ line }: { line: string }) {
   return (
     <main className="landing">
-      <h1>Baantwise</h1>
+      <h1 className="wordmark">
+        <BrandMark size={40} />
+        Baantwise
+      </h1>
       <p className="tagline">{line}</p>
       <section className="account" aria-label="Sign in">
         <SignInButton />

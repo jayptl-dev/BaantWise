@@ -7,7 +7,8 @@ import { FriendsIcon } from "../components/FriendsIcon";
 import { SearchIcon } from "../components/SearchIcon";
 import { FeedbackLine, LoadError, Loading } from "../components/Status";
 import { friendlyError } from "../lib/errors";
-import { GROUP_NAME_MAX, peopleCount } from "../lib/format";
+import { GROUP_NAME_MAX, hueOf, initialOf, peopleCount } from "../lib/format";
+import { Chevron } from "../components/Chevron";
 import { supabase } from "../lib/supabase";
 import type { Feedback } from "../lib/useDbAction";
 import { useRefreshOnReturn } from "../lib/useRefreshOnReturn";
@@ -147,11 +148,17 @@ export default function YourGroups() {
             {state.groups.map((group) => (
               <li key={group.id}>
                 <Link to={`/groups/${group.id}`} className="group-link">
-                  <span className="group-name">
-                    {group.name}
-                    {group.sample && <span className="badge sample-badge">Sample</span>}
+                  <span className={`group-tile hue-${hueOf(group.name)}`} aria-hidden="true">
+                    {initialOf(group.name)}
                   </span>
-                  <span className="muted">{peopleCount(group.people)}</span>
+                  <span className="group-main">
+                    <span className="group-name">
+                      {group.name}
+                      {group.sample && <span className="badge sample-badge">Sample</span>}
+                    </span>
+                    <span className="group-sub">{peopleCount(group.people)}</span>
+                  </span>
+                  <Chevron />
                 </Link>
               </li>
             ))}
