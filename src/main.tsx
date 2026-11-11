@@ -11,6 +11,9 @@ import "@fontsource-variable/shantell-sans/full.css";
 import "@fontsource-variable/caveat";
 import "@fontsource/kalam/devanagari-700.css";
 import "./index.css";
+import { beginSplash } from "./lib/splash";
+
+beginSplash();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
